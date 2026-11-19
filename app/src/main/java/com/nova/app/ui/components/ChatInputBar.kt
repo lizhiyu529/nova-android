@@ -55,14 +55,14 @@ fun ChatInputBar(
         border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)),
     ) {
         Column(
-            modifier = Modifier.padding(start = 18.dp, end = 10.dp, top = 14.dp, bottom = 10.dp),
+            modifier = Modifier.padding(start = 18.dp, end = 10.dp, top = 16.dp, bottom = 12.dp),
         ) {
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 32.dp, max = 132.dp)
+                    .heightIn(min = 38.dp, max = 132.dp)
                     .padding(end = 10.dp),
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     color = MaterialTheme.colorScheme.onSurface,
@@ -83,7 +83,7 @@ fun ChatInputBar(
                     }
                 },
             )
-            Spacer(Modifier.size(8.dp))
+            Spacer(Modifier.size(10.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,

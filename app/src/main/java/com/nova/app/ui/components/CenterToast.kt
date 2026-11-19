@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,8 +39,8 @@ fun CenterToast(
     modifier: Modifier = Modifier,
 ) {
     var snapshot by remember { mutableStateOf("") }
-    if (message != null && message != snapshot) {
-        snapshot = message
+    LaunchedEffect(message) {
+        if (message != null) snapshot = message
     }
 
     Box(
@@ -77,11 +78,11 @@ fun CenterToast(
     }
 }
 
-/** 暗色下用深灰卡片而不是反色（反色会变白）。 */
+/** Toast 用固定深色底 + 浅色字，两种主题下都与背景拉开层次。 */
 @Composable
 private fun toastContainer(): Color {
     val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-    return if (dark) Color(0xFF3A3A3D) else Color(0xFF2F3036)
+    return if (dark) Color(0xFF44444A) else Color(0xFF2F3036)
 }
 
 @Composable

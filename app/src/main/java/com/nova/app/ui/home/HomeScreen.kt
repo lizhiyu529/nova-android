@@ -64,6 +64,7 @@ fun HomeScreen(
     var showCameraPrompt by rememberSaveable { mutableStateOf(false) }
     var showMediaPrompt by rememberSaveable { mutableStateOf(false) }
     var mediaGranted by remember { mutableStateOf(false) }
+    var photosLoading by remember { mutableStateOf(false) }
     val greeting = rememberGreeting()
     val context = LocalContext.current
 
@@ -94,7 +95,9 @@ fun HomeScreen(
     LaunchedEffect(showAttachments, mediaGranted) {
         if (showAttachments) {
             if (hasMediaPermission()) {
+                photosLoading = true
                 recentPhotos = loadRecentPhotos(context)
+                photosLoading = false
             } else {
                 showMediaPrompt = true
             }
@@ -195,6 +198,7 @@ fun HomeScreen(
                     AttachmentPanel(
                         recentPhotos = recentPhotos,
                         selectedPhotos = selectedPhotos,
+                        loading = photosLoading,
                         onTogglePhoto = { uri ->
                             selectedPhotos = if (uri in selectedPhotos) {
                                 selectedPhotos - uri

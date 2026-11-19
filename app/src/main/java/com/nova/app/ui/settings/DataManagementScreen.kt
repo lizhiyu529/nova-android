@@ -56,7 +56,7 @@ fun DataManagementScreen(
                     imageVector = NovaIcons.ChevronRight,
                     contentDescription = null,
                     modifier = Modifier.size(17.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                 )
             }
         }

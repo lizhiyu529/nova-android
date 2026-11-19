@@ -1,7 +1,14 @@
 package com.nova.app.ui.components
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +48,7 @@ import coil.request.ImageRequest
 fun AttachmentPanel(
     recentPhotos: List<String>,
     selectedPhotos: Set<String>,
+    loading: Boolean,
     onTogglePhoto: (String) -> Unit,
     onCamera: () -> Unit,
     onGallery: () -> Unit,
@@ -48,28 +56,36 @@ fun AttachmentPanel(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
-        if (recentPhotos.isNotEmpty()) {
-            Text(
-                text = "最近照片",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 18.dp, top = 10.dp, bottom = 8.dp),
-            )
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                items(recentPhotos) { uri ->
-                    PhotoThumb(
-                        uri = uri,
-                        selected = uri in selectedPhotos,
-                        onClick = { onTogglePhoto(uri) },
-                    )
+        when {
+            loading -> {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    userScrollEnabled = false,
+                ) {
+                    items(6) { PhotoSkeleton() }
                 }
+                Spacer(Modifier.height(14.dp))
             }
-            Spacer(Modifier.height(14.dp))
+            recentPhotos.isNotEmpty() -> {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    items(recentPhotos) { uri ->
+                        PhotoThumb(
+                            uri = uri,
+                            selected = uri in selectedPhotos,
+                            onClick = { onTogglePhoto(uri) },
+                        )
+                    }
+                }
+                Spacer(Modifier.height(14.dp))
+            }
         }
         Row(
             modifier = Modifier
@@ -97,6 +113,26 @@ fun AttachmentPanel(
             )
         }
     }
+}
+
+@Composable
+private fun PhotoSkeleton() {
+    val transition = rememberInfiniteTransition(label = "shimmer")
+    val alpha by transition.animateFloat(
+        initialValue = 0.35f,
+        targetValue = 0.75f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(900, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "shimmerAlpha",
+    )
+    Box(
+        modifier = Modifier
+            .size(72.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = alpha)),
+    )
 }
 
 @Composable

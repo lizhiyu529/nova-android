@@ -269,7 +269,7 @@ fun SettingsScreen(
         Text(
             text = "内容由 AI 生成，请仔细甄别，并合法使用",
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
@@ -369,7 +369,7 @@ private fun SettingsRow(
             imageVector = NovaIcons.ChevronRight,
             contentDescription = null,
             modifier = Modifier.size(17.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
         )
     }
 }

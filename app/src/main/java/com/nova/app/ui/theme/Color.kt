@@ -69,4 +69,8 @@ val DarkColors = darkColorScheme(
     inverseSurface = Color(0xFFF2F2F5),
     inverseOnSurface = Color(0xFF1B1B1E),
     inversePrimary = Color(0xFF3B55D9),
+    error = Color(0xFFFF6B6B),
+    onError = Color(0xFF3B0907),
+    errorContainer = Color(0xFF5C1A17),
+    onErrorContainer = Color(0xFFFFDAD6),
 )

@@ -463,7 +463,7 @@ private fun LogPage(onBack: () -> Unit) {
                 Text(
                     text = if (showCrashes) "还没有崩溃记录" else "还没有运行记录",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 )
             }
         } else {
