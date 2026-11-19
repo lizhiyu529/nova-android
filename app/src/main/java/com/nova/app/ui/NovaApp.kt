@@ -48,7 +48,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.nova.app.BuildConfig
 import com.nova.app.data.AppLogs
 import com.nova.app.ui.components.BackButton
@@ -449,9 +448,8 @@ private fun LogPage(onBack: () -> Unit) {
 
         Text(
             text = path,
-            style = MaterialTheme.typography.bodySmall,
-            fontSize = 11.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         )
 
@@ -484,10 +482,8 @@ private fun LogPage(onBack: () -> Unit) {
                     items(content) { line ->
                         Text(
                             text = line,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.labelSmall,
                             fontFamily = FontFamily.Monospace,
-                            fontSize = 11.sp,
-                            lineHeight = 16.sp,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                     }

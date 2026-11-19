@@ -30,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.nova.app.data.AppLogs
 import com.nova.app.data.CameraFiles
+import com.nova.app.data.loadRecentPhotos
 import com.nova.app.ui.components.AttachmentPanel
 import com.nova.app.ui.components.ChatInputBar
 import com.nova.app.ui.components.NovaIcons
@@ -56,10 +58,17 @@ fun HomeScreen(
 ) {
     var draft by rememberSaveable { mutableStateOf("") }
     var showAttachments by rememberSaveable { mutableStateOf(false) }
-    var pickedImages by remember { mutableStateOf(listOf<String>()) }
+    var selectedPhotos by remember { mutableStateOf(setOf<String>()) }
+    var recentPhotos by remember { mutableStateOf(listOf<String>()) }
     var showCameraPrompt by rememberSaveable { mutableStateOf(false) }
     val greeting = rememberGreeting()
     val context = LocalContext.current
+
+    LaunchedEffect(showAttachments) {
+        if (showAttachments) {
+            recentPhotos = loadRecentPhotos(context)
+        }
+    }
 
     // 拍照目标 URI 需要跨重组保留，否则系统回调时对不上
     val cameraTarget = remember { mutableStateOf<Uri?>(null) }
@@ -68,7 +77,7 @@ fun HomeScreen(
         contract = ActivityResultContracts.PickVisualMedia(),
     ) { uri ->
         uri?.let {
-            pickedImages = pickedImages + it.toString()
+            selectedPhotos = selectedPhotos + it.toString()
             AppLogs.record(context, "picked image ${it.lastPathSegment}")
         }
     }
@@ -85,7 +94,7 @@ fun HomeScreen(
     ) { success ->
         val target = cameraTarget.value
         if (success && target != null) {
-            pickedImages = pickedImages + target.toString()
+            selectedPhotos = selectedPhotos + target.toString()
             AppLogs.record(context, "captured photo")
         } else {
             AppLogs.record(context, "camera cancelled")
@@ -153,7 +162,15 @@ fun HomeScreen(
                         slideOutVertically(tween(200)) { it / 2 },
                 ) {
                     AttachmentPanel(
-                        pickedImages = pickedImages,
+                        recentPhotos = recentPhotos,
+                        selectedPhotos = selectedPhotos,
+                        onTogglePhoto = { uri ->
+                            selectedPhotos = if (uri in selectedPhotos) {
+                                selectedPhotos - uri
+                            } else {
+                                selectedPhotos + uri
+                            }
+                        },
                         onCamera = { onCameraClick() },
                         onGallery = {
                             galleryLauncher.launch(
@@ -162,9 +179,6 @@ fun HomeScreen(
                         },
                         onFile = {
                             fileLauncher.launch(arrayOf("*/*"))
-                        },
-                        onRemoveImage = { path ->
-                            pickedImages = pickedImages - path
                         },
                         modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
                     )

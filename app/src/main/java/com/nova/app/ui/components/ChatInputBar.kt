@@ -35,10 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 private val ButtonTouchTarget = 34.dp
 
@@ -66,10 +64,8 @@ fun ChatInputBar(
                     .fillMaxWidth()
                     .heightIn(min = 32.dp, max = 132.dp)
                     .padding(end = 10.dp),
-                textStyle = TextStyle(
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 16.sp,
-                    lineHeight = 22.sp,
                 ),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
@@ -79,8 +75,8 @@ fun ChatInputBar(
                         if (value.isEmpty()) {
                             Text(
                                 text = "发消息，问点代码上的事",
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 16.sp,
                             )
                         }
                         innerTextField()

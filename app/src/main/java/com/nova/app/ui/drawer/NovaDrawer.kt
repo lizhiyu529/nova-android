@@ -57,17 +57,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.nova.app.ui.components.NovaIcons
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
@@ -275,9 +268,8 @@ private fun DrawerSearchField(
             Spacer(Modifier.width(10.dp))
             Text(
                 text = "搜索对话内容...",
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                fontSize = 16.sp,
-                lineHeight = 20.sp,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
             )
         }
     }
@@ -345,7 +337,7 @@ private fun PinnedHeader(
                 text = "置顶 $count 个对话",
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Normal,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
             )
             Spacer(Modifier.width(5.dp))
             Icon(
@@ -354,7 +346,7 @@ private fun PinnedHeader(
                 modifier = Modifier
                     .size(16.dp)
                     .rotate(if (expanded) 0f else -90f),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
             )
         }
         if (showSelectAction) {
@@ -382,7 +374,7 @@ private fun SectionLabel(text: String) {
         text = text,
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.Normal,
-        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
         modifier = Modifier.padding(start = 10.dp, top = 16.dp, bottom = 6.dp),
     )
 }
@@ -687,7 +679,6 @@ private fun MenuRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
-            fontSize = 15.sp,
             color = tint,
         )
     }
@@ -754,9 +745,8 @@ private fun RenameDialog(
                             .fillMaxWidth()
                             .padding(horizontal = 14.dp, vertical = 12.dp)
                             .focusRequester(focusRequester),
-                        textStyle = TextStyle(
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(
                             color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 16.sp,
                         ),
                         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                         singleLine = true,

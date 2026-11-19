@@ -27,7 +27,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 /**
  * 居中提示。用 message 的「上一帧快照」渲染，
@@ -66,13 +65,12 @@ fun CenterToast(
                         .padding(horizontal = 18.dp, vertical = 11.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(
-                        text = snapshot,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontSize = 14.sp,
-                        color = toastContent(),
-                        textAlign = TextAlign.Center,
-                    )
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.inverseOnSurface,
+                textAlign = TextAlign.Center,
+            )
                 }
             }
         }

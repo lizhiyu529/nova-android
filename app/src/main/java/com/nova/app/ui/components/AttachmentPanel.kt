@@ -5,6 +5,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -37,25 +39,37 @@ import coil.request.ImageRequest
 
 @Composable
 fun AttachmentPanel(
-    pickedImages: List<String>,
+    recentPhotos: List<String>,
+    selectedPhotos: Set<String>,
+    onTogglePhoto: (String) -> Unit,
     onCamera: () -> Unit,
     onGallery: () -> Unit,
     onFile: () -> Unit,
-    onRemoveImage: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
-        if (pickedImages.isNotEmpty()) {
+        if (recentPhotos.isNotEmpty()) {
+            Text(
+                text = "最近照片",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 18.dp, top = 10.dp, bottom = 8.dp),
+            )
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(pickedImages) { path ->
-                    PickedThumb(path = path, onRemove = { onRemoveImage(path) })
+                items(recentPhotos) { uri ->
+                    PhotoThumb(
+                        uri = uri,
+                        selected = uri in selectedPhotos,
+                        onClick = { onTogglePhoto(uri) },
+                    )
                 }
             }
+            Spacer(Modifier.height(14.dp))
         }
         Row(
             modifier = Modifier
@@ -86,39 +100,56 @@ fun AttachmentPanel(
 }
 
 @Composable
-private fun PickedThumb(path: String, onRemove: () -> Unit) {
+private fun PhotoThumb(
+    uri: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
     val context = LocalContext.current
-    Surface(
-        modifier = Modifier.size(64.dp),
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-    ) {
-        androidx.compose.foundation.layout.Box {
-            AsyncImage(
-                model = ImageRequest.Builder(context).data(path).crossfade(true).build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(14.dp)),
-            )
-            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-                Surface(
-                    onClick = onRemove,
+    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+        Surface(
+            onClick = onClick,
+            modifier = Modifier.size(72.dp),
+            shape = RoundedCornerShape(14.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            border = if (selected) {
+                androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+            } else {
+                null
+            },
+        ) {
+            Box {
+                AsyncImage(
+                    model = ImageRequest.Builder(context).data(uri).crossfade(true).build(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(4.dp)
-                        .size(18.dp),
-                    shape = RoundedCornerShape(9.dp),
-                    color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.55f),
-                ) {
-                    androidx.compose.foundation.layout.Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = NovaIcons.Close,
-                            contentDescription = "移除",
-                            modifier = Modifier.size(11.dp),
-                            tint = androidx.compose.ui.graphics.Color.White,
-                        )
+                        .size(72.dp)
+                        .clip(RoundedCornerShape(14.dp)),
+                )
+                if (selected) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(4.dp)
+                            .size(18.dp)
+                            .clip(CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Surface(
+                            modifier = Modifier.size(18.dp),
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary,
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = NovaIcons.Check,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(11.dp),
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -147,7 +178,11 @@ private fun AttachmentAction(
                 .height(76.dp)
                 .scale(scale),
             shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            border = androidx.compose.foundation.BorderStroke(
+                0.8.dp,
+                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f),
+            ),
             interactionSource = interactionSource,
         ) {
             Column(

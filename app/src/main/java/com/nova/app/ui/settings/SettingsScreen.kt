@@ -38,7 +38,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.nova.app.ui.components.NovaIcons
@@ -164,7 +163,6 @@ private fun OptionRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
-            fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
@@ -201,7 +199,7 @@ fun SettingsScreen(
         Text(
             text = "账户",
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
             modifier = Modifier.padding(start = 6.dp, top = 12.dp, bottom = 8.dp),
         )
         SettingsCard {
@@ -220,7 +218,7 @@ fun SettingsScreen(
         Text(
             text = "应用",
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
             modifier = Modifier.padding(start = 6.dp, top = 22.dp, bottom = 8.dp),
         )
         SettingsCard {
@@ -251,7 +249,7 @@ fun SettingsScreen(
         Text(
             text = "关于",
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
             modifier = Modifier.padding(start = 6.dp, top = 22.dp, bottom = 8.dp),
         )
         SettingsCard {
@@ -349,7 +347,6 @@ private fun SettingsRow(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                fontSize = 15.sp,
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
@@ -357,7 +354,6 @@ private fun SettingsRow(
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium,
-                fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 12.dp),
             )
