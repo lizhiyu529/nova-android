@@ -1,5 +1,6 @@
 package com.nova.app.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,12 +47,12 @@ fun ChatInputBar(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(30.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        shadowElevation = 10.dp,
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)),
     ) {
         Column(
-            modifier = Modifier.padding(start = 20.dp, end = 10.dp, top = 14.dp, bottom = 10.dp),
+            modifier = Modifier.padding(start = 18.dp, end = 10.dp, top = 12.dp, bottom = 8.dp),
         ) {
             BasicTextField(
                 value = value,
@@ -81,7 +82,7 @@ fun ChatInputBar(
                     }
                 },
             )
-            Spacer(Modifier.size(10.dp))
+            Spacer(Modifier.size(6.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -106,17 +107,18 @@ private fun AttachButton(onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         modifier = Modifier
-            .size(44.dp)
+            .size(38.dp)
             .scale(scale),
         shape = CircleShape,
-        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
         interactionSource = interactionSource,
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = NovaIcons.Plus,
                 contentDescription = "添加附件",
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(18.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
@@ -136,7 +138,7 @@ private fun SendButton(enabled: Boolean, onClick: () -> Unit) {
         targetValue = if (enabled) {
             MaterialTheme.colorScheme.primary
         } else {
-            MaterialTheme.colorScheme.surfaceContainerHighest
+            MaterialTheme.colorScheme.surfaceContainerLow
         },
         label = "sendContainer",
     )
@@ -144,7 +146,7 @@ private fun SendButton(enabled: Boolean, onClick: () -> Unit) {
         targetValue = if (enabled) {
             MaterialTheme.colorScheme.onPrimary
         } else {
-            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
         },
         label = "sendContent",
     )
@@ -152,17 +154,22 @@ private fun SendButton(enabled: Boolean, onClick: () -> Unit) {
         onClick = { if (enabled) onClick() },
         enabled = enabled,
         modifier = Modifier
-            .size(48.dp)
+            .size(40.dp)
             .scale(scale),
         shape = CircleShape,
         color = container,
+        border = if (enabled) {
+            null
+        } else {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+        },
         interactionSource = interactionSource,
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = NovaIcons.Send,
                 contentDescription = "发送",
-                modifier = Modifier.size(22.dp),
+                modifier = Modifier.size(19.dp),
                 tint = content,
             )
         }

@@ -53,6 +53,7 @@ fun HomeScreen(
                 onAttach = {},
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
+                    .padding(bottom = 8.dp)
                     .navigationBarsPadding()
                     .imePadding(),
             )
