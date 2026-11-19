@@ -1,5 +1,15 @@
 package com.nova.app.ui.home
 
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,8 +33,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.nova.app.data.AppLogs
+import com.nova.app.ui.components.AttachmentPanel
 import com.nova.app.ui.components.ChatInputBar
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.theme.NovaTheme
@@ -35,7 +48,24 @@ fun HomeScreen(
     onNewChat: () -> Unit,
 ) {
     var draft by rememberSaveable { mutableStateOf("") }
+    var showAttachments by rememberSaveable { mutableStateOf(false) }
     val greeting = rememberGreeting()
+    val context = LocalContext.current
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+    ) { uri ->
+        uri?.let { AppLogs.record(context, "picked image ${it.lastPathSegment}") }
+        showAttachments = false
+    }
+    val fileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        uri?.let { AppLogs.record(context, "picked file ${it.lastPathSegment}") }
+        showAttachments = false
+    }
+
+    BackHandler(enabled = showAttachments) { showAttachments = false }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -43,17 +73,44 @@ fun HomeScreen(
             HomeTopBar(onOpenDrawer = onOpenDrawer, onNewChat = onNewChat)
         },
         bottomBar = {
-            ChatInputBar(
-                value = draft,
-                onValueChange = { draft = it },
-                onSend = { draft = "" },
-                onAttach = {},
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 8.dp)
-                    .navigationBarsPadding()
-                    .imePadding(),
-            )
+            Column {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 8.dp),
+                ) {
+                    ChatInputBar(
+                        value = draft,
+                        onValueChange = { draft = it },
+                        onSend = { draft = "" },
+                        onAttach = { showAttachments = !showAttachments },
+                    )
+                }
+                AnimatedVisibility(
+                    visible = showAttachments,
+                    enter = fadeIn(tween(200)) +
+                        slideInVertically(tween(280)) { it / 2 },
+                    exit = fadeOut(tween(160)) +
+                        slideOutVertically(tween(200)) { it / 2 },
+                ) {
+                    AttachmentPanel(
+                        onCamera = {
+                            AppLogs.record(context, "camera picker")
+                            showAttachments = false
+                        },
+                        onGallery = {
+                            galleryLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                            )
+                        },
+                        onFile = {
+                            fileLauncher.launch(arrayOf("*/*"))
+                        },
+                        modifier = Modifier.padding(bottom = 12.dp),
+                    )
+                }
+                Spacer(Modifier.navigationBarsPadding().size(0.dp))
+            }
         },
     ) { innerPadding ->
         Column(

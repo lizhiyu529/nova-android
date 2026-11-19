@@ -928,6 +928,123 @@ object NovaIcons {
         }.build()
     }
 
+    val Camera: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Camera",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.7f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
+            ) {
+                moveTo(3.5f, 8.5f)
+                horizontalLineTo(6.5f)
+                lineTo(8f, 6f)
+                horizontalLineTo(16f)
+                lineTo(17.5f, 8.5f)
+                horizontalLineTo(20.5f)
+                verticalLineTo(18f)
+                curveTo(20.5f, 18.8f, 19.8f, 19.5f, 19f, 19.5f)
+                horizontalLineTo(5f)
+                curveTo(4.2f, 19.5f, 3.5f, 18.8f, 3.5f, 18f)
+                close()
+            }
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.7f,
+            ) {
+                moveTo(12f, 9.5f)
+                curveTo(14.2f, 9.5f, 16f, 11.3f, 16f, 13.5f)
+                curveTo(16f, 15.7f, 14.2f, 17.5f, 12f, 17.5f)
+                curveTo(9.8f, 17.5f, 8f, 15.7f, 8f, 13.5f)
+                curveTo(8f, 11.3f, 9.8f, 9.5f, 12f, 9.5f)
+                close()
+            }
+        }.build()
+    }
+
+    val Gallery: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Gallery",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.7f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
+            ) {
+                moveTo(5f, 3.8f)
+                horizontalLineTo(19f)
+                curveTo(19.7f, 3.8f, 20.2f, 4.3f, 20.2f, 5f)
+                verticalLineTo(19f)
+                curveTo(20.2f, 19.7f, 19.7f, 20.2f, 19f, 20.2f)
+                horizontalLineTo(5f)
+                curveTo(4.3f, 20.2f, 3.8f, 19.7f, 3.8f, 19f)
+                verticalLineTo(5f)
+                curveTo(3.8f, 4.3f, 4.3f, 3.8f, 5f, 3.8f)
+                close()
+            }
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.7f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
+            ) {
+                moveTo(3.8f, 16f)
+                lineTo(8.5f, 11.5f)
+                lineTo(13f, 16f)
+                lineTo(15.5f, 13.5f)
+                lineTo(20.2f, 18f)
+            }
+            path(fill = SolidColor(Color.Black)) {
+                moveTo(15.6f, 7.4f)
+                curveTo(16.5f, 7.4f, 17.2f, 8.1f, 17.2f, 9f)
+                curveTo(17.2f, 9.9f, 16.5f, 10.6f, 15.6f, 10.6f)
+                curveTo(14.7f, 10.6f, 14f, 9.9f, 14f, 9f)
+                curveTo(14f, 8.1f, 14.7f, 7.4f, 15.6f, 7.4f)
+                close()
+            }
+        }.build()
+    }
+
+    val File: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "File",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
+            ) {
+                moveTo(17.5f, 12.5f)
+                lineTo(11.5f, 18.5f)
+                curveTo(10f, 20f, 7.6f, 20f, 6.1f, 18.5f)
+                curveTo(4.6f, 17f, 4.6f, 14.6f, 6.1f, 13.1f)
+                lineTo(12.6f, 6.6f)
+                curveTo(13.6f, 5.6f, 15.2f, 5.6f, 16.2f, 6.6f)
+                curveTo(17.2f, 7.6f, 17.2f, 9.2f, 16.2f, 10.2f)
+                lineTo(10.1f, 16.3f)
+                curveTo(9.6f, 16.8f, 8.8f, 16.8f, 8.3f, 16.3f)
+                curveTo(7.8f, 15.8f, 7.8f, 15f, 8.3f, 14.5f)
+                lineTo(13.8f, 9f)
+            }
+        }.build()
+    }
+
     val Close: ImageVector by lazy {
         ImageVector.Builder(
             name = "Close",

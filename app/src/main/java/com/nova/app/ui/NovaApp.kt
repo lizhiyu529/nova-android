@@ -64,7 +64,9 @@ import com.nova.app.ui.home.HomeScreen
 import com.nova.app.ui.search.SearchScreen
 import com.nova.app.ui.settings.AppLanguage
 import com.nova.app.ui.settings.AppThemeMode
+import com.nova.app.ui.settings.DataManagementScreen
 import com.nova.app.ui.settings.FontSizeScreen
+import com.nova.app.ui.settings.PersonalizeScreen
 import com.nova.app.ui.settings.SettingsScreen
 import com.nova.app.ui.settings.settingsPageBackground
 import kotlinx.coroutines.delay
@@ -72,7 +74,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.util.UUID
 
-private enum class Page { Search, Settings, Logs, FontSize }
+private enum class Page { Search, Settings, Logs, FontSize, Personalize, DataManagement }
 
 @Composable
 fun NovaApp(
@@ -90,6 +92,7 @@ fun NovaApp(
     val referenceTime = remember { LocalDateTime.now() }
     var stack by rememberSaveable { mutableStateOf(listOf<Page>()) }
     var language by rememberSaveable { mutableStateOf(AppLanguage.Chinese) }
+    var autoCollapseThinking by rememberSaveable { mutableStateOf(true) }
     var toast by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(toast) {
@@ -214,6 +217,8 @@ fun NovaApp(
                     onThemeChange = onThemeModeChange,
                     onOpenLogs = { push(Page.Logs) },
                     onFontSize = { push(Page.FontSize) },
+                    onPersonalize = { push(Page.Personalize) },
+                    onDataManagement = { push(Page.DataManagement) },
                     onCheckUpdate = {
                         AppLogs.record(context, "check update")
                         toast = "当前已是最新版本"
@@ -262,6 +267,55 @@ fun NovaApp(
             }
         }
 
+        AnimatedVisibility(
+            visible = current == Page.Personalize,
+            enter = fadeIn(tween(260, delayMillis = 40)) +
+                slideInHorizontally(tween(460, easing = LinearOutSlowInEasing)) { it / 2 },
+            exit = fadeOut(tween(200)) +
+                slideOutHorizontally(tween(300, easing = FastOutSlowInEasing)) { it / 2 },
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = settingsPageBackground(),
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    SettingsTopBar(title = "个性化", onBack = { pop() })
+                    PersonalizeScreen(
+                        autoCollapseThinking = autoCollapseThinking,
+                        onAutoCollapseThinkingChange = { autoCollapseThinking = it },
+                    )
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = current == Page.DataManagement,
+            enter = fadeIn(tween(260, delayMillis = 40)) +
+                slideInHorizontally(tween(460, easing = LinearOutSlowInEasing)) { it / 2 },
+            exit = fadeOut(tween(200)) +
+                slideOutHorizontally(tween(300, easing = FastOutSlowInEasing)) { it / 2 },
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = settingsPageBackground(),
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    SettingsTopBar(title = "数据管理", onBack = { pop() })
+                    DataManagementScreen(
+                        onExportAll = {
+                            AppLogs.record(context, "export all conversations")
+                            toast = "已导出 ${conversations.size} 条对话"
+                        },
+                        onDeleteAll = {
+                            conversations = emptyList()
+                            AppLogs.record(context, "delete all conversations")
+                            toast = "已清空所有对话"
+                        },
+                    )
+                }
+            }
+        }
+
         CenterToast(message = toast)
     }
 }
@@ -275,6 +329,8 @@ private fun SettingsPage(
     onThemeChange: (AppThemeMode) -> Unit,
     onOpenLogs: () -> Unit,
     onFontSize: () -> Unit,
+    onPersonalize: () -> Unit,
+    onDataManagement: () -> Unit,
     onCheckUpdate: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -294,9 +350,9 @@ private fun SettingsPage(
                 onLanguageChange = onLanguageChange,
                 onThemeChange = onThemeChange,
                 onFontSize = onFontSize,
-                onPersonalize = {},
+                onPersonalize = onPersonalize,
                 onAccount = {},
-                onDataManagement = {},
+                onDataManagement = onDataManagement,
                 onCheckUpdate = onCheckUpdate,
                 onOpenLogs = onOpenLogs,
             )
