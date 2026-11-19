@@ -8,6 +8,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +18,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -29,6 +29,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -38,6 +42,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,12 +51,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.nova.app.ui.components.NovaIcons
+import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 
 @Composable
@@ -62,10 +78,17 @@ fun NovaDrawer(
     onOpenConversation: (Conversation) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenSearch: () -> Unit,
+    onRename: (String, String) -> Unit,
+    onTogglePin: (String) -> Unit,
+    onDelete: (Set<String>) -> Unit,
+    onPinSelected: (Set<String>) -> Unit,
 ) {
     var pinnedExpanded by remember { mutableStateOf(true) }
     var selecting by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf(setOf<String>()) }
+    var menuTarget by remember { mutableStateOf<Conversation?>(null) }
+    var renameTarget by remember { mutableStateOf<Conversation?>(null) }
+    var confirmDelete by remember { mutableStateOf<Set<String>?>(null) }
 
     val groups = remember(conversations, now) { groupConversations(conversations, now) }
     val pinnedGroup = groups.firstOrNull { it.first == ConversationGroup.Pinned }
@@ -130,6 +153,7 @@ fun NovaDrawer(
                                         onOpenConversation(conversation)
                                     }
                                 },
+                                onLongClick = { menuTarget = conversation },
                             )
                         }
                     }
@@ -150,6 +174,7 @@ fun NovaDrawer(
                                     onOpenConversation(conversation)
                                 }
                             },
+                            onLongClick = { menuTarget = conversation },
                         )
                     }
                 }
@@ -157,8 +182,15 @@ fun NovaDrawer(
             if (selecting) {
                 SelectionActionBar(
                     count = selected.size,
-                    onPin = { exitSelection() },
-                    onDelete = { exitSelection() },
+                    onPin = {
+                        if (selected.isNotEmpty()) {
+                            onPinSelected(selected)
+                            exitSelection()
+                        }
+                    },
+                    onDelete = {
+                        if (selected.isNotEmpty()) confirmDelete = selected
+                    },
                 )
             } else {
                 DrawerAccountBar(
@@ -167,6 +199,53 @@ fun NovaDrawer(
                 )
             }
         }
+    }
+
+    menuTarget?.let { target ->
+        ConversationMenu(
+            pinned = target.pinned,
+            onDismiss = { menuTarget = null },
+            onRename = {
+                menuTarget = null
+                renameTarget = target
+            },
+            onTogglePin = {
+                menuTarget = null
+                onTogglePin(target.id)
+            },
+            onMultiSelect = {
+                menuTarget = null
+                selecting = true
+                selected = setOf(target.id)
+            },
+            onDelete = {
+                menuTarget = null
+                confirmDelete = setOf(target.id)
+            },
+        )
+    }
+
+    renameTarget?.let { target ->
+        RenameDialog(
+            initial = target.title,
+            onDismiss = { renameTarget = null },
+            onConfirm = { newTitle ->
+                onRename(target.id, newTitle)
+                renameTarget = null
+            },
+        )
+    }
+
+    confirmDelete?.let { ids ->
+        DeleteConfirmDialog(
+            count = ids.size,
+            onDismiss = { confirmDelete = null },
+            onConfirm = {
+                onDelete(ids)
+                confirmDelete = null
+                exitSelection()
+            },
+        )
     }
 }
 
@@ -312,6 +391,7 @@ private fun ConversationRow(
     selecting: Boolean,
     selected: Boolean,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
 ) {
     val shape = RoundedCornerShape(14.dp)
     Row(
@@ -326,7 +406,10 @@ private fun ConversationRow(
                         onValueChange = { onClick() },
                     )
                 } else {
-                    Modifier.clickable(onClick = onClick)
+                    Modifier.combinedClickable(
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                    )
                 },
             )
             .padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
@@ -514,3 +597,297 @@ private fun DrawerAccountBar(
         }
     }
 }
+
+@Composable
+private fun ConversationMenu(
+    pinned: Boolean,
+    onDismiss: () -> Unit,
+    onRename: () -> Unit,
+    onTogglePin: () -> Unit,
+    onMultiSelect: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 56.dp),
+            shape = RoundedCornerShape(20.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 0.dp,
+        ) {
+            Column {
+                MenuRow(
+                    icon = NovaIcons.Edit,
+                    label = "重命名",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    onClick = onRename,
+                )
+                HorizontalDivider(
+                    thickness = 0.7.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                )
+                MenuRow(
+                    icon = NovaIcons.Pin,
+                    label = if (pinned) "取消置顶" else "置顶",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    onClick = onTogglePin,
+                )
+                HorizontalDivider(
+                    thickness = 0.7.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                )
+                MenuRow(
+                    icon = NovaIcons.SelectAll,
+                    label = "多选",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    onClick = onMultiSelect,
+                )
+                HorizontalDivider(
+                    thickness = 0.7.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                )
+                MenuRow(
+                    icon = NovaIcons.Trash,
+                    label = "删除",
+                    tint = MaterialTheme.colorScheme.error,
+                    onClick = onDelete,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MenuRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    tint: Color,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 22.dp, vertical = 17.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(19.dp),
+            tint = tint,
+        )
+        Spacer(Modifier.width(16.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = tint,
+        )
+    }
+}
+
+@Composable
+private fun RenameDialog(
+    initial: String,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit,
+) {
+    var text by remember { mutableStateOf(initial) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        delay(120)
+        focusRequester.requestFocus()
+        keyboard?.show()
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 44.dp),
+            shape = RoundedCornerShape(26.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 0.dp,
+        ) {
+            Column {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 20.dp, bottom = 16.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = "重命名对话",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 18.dp, vertical = 4.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                ) {
+                    BasicTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 14.dp, vertical = 12.dp)
+                            .focusRequester(focusRequester),
+                        textStyle = TextStyle(
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = 16.sp,
+                        ),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                val trimmed = text.trim()
+                                if (trimmed.isNotEmpty()) {
+                                    keyboard?.hide()
+                                    onConfirm(trimmed)
+                                }
+                            },
+                        ),
+                    )
+                }
+                Spacer(Modifier.size(16.dp))
+                HorizontalDivider(
+                    thickness = 0.7.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                )
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    DialogTextAction(
+                        text = "取消",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        onClick = {
+                            keyboard?.hide()
+                            onDismiss()
+                        },
+                        modifier = Modifier.weight(1f),
+                    )
+                    Box(
+                        modifier = Modifier
+                            .width(0.7.dp)
+                            .height(52.dp)
+                            .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)),
+                    )
+                    DialogTextAction(
+                        text = "确认",
+                        color = MaterialTheme.colorScheme.primary,
+                        onClick = {
+                            val trimmed = text.trim()
+                            if (trimmed.isNotEmpty()) {
+                                keyboard?.hide()
+                                onConfirm(trimmed)
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DeleteConfirmDialog(
+    count: Int,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 44.dp),
+            shape = RoundedCornerShape(26.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 0.dp,
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 22.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = "删除选择的 $count 个对话？",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.size(10.dp))
+                Text(
+                    text = "删除后，对话将不可恢复，由该对话生成的分享链接也将失效。",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.size(22.dp))
+                Surface(
+                    onClick = onConfirm,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.error,
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "删除",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onError,
+                        )
+                    }
+                }
+                Spacer(Modifier.size(4.dp))
+                DialogTextAction(
+                    text = "取消",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DialogTextAction(
+    text: String,
+    color: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .height(52.dp)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Medium,
+            color = color,
+        )
+    }
+}
+

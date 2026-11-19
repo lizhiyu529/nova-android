@@ -51,9 +51,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nova.app.BuildConfig
 import com.nova.app.data.AppLogs
+import com.nova.app.ui.components.CenterToast
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.drawer.Conversation
 import com.nova.app.ui.drawer.NovaDrawer
+import com.nova.app.ui.drawer.pinnedAll
+import com.nova.app.ui.drawer.removed
+import com.nova.app.ui.drawer.renamed
+import com.nova.app.ui.drawer.toggledPin
 import com.nova.app.ui.home.HomeScreen
 import com.nova.app.ui.search.SearchScreen
 import com.nova.app.ui.settings.AppLanguage
@@ -79,6 +84,14 @@ fun NovaApp(
     val referenceTime = remember { LocalDateTime.now() }
     var stack by rememberSaveable { mutableStateOf(listOf<Page>()) }
     var language by rememberSaveable { mutableStateOf(AppLanguage.Chinese) }
+    var toast by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(toast) {
+        if (toast != null) {
+            delay(1_800)
+            toast = null
+        }
+    }
 
     val current = stack.lastOrNull()
 
@@ -118,6 +131,22 @@ fun NovaApp(
                             drawerState.close()
                             push(Page.Search)
                         }
+                    },
+                    onRename = { id, title ->
+                        conversations = conversations.renamed(id, title)
+                        AppLogs.record(context, "rename conversation $id")
+                    },
+                    onTogglePin = { id ->
+                        conversations = conversations.toggledPin(id)
+                        AppLogs.record(context, "toggle pin $id")
+                    },
+                    onDelete = { ids ->
+                        conversations = conversations.removed(ids)
+                        AppLogs.record(context, "delete ${ids.size} conversation(s)")
+                    },
+                    onPinSelected = { ids ->
+                        conversations = conversations.pinnedAll(ids)
+                        AppLogs.record(context, "pin ${ids.size} conversation(s)")
                     },
                 )
             },
@@ -198,6 +227,8 @@ fun NovaApp(
                 )
             }
         }
+
+        CenterToast(message = toast)
     }
 }
 
@@ -230,7 +261,10 @@ private fun SettingsPage(
                 onPersonalize = {},
                 onAccount = {},
                 onDataManagement = {},
-                onCheckUpdate = {},
+                onCheckUpdate = {
+                    AppLogs.record(context, "check update")
+                    toast = "当前已是最新版本 ${BuildConfig.VERSION_NAME}"
+                },
                 onOpenLogs = onOpenLogs,
             )
         }

@@ -347,8 +347,41 @@ object NovaIcons {
         }.build()
     }
 
-    val Pin: ImageVector by lazy {
+    val Edit: ImageVector by lazy {
         ImageVector.Builder(
+            name = "Edit",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
+            ) {
+                moveTo(16.5f, 3.8f)
+                curveTo(17.3f, 3f, 18.6f, 3f, 19.4f, 3.8f)
+                lineTo(20.2f, 4.6f)
+                curveTo(21f, 5.4f, 21f, 6.7f, 20.2f, 7.5f)
+                lineTo(8.6f, 19.1f)
+                lineTo(4f, 20f)
+                lineTo(4.9f, 15.4f)
+                close()
+            }
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(15f, 5.3f)
+                lineTo(18.7f, 9f)
+            }
+        }.build()
+    }
+
+    val Pin: ImageVector by lazy {        ImageVector.Builder(
             name = "Pin",
             defaultWidth = 24.dp,
             defaultHeight = 24.dp,

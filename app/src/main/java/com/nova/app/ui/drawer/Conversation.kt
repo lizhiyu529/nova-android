@@ -41,3 +41,24 @@ fun groupConversations(
             if (items.isEmpty()) null else group to items
         }
 }
+
+/** 重命名：保留其余字段，同步刷新时间。 */
+fun List<Conversation>.renamed(id: String, newTitle: String): List<Conversation> {
+    return map { if (it.id == id) it.copy(title = newTitle, updatedAt = LocalDateTime.now()) else it }
+}
+
+/** 切换置顶。 */
+fun List<Conversation>.toggledPin(id: String): List<Conversation> {
+    return map { if (it.id == id) it.copy(pinned = !it.pinned) else it }
+}
+
+/** 批量置顶，已置顶的保持不变。 */
+fun List<Conversation>.pinnedAll(ids: Set<String>): List<Conversation> {
+    return map { if (it.id in ids) it.copy(pinned = true) else it }
+}
+
+/** 批量删除。 */
+fun List<Conversation>.removed(ids: Set<String>): List<Conversation> {
+    return filterNot { it.id in ids }
+}
+
