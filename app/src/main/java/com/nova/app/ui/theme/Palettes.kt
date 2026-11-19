@@ -115,7 +115,7 @@ fun darkSchemeFor(palette: PaletteScheme): ColorScheme {
         onTertiaryContainer = accent.onTertiaryContainer,
         background = base.background,
         onBackground = base.onBackground,
-        surface = base.surface,
+        surface = Color(0xFF1C1C1F),
         onSurface = base.onSurface,
         surfaceVariant = base.surfaceVariant,
         onSurfaceVariant = base.onSurfaceVariant,
@@ -129,13 +129,13 @@ fun darkSchemeFor(palette: PaletteScheme): ColorScheme {
         outline = base.outline,
         outlineVariant = base.outlineVariant,
         scrim = Color(0xFF000000),
-        surfaceBright = Color(0xFF3A3A3E),
+        surfaceBright = Color(0xFF2E2E33),
         surfaceDim = Color(0xFF0E0E10),
-        surfaceContainer = base.surfaceContainer,
-        surfaceContainerHigh = base.surfaceContainerHigh,
-        surfaceContainerHighest = base.surfaceContainerHighest,
-        surfaceContainerLow = base.surfaceContainerLow,
-        surfaceContainerLowest = base.surfaceContainerLowest,
+        surfaceContainer = Color(0xFF17171A),
+        surfaceContainerHigh = Color(0xFF26262A),
+        surfaceContainerHighest = Color(0xFF323236),
+        surfaceContainerLow = Color(0xFF141416),
+        surfaceContainerLowest = Color(0xFF0C0C0E),
     )
 }
 

@@ -3,6 +3,7 @@ package com.nova.app.ui.home
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -61,12 +62,42 @@ fun HomeScreen(
     var selectedPhotos by remember { mutableStateOf(setOf<String>()) }
     var recentPhotos by remember { mutableStateOf(listOf<String>()) }
     var showCameraPrompt by rememberSaveable { mutableStateOf(false) }
+    var showMediaPrompt by rememberSaveable { mutableStateOf(false) }
+    var mediaGranted by remember { mutableStateOf(false) }
     val greeting = rememberGreeting()
     val context = LocalContext.current
 
-    LaunchedEffect(showAttachments) {
+    fun mediaPermission(): String {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+    }
+
+    fun hasMediaPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            mediaPermission(),
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    val mediaPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        AppLogs.record(context, "media permission $granted")
+        if (granted) {
+            mediaGranted = true
+        }
+    }
+
+    LaunchedEffect(showAttachments, mediaGranted) {
         if (showAttachments) {
-            recentPhotos = loadRecentPhotos(context)
+            if (hasMediaPermission()) {
+                recentPhotos = loadRecentPhotos(context)
+            } else {
+                showMediaPrompt = true
+            }
         }
     }
 
@@ -210,6 +241,22 @@ fun HomeScreen(
                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             },
             onDismiss = { showCameraPrompt = false },
+        )
+    }
+
+    if (showMediaPrompt) {
+        PermissionDialog(
+            icon = NovaIcons.Gallery,
+            title = "需要照片权限",
+            message = "展示最近照片方便你快速选择，只读取相册内容，不会上传",
+            onConfirm = {
+                showMediaPrompt = false
+                mediaPermissionLauncher.launch(mediaPermission())
+            },
+            onDismiss = {
+                showMediaPrompt = false
+                recentPhotos = emptyList()
+            },
         )
     }
 }

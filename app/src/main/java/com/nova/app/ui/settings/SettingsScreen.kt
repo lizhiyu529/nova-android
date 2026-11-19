@@ -310,6 +310,10 @@ private fun SettingsCard(content: @Composable () -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         color = settingsCardColor(),
+        border = androidx.compose.foundation.BorderStroke(
+            0.8.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+        ),
     ) {
         Column(modifier = Modifier.padding(vertical = 2.dp)) {
             content()
