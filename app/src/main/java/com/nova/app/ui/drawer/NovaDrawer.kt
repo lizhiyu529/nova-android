@@ -44,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
@@ -271,7 +272,8 @@ private fun PinnedHeader(
         Row(
             modifier = Modifier
                 .weight(1f)
-                .clickable(onClick = onToggle, shape = RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(12.dp))
+                .clickable(onClick = onToggle)
                 .padding(start = 10.dp, top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -333,18 +335,18 @@ private fun ConversationRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 1.dp)
+            .clip(shape)
             .then(
                 if (selecting) {
                     Modifier.toggleable(
                         value = selected,
                         onValueChange = { onClick() },
-                        shape = shape,
                     )
                 } else {
-                    Modifier.clickable(onClick = onClick, shape = shape)
+                    Modifier.clickable(onClick = onClick)
                 },
             )
-            .padding(start = if (selecting) 10.dp else 10.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
+            .padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AnimatedVisibility(
@@ -455,7 +457,8 @@ private fun SelectionAction(
     }
     Row(
         modifier = modifier
-            .clickable(enabled = enabled, onClick = onClick, shape = RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(14.dp))
+            .clickable(enabled = enabled, onClick = onClick)
             .padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -484,8 +487,10 @@ private fun DrawerAccountBar(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .clickable(onClick = onOpenSettings, shape = RoundedCornerShape(16.dp))
-            .padding(start = 16.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
+            .padding(horizontal = 4.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onOpenSettings)
+            .padding(start = 12.dp, end = 6.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Surface(
