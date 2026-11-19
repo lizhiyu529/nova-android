@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 
+@Composable
 private fun isDark(): Boolean = MaterialTheme.colorScheme.surface.luminance() < 0.5f
 
 /** 设置页需要「背景比卡片暗」的层次，Material 的容器色阶在暗色下顺序相反，单独取。 */
