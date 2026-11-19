@@ -2,6 +2,7 @@ package com.nova.app.ui.components
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
@@ -51,7 +52,7 @@ object NovaIcons {
             path(
                 stroke = SolidColor(Color.Black),
                 strokeLineWidth = 1.9f,
-                strokeLineCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
             ) {
                 moveTo(20f, 11.5f)
@@ -66,7 +67,7 @@ object NovaIcons {
             path(
                 stroke = SolidColor(Color.Black),
                 strokeLineWidth = 1.9f,
-                strokeLineCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                strokeLineCap = StrokeCap.Round,
             ) {
                 moveTo(18f, 2.8f)
                 verticalLineTo(8.2f)
@@ -74,7 +75,7 @@ object NovaIcons {
             path(
                 stroke = SolidColor(Color.Black),
                 strokeLineWidth = 1.9f,
-                strokeLineCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                strokeLineCap = StrokeCap.Round,
             ) {
                 moveTo(20.7f, 5.5f)
                 horizontalLineTo(15.3f)
@@ -116,7 +117,7 @@ object NovaIcons {
             path(
                 stroke = SolidColor(Color.Black),
                 strokeLineWidth = 1.9f,
-                strokeLineCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                strokeLineCap = StrokeCap.Round,
             ) {
                 moveTo(12f, 5f)
                 verticalLineTo(19f)
@@ -124,10 +125,160 @@ object NovaIcons {
             path(
                 stroke = SolidColor(Color.Black),
                 strokeLineWidth = 1.9f,
-                strokeLineCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                strokeLineCap = StrokeCap.Round,
             ) {
                 moveTo(5f, 12f)
                 horizontalLineTo(19f)
+            }
+        }.build()
+    }
+
+    val Search: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Search",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(11f, 4f)
+                curveTo(14.9f, 4f, 18f, 7.1f, 18f, 11f)
+                curveTo(18f, 14.9f, 14.9f, 18f, 11f, 18f)
+                curveTo(7.1f, 18f, 4f, 14.9f, 4f, 11f)
+                curveTo(4f, 7.1f, 7.1f, 4f, 11f, 4f)
+                close()
+            }
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(16.2f, 16.2f)
+                lineTo(20f, 20f)
+            }
+        }.build()
+    }
+
+    val ChevronDown: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "ChevronDown",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
+            ) {
+                moveTo(6.5f, 9.5f)
+                lineTo(12f, 15f)
+                lineTo(17.5f, 9.5f)
+            }
+        }.build()
+    }
+
+    val Sort: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Sort",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(4f, 7f)
+                horizontalLineTo(20f)
+            }
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(4f, 12f)
+                horizontalLineTo(14f)
+            }
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(4f, 17f)
+                horizontalLineTo(9f)
+            }
+        }.build()
+    }
+
+    val More: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "More",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(fill = SolidColor(Color.Black)) {
+                moveTo(5.6f, 10.4f)
+                curveTo(6.5f, 10.4f, 7.2f, 11.1f, 7.2f, 12f)
+                curveTo(7.2f, 12.9f, 6.5f, 13.6f, 5.6f, 13.6f)
+                curveTo(4.7f, 13.6f, 4f, 12.9f, 4f, 12f)
+                curveTo(4f, 11.1f, 4.7f, 10.4f, 5.6f, 10.4f)
+                close()
+            }
+            path(fill = SolidColor(Color.Black)) {
+                moveTo(12f, 10.4f)
+                curveTo(12.9f, 10.4f, 13.6f, 11.1f, 13.6f, 12f)
+                curveTo(13.6f, 12.9f, 12.9f, 13.6f, 12f, 13.6f)
+                curveTo(11.1f, 13.6f, 10.4f, 12.9f, 10.4f, 12f)
+                curveTo(10.4f, 11.1f, 11.1f, 10.4f, 12f, 10.4f)
+                close()
+            }
+            path(fill = SolidColor(Color.Black)) {
+                moveTo(18.4f, 10.4f)
+                curveTo(19.3f, 10.4f, 20f, 11.1f, 20f, 12f)
+                curveTo(20f, 12.9f, 19.3f, 13.6f, 18.4f, 13.6f)
+                curveTo(17.5f, 13.6f, 16.8f, 12.9f, 16.8f, 12f)
+                curveTo(16.8f, 11.1f, 17.5f, 10.4f, 18.4f, 10.4f)
+                close()
+            }
+        }.build()
+    }
+
+    val Person: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Person",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(fill = SolidColor(Color.Black)) {
+                moveTo(12f, 4f)
+                curveTo(14.2f, 4f, 16f, 5.8f, 16f, 8f)
+                curveTo(16f, 10.2f, 14.2f, 12f, 12f, 12f)
+                curveTo(9.8f, 12f, 8f, 10.2f, 8f, 8f)
+                curveTo(8f, 5.8f, 9.8f, 4f, 12f, 4f)
+                close()
+            }
+            path(fill = SolidColor(Color.Black)) {
+                moveTo(12f, 14f)
+                curveTo(16f, 14f, 19.5f, 16f, 20f, 19f)
+                curveTo(20.1f, 19.6f, 19.6f, 20f, 19f, 20f)
+                horizontalLineTo(5f)
+                curveTo(4.4f, 20f, 3.9f, 19.6f, 4f, 19f)
+                curveTo(4.5f, 16f, 8f, 14f, 12f, 14f)
+                close()
             }
         }.build()
     }
@@ -143,7 +294,7 @@ object NovaIcons {
             path(
                 stroke = SolidColor(Color.Black),
                 strokeLineWidth = 1.9f,
-                strokeLineCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                strokeLineCap = StrokeCap.Round,
             ) {
                 moveTo(6f, 6f)
                 lineTo(18f, 18f)
@@ -151,7 +302,7 @@ object NovaIcons {
             path(
                 stroke = SolidColor(Color.Black),
                 strokeLineWidth = 1.9f,
-                strokeLineCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                strokeLineCap = StrokeCap.Round,
             ) {
                 moveTo(18f, 6f)
                 lineTo(6f, 18f)

@@ -1,21 +1,7 @@
 package com.nova.app.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,14 +10,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import com.nova.app.ui.drawer.Conversation
+import com.nova.app.ui.drawer.NovaDrawer
 import com.nova.app.ui.home.HomeScreen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Composable
 fun NovaApp() {
@@ -45,78 +30,54 @@ fun NovaApp() {
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var conversations by remember { mutableStateOf(listOf<String>()) }
+    var conversations by remember { mutableStateOf(sampleConversations(now)) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             NovaDrawer(
                 conversations = conversations,
+                now = now,
+                accountEmail = "357******66@qq.com",
                 onNewChat = {
-                    conversations = conversations + "新对话 ${conversations.size + 1}"
+                    conversations = listOf(
+                        Conversation(
+                            id = UUID.randomUUID().toString(),
+                            title = "新对话",
+                            updatedAt = LocalDateTime.now(),
+                        ),
+                    ) + conversations
                     scope.launch { drawerState.close() }
                 },
+                onOpenConversation = { scope.launch { drawerState.close() } },
+                onOpenSettings = { scope.launch { drawerState.close() } },
             )
         },
     ) {
         HomeScreen(
             now = now,
             onOpenDrawer = { scope.launch { drawerState.open() } },
-            onNewChat = { conversations = conversations + "新对话 ${conversations.size + 1}" },
+            onNewChat = {
+                conversations = listOf(
+                    Conversation(
+                        id = UUID.randomUUID().toString(),
+                        title = "新对话",
+                        updatedAt = LocalDateTime.now(),
+                    ),
+                ) + conversations
+            },
         )
     }
 }
 
-@Composable
-private fun NovaDrawer(
-    conversations: List<String>,
-    onNewChat: () -> Unit,
-) {
-    ModalDrawerSheet(
-        drawerShape = RoundedCornerShape(topEnd = 28.dp, bottomEnd = 28.dp),
-        drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-    ) {
-        Column(modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp)) {
-            Spacer(Modifier.height(28.dp))
-            Surface(
-                onClick = onNewChat,
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(20.dp),
-                color = MaterialTheme.colorScheme.primaryContainer,
-            ) {
-                Box(
-                    modifier = Modifier.padding(horizontal = 18.dp),
-                    contentAlignment = Alignment.CenterStart,
-                ) {
-                    Text(
-                        text = "新建对话",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
-                }
-            }
-            Spacer(Modifier.height(20.dp))
-            if (conversations.isEmpty()) {
-                Text(
-                    text = "还没有对话",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                )
-            } else {
-                conversations.asReversed().forEach { title ->
-                    NavigationDrawerItem(
-                        label = { Text(title, maxLines = 1) },
-                        selected = false,
-                        onClick = {},
-                        shape = RoundedCornerShape(16.dp),
-                        colors = NavigationDrawerItemDefaults.colors(
-                            unselectedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                        ),
-                    )
-                }
-            }
-        }
-    }
-}
+private fun sampleConversations(now: LocalDateTime): List<Conversation> = listOf(
+    Conversation("p1", "Kotlin 协程调度器原理", now.minusMinutes(4), pinned = true),
+    Conversation("p2", "Compose 重组性能优化", now.minusMinutes(12), pinned = true),
+    Conversation("p3", "Material 3 动态配色方案", now.minusHours(2)),
+    Conversation("p4", "Gradle 构建速度排查", now.minusHours(6)),
+    Conversation("p5", "Retrofit 拦截器写法", now.minusDays(1).minusHours(2)),
+    Conversation("p6", "Room 数据库迁移", now.minusDays(1).minusHours(5)),
+    Conversation("p7", "协程异常处理最佳实践", now.minusDays(3)),
+    Conversation("p8", "Jetpack Navigation 参数传递", now.minusDays(5)),
+    Conversation("p9", "单元测试 Mock 技巧", now.minusDays(9)),
+)
