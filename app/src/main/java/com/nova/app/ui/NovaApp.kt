@@ -1,7 +1,18 @@
 package com.nova.app.ui
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -10,9 +21,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import com.nova.app.ui.drawer.Conversation
 import com.nova.app.ui.drawer.NovaDrawer
 import com.nova.app.ui.home.HomeScreen
+import com.nova.app.ui.search.SearchScreen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -31,32 +44,61 @@ fun NovaApp() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var conversations by remember { mutableStateOf(sampleConversations(now)) }
+    var searching by remember { mutableStateOf(false) }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            NovaDrawer(
-                conversations = conversations,
-                now = now,
-                accountEmail = "357******66@qq.com",
-                onOpenConversation = { scope.launch { drawerState.close() } },
-                onOpenSettings = { scope.launch { drawerState.close() } },
-            )
-        },
-    ) {
-        HomeScreen(
-            now = now,
-            onOpenDrawer = { scope.launch { drawerState.open() } },
-            onNewChat = {
-                conversations = listOf(
-                    Conversation(
-                        id = UUID.randomUUID().toString(),
-                        title = "新对话",
-                        updatedAt = LocalDateTime.now(),
-                    ),
-                ) + conversations
+    BackHandler(enabled = searching) { searching = false }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                NovaDrawer(
+                    conversations = conversations,
+                    now = now,
+                    accountEmail = "357******66@qq.com",
+                    onOpenConversation = { scope.launch { drawerState.close() } },
+                    onOpenSettings = { scope.launch { drawerState.close() } },
+                    onOpenSearch = {
+                        scope.launch { drawerState.close() }
+                        searching = true
+                    },
+                )
             },
-        )
+        ) {
+            HomeScreen(
+                now = now,
+                onOpenDrawer = { scope.launch { drawerState.open() } },
+                onNewChat = {
+                    conversations = listOf(
+                        Conversation(
+                            id = UUID.randomUUID().toString(),
+                            title = "新对话",
+                            updatedAt = LocalDateTime.now(),
+                        ),
+                    ) + conversations
+                },
+            )
+        }
+
+        AnimatedVisibility(
+            visible = searching,
+            enter = fadeIn(tween(180)) + slideInVertically(tween(260)) { it / 14 },
+            exit = fadeOut(tween(140)) + slideOutVertically(tween(200)) { it / 14 },
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.surface,
+            ) {
+                SearchScreen(
+                    conversations = conversations,
+                    now = now,
+                    onBack = { searching = false },
+                    onOpenConversation = {
+                        searching = false
+                    },
+                )
+            }
+        }
     }
 }
 

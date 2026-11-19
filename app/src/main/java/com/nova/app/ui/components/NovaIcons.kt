@@ -424,6 +424,27 @@ object NovaIcons {
         }.build()
     }
 
+    val Back: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Back",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
+            ) {
+                moveTo(14.5f, 5f)
+                lineTo(7.5f, 12f)
+                lineTo(14.5f, 19f)
+            }
+        }.build()
+    }
+
     val Close: ImageVector by lazy {
         ImageVector.Builder(
             name = "Close",

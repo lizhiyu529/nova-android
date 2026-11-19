@@ -28,7 +28,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -46,8 +45,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -62,16 +59,13 @@ fun NovaDrawer(
     accountEmail: String,
     onOpenConversation: (Conversation) -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenSearch: () -> Unit,
 ) {
-    var query by remember { mutableStateOf("") }
     var pinnedExpanded by remember { mutableStateOf(true) }
     var selecting by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf(setOf<String>()) }
 
-    val filtered = conversations.filter {
-        query.isBlank() || it.title.contains(query, ignoreCase = true)
-    }
-    val groups = groupConversations(filtered, now)
+    val groups = groupConversations(conversations, now)
     val pinnedGroup = groups.firstOrNull { it.first == ConversationGroup.Pinned }
     val restGroups = groups.filterNot { it.first == ConversationGroup.Pinned }
 
@@ -98,8 +92,7 @@ fun NovaDrawer(
                 )
             } else {
                 DrawerSearchField(
-                    query = query,
-                    onQueryChange = { query = it },
+                    onClick = onOpenSearch,
                     modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 4.dp),
                 )
             }
@@ -172,49 +165,32 @@ fun NovaDrawer(
 
 @Composable
 private fun DrawerSearchField(
-    query: String,
-    onQueryChange: (String) -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
+        onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(26.dp),
+        shape = RoundedCornerShape(24.dp),
         color = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 13.dp),
+            modifier = Modifier.padding(horizontal = 15.dp, vertical = 11.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 imageVector = NovaIcons.Search,
                 contentDescription = null,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(19.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Spacer(Modifier.width(11.dp))
-            Box(modifier = Modifier.weight(1f)) {
-                BasicTextField(
-                    value = query,
-                    onValueChange = onQueryChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = TextStyle(
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 16.sp,
-                    ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                    singleLine = true,
-                    decorationBox = { innerTextField ->
-                        if (query.isEmpty()) {
-                            Text(
-                                text = "搜索对话内容...",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
-                                fontSize = 16.sp,
-                            )
-                        }
-                        innerTextField()
-                    },
-                )
-            }
+            Spacer(Modifier.width(10.dp))
+            Text(
+                text = "搜索对话内容...",
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                fontSize = 16.sp,
+                lineHeight = 20.sp,
+            )
         }
     }
 }
@@ -279,18 +255,18 @@ private fun PinnedHeader(
         ) {
             Text(
                 text = "置顶 $count 个对话",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Normal,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
             )
             Spacer(Modifier.width(5.dp))
             Icon(
                 imageVector = NovaIcons.ChevronDown,
                 contentDescription = if (expanded) "收起置顶" else "展开置顶",
                 modifier = Modifier
-                    .size(17.dp)
+                    .size(16.dp)
                     .rotate(if (expanded) 0f else -90f),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
             )
         }
         if (showSelectAction) {
