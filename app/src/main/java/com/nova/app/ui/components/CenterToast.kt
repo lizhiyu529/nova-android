@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.nova.app.ui.theme.Palette
 
 /**
  * 居中提示。用 message 的「上一帧快照」渲染，
@@ -78,15 +79,15 @@ fun CenterToast(
     }
 }
 
-/** Toast 用固定深色底 + 浅色字，两种主题下都与背景拉开层次。 */
+/** 浮层用独立色阶，比卡片再亮一档，两种主题下都能浮起来。 */
 @Composable
 private fun toastContainer(): Color {
     val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-    return if (dark) Color(0xFF5A5A60) else Color(0xFF2F3036)
+    return Palette.overlay(dark)
 }
 
 @Composable
 private fun toastContent(): Color {
-    return Color(0xFFF2F2F5)
+    return Palette.onOverlay()
 }
 

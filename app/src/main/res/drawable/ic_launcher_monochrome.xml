@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 主题图标用的单色剪影：鲸鱼轮廓，跟随系统主题着色。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M36,46c0,-6.6 5.4,-12 12,-12h12c6.6,0 12,5.4 12,12v14c0,6.6 -5.4,12 -12,12h-1.5l6,7h-9.5l-6,-7h-1c-6.6,0 -12,-5.4 -12,-12z" />
+</vector>

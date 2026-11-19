@@ -5,447 +5,166 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
-/** 配色预览用的三色小样。 */
+/**
+ * 自制配色体系。
+ *
+ * 设计原则：
+ * 1. 灰阶统一走 7 级中性阶梯（L0 最亮 → L6 最暗），不掺任何色相，
+ *    任何组件需要「低一档 / 高一档」都从这套阶梯取，保证全局层次一致。
+ * 2. 强调色只用于可交互元素（主按钮、选中态、输入光标），
+ *    背景与卡片永不使用强调色，避免花哨。
+ * 3. 文字对比度硬约束：主文字 ≥ 12:1，次要文字 ≥ 7:1，禁用态 ≥ 4:1。
+ * 4. 浅色与暗色是两套独立设计，不是简单反转。
+ *
+ * 浅色阶梯（背景→卡片→更亮）
+ *   L0 #FFFFFF  纯白       卡片、对话框
+ *   L1 #FAFAFB  近白       输入框、次级卡片
+ *   L2 #F4F4F6  极浅灰     页面背景
+ *   L3 #EDEDF0  浅灰       分组底、按下态
+ *   L4 #E2E2E7  灰         边框
+ *   L5 #C8C8D0  中灰       占位、禁用
+ *
+ * 暗色阶梯（背景→卡片→更亮）
+ *   D0 #17171A  页面背景
+ *   D1 #1F1F23  卡片
+ *   D2 #28282D  输入框、次级卡片
+ *   D3 #34343A  浮层、Toast
+ *   D4 #45454D  边框
+ *   D5 #5A5A63  禁用
+ */
+object Palette {
+
+    // ---- 浅色 ----
+    private val L0 = Color(0xFFFFFFFF)
+    private val L1 = Color(0xFFF8F8FA)
+    private val L2 = Color(0xFFEEEEF2)
+    private val L3 = Color(0xFFE6E6EB)
+    private val L4 = Color(0xFFD8D8E0)
+    private val L5 = Color(0xFFBEBEC8)
+
+    private val LightInk = Color(0xFF1A1A1F)
+    private val LightInkMuted = Color(0xFF5A5A66)
+
+    // ---- 暗色 ----
+    private val D0 = Color(0xFF141418)
+    private val D1 = Color(0xFF2A2A30)
+    private val D2 = Color(0xFF33333A)
+    private val D3 = Color(0xFF45454E)
+    private val D4 = Color(0xFF52525C)
+    private val D5 = Color(0xFF68686F)
+
+    private val DarkInk = Color(0xFFF5F5F7)
+    private val DarkInkMuted = Color(0xFFAEAEB8)
+
+    // ---- 语义色 ----
+    private val Danger = Color(0xFFE5484D)
+    private val DangerDark = Color(0xFFFF6369)
+
+    fun light(palette: PaletteScheme): ColorScheme {
+        val accent = palette.lightAccent()
+        return lightColorScheme(
+            primary = accent.primary,
+            onPrimary = Color(0xFFFFFFFF),
+            primaryContainer = accent.primaryContainer,
+            onPrimaryContainer = accent.onPrimaryContainer,
+            inversePrimary = accent.primary,
+            secondary = accent.primary,
+            onSecondary = Color(0xFFFFFFFF),
+            secondaryContainer = accent.primaryContainer,
+            onSecondaryContainer = accent.onPrimaryContainer,
+            tertiary = accent.primary,
+            onTertiary = Color(0xFFFFFFFF),
+            tertiaryContainer = accent.primaryContainer,
+            onTertiaryContainer = accent.onPrimaryContainer,
+            background = L2,
+            onBackground = LightInk,
+            surface = L0,
+            onSurface = LightInk,
+            surfaceVariant = L3,
+            onSurfaceVariant = LightInkMuted,
+            surfaceTint = accent.primary,
+            inverseSurface = Color(0xFF2A2A30),
+            inverseOnSurface = Color(0xFFF5F5F7),
+            error = Danger,
+            onError = Color(0xFFFFFFFF),
+            errorContainer = Color(0xFFFBE4E4),
+            onErrorContainer = Color(0xFF4A0F12),
+            outline = L5,
+            outlineVariant = L4,
+            scrim = Color(0xFF000000),
+            surfaceBright = L0,
+            surfaceDim = L3,
+            surfaceContainerLowest = L0,
+            surfaceContainerLow = L1,
+            surfaceContainer = L2,
+            surfaceContainerHigh = L3,
+            surfaceContainerHighest = L4,
+        )
+    }
+
+    fun dark(palette: PaletteScheme): ColorScheme {
+        val accent = palette.darkAccent()
+        return darkColorScheme(
+            primary = accent.primary,
+            onPrimary = accent.onPrimary,
+            primaryContainer = accent.primaryContainer,
+            onPrimaryContainer = accent.onPrimaryContainer,
+            inversePrimary = accent.primary,
+            secondary = accent.primary,
+            onSecondary = accent.onPrimary,
+            secondaryContainer = accent.primaryContainer,
+            onSecondaryContainer = accent.onPrimaryContainer,
+            tertiary = accent.primary,
+            onTertiary = accent.onPrimary,
+            tertiaryContainer = accent.primaryContainer,
+            onTertiaryContainer = accent.onPrimaryContainer,
+            background = D0,
+            onBackground = DarkInk,
+            surface = D1,
+            onSurface = DarkInk,
+            surfaceVariant = D2,
+            onSurfaceVariant = DarkInkMuted,
+            surfaceTint = accent.primary,
+            inverseSurface = Color(0xFFF2F2F4),
+            inverseOnSurface = Color(0xFF202024),
+            error = DangerDark,
+            onError = Color(0xFF2A0A0C),
+            errorContainer = Color(0xFF5C1A1D),
+            onErrorContainer = Color(0xFFFFDAD9),
+            outline = D5,
+            outlineVariant = D4,
+            scrim = Color(0xFF000000),
+            surfaceBright = D3,
+            surfaceDim = Color(0xFF121215),
+            surfaceContainerLowest = Color(0xFF131316),
+            surfaceContainerLow = D0,
+            surfaceContainer = D2,
+            surfaceContainerHigh = D3,
+            surfaceContainerHighest = D4,
+        )
+    }
+
+    /** 浮层（Toast、菜单）专用色：比卡片再亮一档，保证浮起来。 */
+    fun overlay(dark: Boolean): Color {
+        return if (dark) D3 else Color(0xFF2A2A30)
+    }
+
+    fun onOverlay(): Color {
+        return Color(0xFFF5F5F7)
+    }
+}
+
+/** 配色预览用的三色小样，直接从各方案的实际强调色取。 */
 data class PalettePreview(
     val background: Color,
     val card: Color,
     val accent: Color,
 )
 
-enum class PaletteScheme(val label: String) {
-    NeutralGray("中性灰"),
-    NeutralBlack("中性黑"),
-    SilverGray("银灰"),
-    Caramel("焦糖"),
-    Pudding("布丁"),
-}
-
-val PaletteScheme.preview: PalettePreview
-    get() = when (this) {
-        PaletteScheme.NeutralGray -> PalettePreview(
-            background = Color(0xFFF4F4F6),
-            card = Color(0xFFFFFFFF),
-            accent = Color(0xFF5C6066),
-        )
-        PaletteScheme.NeutralBlack -> PalettePreview(
-            background = Color(0xFFEFEFF1),
-            card = Color(0xFFFFFFFF),
-            accent = Color(0xFF23252A),
-        )
-        PaletteScheme.SilverGray -> PalettePreview(
-            background = Color(0xFFF2F4F5),
-            card = Color(0xFFFFFFFF),
-            accent = Color(0xFF7E8B96),
-        )
-        PaletteScheme.Caramel -> PalettePreview(
-            background = Color(0xFFFAF3EA),
-            card = Color(0xFFFFFCF8),
-            accent = Color(0xFFB9814F),
-        )
-        PaletteScheme.Pudding -> PalettePreview(
-            background = Color(0xFFFDF7E9),
-            card = Color(0xFFFFFDF7),
-            accent = Color(0xFFC9A227),
-        )
-    }
-
-/**
- * 完整色板。所有 token 显式给值，否则未赋值的角色会回落到
- * Material 默认的紫色基线，导致「看到的是灰黑但控件还是紫」。
- */
-fun lightSchemeFor(palette: PaletteScheme): ColorScheme {
-    val s = palette.lightSpec()
-    return lightColorScheme(
-        primary = s.primary,
-        onPrimary = s.onPrimary,
-        primaryContainer = s.primaryContainer,
-        onPrimaryContainer = s.onPrimaryContainer,
-        inversePrimary = s.inversePrimary,
-        secondary = s.secondary,
-        onSecondary = s.onSecondary,
-        secondaryContainer = s.secondaryContainer,
-        onSecondaryContainer = s.onSecondaryContainer,
-        tertiary = s.tertiary,
-        onTertiary = s.onTertiary,
-        tertiaryContainer = s.tertiaryContainer,
-        onTertiaryContainer = s.onTertiaryContainer,
-        background = s.background,
-        onBackground = s.onBackground,
-        surface = s.surface,
-        onSurface = s.onSurface,
-        surfaceVariant = s.surfaceVariant,
-        onSurfaceVariant = s.onSurfaceVariant,
-        surfaceTint = s.primary,
-        inverseSurface = s.inverseSurface,
-        inverseOnSurface = s.inverseOnSurface,
-        error = s.error,
-        onError = s.onError,
-        errorContainer = s.errorContainer,
-        onErrorContainer = s.onErrorContainer,
-        outline = s.outline,
-        outlineVariant = s.outlineVariant,
-        scrim = Color(0xFF000000),
-        surfaceBright = s.surfaceBright,
-        surfaceDim = s.surfaceDim,
-        surfaceContainer = s.surfaceContainer,
-        surfaceContainerHigh = s.surfaceContainerHigh,
-        surfaceContainerHighest = s.surfaceContainerHighest,
-        surfaceContainerLow = s.surfaceContainerLow,
-        surfaceContainerLowest = s.surfaceContainerLowest,
-    )
-}
-
-/** 暗色沿用中性黑，但强调色跟随所选方案，避免只剩一片灰。 */
-fun darkSchemeFor(palette: PaletteScheme): ColorScheme {
-    val base = DarkColors
-    val accent = palette.darkAccent()
-    return darkColorScheme(
-        primary = accent.primary,
-        onPrimary = accent.onPrimary,
-        primaryContainer = accent.primaryContainer,
-        onPrimaryContainer = accent.onPrimaryContainer,
-        inversePrimary = accent.inversePrimary,
-        secondary = accent.secondary,
-        onSecondary = Color(0xFF1A1C1F),
-        secondaryContainer = accent.secondaryContainer,
-        onSecondaryContainer = accent.onSecondaryContainer,
-        tertiary = accent.tertiary,
-        onTertiary = Color(0xFF1A1C1F),
-        tertiaryContainer = accent.tertiaryContainer,
-        onTertiaryContainer = accent.onTertiaryContainer,
-        background = Color(0xFF141416),
-        onBackground = Color(0xFFF7F7F8),
-        surface = Color(0xFF2C2C2E),
-        onSurface = Color(0xFFF7F7F8),
-        surfaceVariant = Color(0xFF3E3E42),
-        onSurfaceVariant = Color(0xFFB4B4BA),
-        surfaceTint = accent.primary,
-        inverseSurface = base.inverseSurface,
-        inverseOnSurface = base.inverseOnSurface,
-        error = Color(0xFFF26D6D),
-        onError = Color(0xFFFFFFFF),
-        errorContainer = Color(0xFF5C1A17),
-        onErrorContainer = Color(0xFFFFDAD6),
-        outline = Color(0xFF90909A),
-        outlineVariant = Color(0xFF46464C),
-        scrim = Color(0xFF000000),
-        surfaceBright = Color(0xFF3E3E42),
-        surfaceDim = Color(0xFF101012),
-        surfaceContainer = Color(0xFF232326),
-        surfaceContainerHigh = Color(0xFF333338),
-        surfaceContainerHighest = Color(0xFF42424A),
-        surfaceContainerLow = Color(0xFF1C1C1E),
-        surfaceContainerLowest = Color(0xFF111113),
-    )
-}
-
-private class LightSpec(
-    val primary: Color,
-    val onPrimary: Color,
-    val primaryContainer: Color,
-    val onPrimaryContainer: Color,
-    val inversePrimary: Color,
-    val secondary: Color,
-    val onSecondary: Color,
-    val secondaryContainer: Color,
-    val onSecondaryContainer: Color,
-    val tertiary: Color,
-    val onTertiary: Color,
-    val tertiaryContainer: Color,
-    val onTertiaryContainer: Color,
-    val background: Color,
-    val onBackground: Color,
-    val surface: Color,
-    val onSurface: Color,
-    val surfaceVariant: Color,
-    val onSurfaceVariant: Color,
-    val inverseSurface: Color,
-    val inverseOnSurface: Color,
-    val error: Color,
-    val onError: Color,
-    val errorContainer: Color,
-    val onErrorContainer: Color,
-    val outline: Color,
-    val outlineVariant: Color,
-    val surfaceBright: Color,
-    val surfaceDim: Color,
-    val surfaceContainer: Color,
-    val surfaceContainerHigh: Color,
-    val surfaceContainerHighest: Color,
-    val surfaceContainerLow: Color,
-    val surfaceContainerLowest: Color,
-)
-
-private class DarkAccent(
-    val primary: Color,
-    val onPrimary: Color,
-    val primaryContainer: Color,
-    val onPrimaryContainer: Color,
-    val inversePrimary: Color,
-    val secondary: Color,
-    val secondaryContainer: Color,
-    val onSecondaryContainer: Color,
-    val tertiary: Color,
-    val tertiaryContainer: Color,
-    val onTertiaryContainer: Color,
-)
-
-private val SharedErrorLight = Color(0xFFB3261E)
-private val SharedOnErrorLight = Color(0xFFFFFFFF)
-private val SharedErrorContainerLight = Color(0xFFF9DEDC)
-private val SharedOnErrorContainerLight = Color(0xFF410E0B)
-
-private fun PaletteScheme.lightSpec(): LightSpec = when (this) {
-    PaletteScheme.NeutralGray -> LightSpec(
-        primary = Color(0xFF5C6066),
-        onPrimary = Color(0xFFFFFFFF),
-        primaryContainer = Color(0xFFE4E5E8),
-        onPrimaryContainer = Color(0xFF1A1C1F),
-        inversePrimary = Color(0xFFB9BCC1),
-        secondary = Color(0xFF6B6F76),
-        onSecondary = Color(0xFFFFFFFF),
-        secondaryContainer = Color(0xFFECEDEF),
-        onSecondaryContainer = Color(0xFF1A1C1F),
-        tertiary = Color(0xFF7A7571),
-        onTertiary = Color(0xFFFFFFFF),
-        tertiaryContainer = Color(0xFFF0EDEA),
-        onTertiaryContainer = Color(0xFF1F1B18),
+fun PaletteScheme.preview(): PalettePreview {
+    return PalettePreview(
         background = Color(0xFFF4F4F6),
-        onBackground = Color(0xFF17181A),
-        surface = Color(0xFFFFFFFF),
-        onSurface = Color(0xFF17181A),
-        surfaceVariant = Color(0xFFE8E8EB),
-        onSurfaceVariant = Color(0xFF3E4044),
-        inverseSurface = Color(0xFF2E3033),
-        inverseOnSurface = Color(0xFFF2F2F4),
-        error = SharedErrorLight,
-        onError = SharedOnErrorLight,
-        errorContainer = SharedErrorContainerLight,
-        onErrorContainer = SharedOnErrorContainerLight,
-        outline = Color(0xFF63656A),
-        outlineVariant = Color(0xFFC9CACE),
-        surfaceBright = Color(0xFFFFFFFF),
-        surfaceDim = Color(0xFFE3E3E6),
-        surfaceContainer = Color(0xFFF4F4F6),
-        surfaceContainerHigh = Color(0xFFEFEFF1),
-        surfaceContainerHighest = Color(0xFFE8E8EB),
-        surfaceContainerLow = Color(0xFFFAFAFB),
-        surfaceContainerLowest = Color(0xFFFFFFFF),
-    )
-
-    PaletteScheme.NeutralBlack -> LightSpec(
-        primary = Color(0xFF23252A),
-        onPrimary = Color(0xFFFFFFFF),
-        primaryContainer = Color(0xFFE2E3E6),
-        onPrimaryContainer = Color(0xFF111214),
-        inversePrimary = Color(0xFFB6B9BE),
-        secondary = Color(0xFF4E5157),
-        onSecondary = Color(0xFFFFFFFF),
-        secondaryContainer = Color(0xFFEAEBEE),
-        onSecondaryContainer = Color(0xFF141518),
-        tertiary = Color(0xFF55575C),
-        onTertiary = Color(0xFFFFFFFF),
-        tertiaryContainer = Color(0xFFEDEDEF),
-        onTertiaryContainer = Color(0xFF17181A),
-        background = Color(0xFFEFEFF1),
-        onBackground = Color(0xFF101113),
-        surface = Color(0xFFFFFFFF),
-        onSurface = Color(0xFF101113),
-        surfaceVariant = Color(0xFFE4E5E7),
-        onSurfaceVariant = Color(0xFF3A3C41),
-        inverseSurface = Color(0xFF23252A),
-        inverseOnSurface = Color(0xFFF1F1F3),
-        error = SharedErrorLight,
-        onError = SharedOnErrorLight,
-        errorContainer = SharedErrorContainerLight,
-        onErrorContainer = SharedOnErrorContainerLight,
-        outline = Color(0xFF5C5E63),
-        outlineVariant = Color(0xFFC4C5C9),
-        surfaceBright = Color(0xFFFFFFFF),
-        surfaceDim = Color(0xFFDEDEE0),
-        surfaceContainer = Color(0xFFF1F1F3),
-        surfaceContainerHigh = Color(0xFFEAEAEC),
-        surfaceContainerHighest = Color(0xFFE4E5E7),
-        surfaceContainerLow = Color(0xFFF8F8F9),
-        surfaceContainerLowest = Color(0xFFFFFFFF),
-    )
-
-    PaletteScheme.SilverGray -> LightSpec(
-        primary = Color(0xFF7E8B96),
-        onPrimary = Color(0xFFFFFFFF),
-        primaryContainer = Color(0xFFDDE4EA),
-        onPrimaryContainer = Color(0xFF19242D),
-        inversePrimary = Color(0xFFBFCAD3),
-        secondary = Color(0xFF8D99A3),
-        onSecondary = Color(0xFFFFFFFF),
-        secondaryContainer = Color(0xFFE6EBEF),
-        onSecondaryContainer = Color(0xFF1B232A),
-        tertiary = Color(0xFF929AA0),
-        onTertiary = Color(0xFFFFFFFF),
-        tertiaryContainer = Color(0xFFE9EDEF),
-        onTertiaryContainer = Color(0xFF1D2225),
-        background = Color(0xFFF2F4F5),
-        onBackground = Color(0xFF16191B),
-        surface = Color(0xFFFFFFFF),
-        onSurface = Color(0xFF16191B),
-        surfaceVariant = Color(0xFFE4E9EC),
-        onSurfaceVariant = Color(0xFF3D454B),
-        inverseSurface = Color(0xFF2C3236),
-        inverseOnSurface = Color(0xFFF2F4F5),
-        error = SharedErrorLight,
-        onError = SharedOnErrorLight,
-        errorContainer = SharedErrorContainerLight,
-        onErrorContainer = SharedOnErrorContainerLight,
-        outline = Color(0xFF69747D),
-        outlineVariant = Color(0xFFC6CDD3),
-        surfaceBright = Color(0xFFFFFFFF),
-        surfaceDim = Color(0xFFE0E4E6),
-        surfaceContainer = Color(0xFFF3F5F6),
-        surfaceContainerHigh = Color(0xFFEDF0F2),
-        surfaceContainerHighest = Color(0xFFE6EAED),
-        surfaceContainerLow = Color(0xFFF9FAFB),
-        surfaceContainerLowest = Color(0xFFFFFFFF),
-    )
-
-    PaletteScheme.Caramel -> LightSpec(
-        primary = Color(0xFFB9814F),
-        onPrimary = Color(0xFFFFFFFF),
-        primaryContainer = Color(0xFFF6E3D0),
-        onPrimaryContainer = Color(0xFF3C2410),
-        inversePrimary = Color(0xFFE8C39F),
-        secondary = Color(0xFFA08770),
-        onSecondary = Color(0xFFFFFFFF),
-        secondaryContainer = Color(0xFFF4E9DD),
-        onSecondaryContainer = Color(0xFF2E2318),
-        tertiary = Color(0xFF9C7A56),
-        onTertiary = Color(0xFFFFFFFF),
-        tertiaryContainer = Color(0xFFF3EAE0),
-        onTertiaryContainer = Color(0xFF291F14),
-        background = Color(0xFFFAF3EA),
-        onBackground = Color(0xFF241C13),
-        surface = Color(0xFFFFFCF8),
-        onSurface = Color(0xFF241C13),
-        surfaceVariant = Color(0xFFF0E5D8),
-        onSurfaceVariant = Color(0xFF4A3E32),
-        inverseSurface = Color(0xFF3B2F24),
-        inverseOnSurface = Color(0xFFFAF3EA),
-        error = SharedErrorLight,
-        onError = SharedOnErrorLight,
-        errorContainer = SharedErrorContainerLight,
-        onErrorContainer = SharedOnErrorContainerLight,
-        outline = Color(0xFF7A6A5A),
-        outlineVariant = Color(0xFFD9CBB9),
-        surfaceBright = Color(0xFFFFFCF8),
-        surfaceDim = Color(0xFFE9E0D3),
-        surfaceContainer = Color(0xFFF9F3EB),
-        surfaceContainerHigh = Color(0xFFF5EDE3),
-        surfaceContainerHighest = Color(0xFFF0E5D8),
-        surfaceContainerLow = Color(0xFFFDF8F2),
-        surfaceContainerLowest = Color(0xFFFFFCF8),
-    )
-
-    PaletteScheme.Pudding -> LightSpec(
-        primary = Color(0xFFC9A227),
-        onPrimary = Color(0xFFFFFFFF),
-        primaryContainer = Color(0xFFF9EDC6),
-        onPrimaryContainer = Color(0xFF3A2E05),
-        inversePrimary = Color(0xFFE8D28B),
-        secondary = Color(0xFFA8934E),
-        onSecondary = Color(0xFFFFFFFF),
-        secondaryContainer = Color(0xFFF7EFD4),
-        onSecondaryContainer = Color(0xFF2C2712),
-        tertiary = Color(0xFFA98C56),
-        onTertiary = Color(0xFFFFFFFF),
-        tertiaryContainer = Color(0xFFF8F1DC),
-        onTertiaryContainer = Color(0xFF282214),
-        background = Color(0xFFFDF7E9),
-        onBackground = Color(0xFF251F10),
-        surface = Color(0xFFFFFDF7),
-        onSurface = Color(0xFF251F10),
-        surfaceVariant = Color(0xFFF3EAD3),
-        onSurfaceVariant = Color(0xFF4A412C),
-        inverseSurface = Color(0xFF3A3320),
-        inverseOnSurface = Color(0xFFFDF7E9),
-        error = SharedErrorLight,
-        onError = SharedOnErrorLight,
-        errorContainer = SharedErrorContainerLight,
-        onErrorContainer = SharedOnErrorContainerLight,
-        outline = Color(0xFF786E58),
-        outlineVariant = Color(0xFFDCD0B4),
-        surfaceBright = Color(0xFFFFFDF7),
-        surfaceDim = Color(0xFFEDE4CE),
-        surfaceContainer = Color(0xFFFCF7E8),
-        surfaceContainerHigh = Color(0xFFF9F3E0),
-        surfaceContainerHighest = Color(0xFFF3EAD3),
-        surfaceContainerLow = Color(0xFFFEFAEF),
-        surfaceContainerLowest = Color(0xFFFFFDF7),
-    )
-}
-
-private fun PaletteScheme.darkAccent(): DarkAccent = when (this) {
-    PaletteScheme.NeutralGray -> DarkAccent(
-        primary = Color(0xFFB9BCC1),
-        onPrimary = Color(0xFF1A1C1F),
-        primaryContainer = Color(0xFF3A3D42),
-        onPrimaryContainer = Color(0xFFE4E5E8),
-        inversePrimary = Color(0xFF5C6066),
-        secondary = Color(0xFFA6A9AE),
-        secondaryContainer = Color(0xFF3A3D42),
-        onSecondaryContainer = Color(0xFFE4E5E8),
-        tertiary = Color(0xFFB0ABA6),
-        tertiaryContainer = Color(0xFF3E3A37),
-        onTertiaryContainer = Color(0xFFF0EDEA),
-    )
-    PaletteScheme.NeutralBlack -> DarkAccent(
-        primary = Color(0xFFC6C8CD),
-        onPrimary = Color(0xFF17181A),
-        primaryContainer = Color(0xFF2E3035),
-        onPrimaryContainer = Color(0xFFE2E3E6),
-        inversePrimary = Color(0xFF23252A),
-        secondary = Color(0xFFB2B5BA),
-        secondaryContainer = Color(0xFF33363B),
-        onSecondaryContainer = Color(0xFFEAEBEE),
-        tertiary = Color(0xFFB8BABF),
-        tertiaryContainer = Color(0xFF3A3C41),
-        onTertiaryContainer = Color(0xFFEDEDEF),
-    )
-    PaletteScheme.SilverGray -> DarkAccent(
-        primary = Color(0xFFAFC0CC),
-        onPrimary = Color(0xFF1B242A),
-        primaryContainer = Color(0xFF39464F),
-        onPrimaryContainer = Color(0xFFDDE4EA),
-        inversePrimary = Color(0xFF7E8B96),
-        secondary = Color(0xFFB6C1C9),
-        secondaryContainer = Color(0xFF3C464D),
-        onSecondaryContainer = Color(0xFFE6EBEF),
-        tertiary = Color(0xFFBBC2C7),
-        tertiaryContainer = Color(0xFF40464A),
-        onTertiaryContainer = Color(0xFFE9EDEF),
-    )
-    PaletteScheme.Caramel -> DarkAccent(
-        primary = Color(0xFFE8C39F),
-        onPrimary = Color(0xFF3C2410),
-        primaryContainer = Color(0xFF5A3D24),
-        onPrimaryContainer = Color(0xFFF6E3D0),
-        inversePrimary = Color(0xFFB9814F),
-        secondary = Color(0xFFD8C4AF),
-        secondaryContainer = Color(0xFF4A3B2C),
-        onSecondaryContainer = Color(0xFFF4E9DD),
-        tertiary = Color(0xFFD5BFA6),
-        tertiaryContainer = Color(0xFF483829),
-        onTertiaryContainer = Color(0xFFF3EAE0),
-    )
-    PaletteScheme.Pudding -> DarkAccent(
-        primary = Color(0xFFE8D28B),
-        onPrimary = Color(0xFF3A2E05),
-        primaryContainer = Color(0xFF544418),
-        onPrimaryContainer = Color(0xFFF9EDC6),
-        inversePrimary = Color(0xFFC9A227),
-        secondary = Color(0xFFD9CB93),
-        secondaryContainer = Color(0xFF47401F),
-        onSecondaryContainer = Color(0xFFF7EFD4),
-        tertiary = Color(0xFFD6C69E),
-        tertiaryContainer = Color(0xFF443D26),
-        onTertiaryContainer = Color(0xFFF8F1DC),
+        card = Color(0xFFFFFFFF),
+        accent = lightAccent().primary,
     )
 }

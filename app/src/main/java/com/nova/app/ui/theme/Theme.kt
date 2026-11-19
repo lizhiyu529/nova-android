@@ -27,7 +27,7 @@ fun NovaTheme(
     }
     CompositionLocalProvider(LocalDensity provides scaledDensity) {
         MaterialExpressiveTheme(
-            colorScheme = if (darkTheme) darkSchemeFor(palette) else lightSchemeFor(palette),
+            colorScheme = if (darkTheme) Palette.dark(palette) else Palette.light(palette),
             motionScheme = MotionScheme.expressive(),
             shapes = NovaShapes,
             typography = NovaTypography,

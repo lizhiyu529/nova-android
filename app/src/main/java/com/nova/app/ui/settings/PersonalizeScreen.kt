@@ -119,7 +119,7 @@ private fun PaletteCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val preview = scheme.preview
+    val preview = scheme.preview()
     Surface(
         onClick = onClick,
         modifier = modifier,
