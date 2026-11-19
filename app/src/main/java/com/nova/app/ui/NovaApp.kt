@@ -28,10 +28,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -317,26 +316,21 @@ private fun LogPage(onBack: () -> Unit) {
             }
         }
 
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 6.dp),
+        PrimaryTabRow(
+            selectedTabIndex = if (showCrashes) 1 else 0,
+            modifier = Modifier.fillMaxWidth(),
+            containerColor = settingsPageBackground(),
+            contentColor = MaterialTheme.colorScheme.onSurface,
         ) {
-            SegmentedButton(
+            Tab(
                 selected = !showCrashes,
                 onClick = { showCrashes = false },
-                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                modifier = Modifier.weight(1f),
-                icon = {},
-                label = { Text("运行记录") },
+                text = { Text("运行记录") },
             )
-            SegmentedButton(
+            Tab(
                 selected = showCrashes,
                 onClick = { showCrashes = true },
-                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                modifier = Modifier.weight(1f),
-                icon = {},
-                label = { Text("崩溃记录") },
+                text = { Text("崩溃记录") },
             )
         }
 

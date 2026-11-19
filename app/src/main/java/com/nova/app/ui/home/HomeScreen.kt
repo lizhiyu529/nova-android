@@ -63,7 +63,10 @@ fun HomeScreen(
                 .padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.Center,
         ) {
-            GreetingBlock(greeting = greeting)
+            GreetingBlock(
+                greeting = greeting,
+                modifier = Modifier.padding(bottom = 120.dp),
+            )
         }
     }
 }
