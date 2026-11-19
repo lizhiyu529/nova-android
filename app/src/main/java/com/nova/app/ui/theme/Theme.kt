@@ -11,10 +11,11 @@ import androidx.compose.ui.unit.sp
 fun NovaTheme(
     darkTheme: Boolean,
     fontScale: Float = 1f,
+    palette: PaletteScheme = PaletteScheme.NeutralGray,
     content: @Composable () -> Unit,
 ) {
     MaterialExpressiveTheme(
-        colorScheme = if (darkTheme) DarkColors else LightColors,
+        colorScheme = if (darkTheme) darkSchemeFor(palette) else lightSchemeFor(palette),
         motionScheme = MotionScheme.expressive(),
         shapes = NovaShapes,
         typography = NovaTypography.scaled(fontScale),

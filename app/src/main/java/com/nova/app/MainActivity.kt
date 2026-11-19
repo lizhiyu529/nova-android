@@ -19,6 +19,7 @@ import com.nova.app.ui.NovaApp
 import com.nova.app.ui.settings.AppThemeMode
 import com.nova.app.ui.settings.DefaultFontScaleIndex
 import com.nova.app.ui.settings.FontScaleSteps
+import com.nova.app.ui.theme.PaletteScheme
 import com.nova.app.ui.theme.NovaTheme
 
 class MainActivity : ComponentActivity() {
@@ -33,6 +34,7 @@ class MainActivity : ComponentActivity() {
             var themeMode by remember { mutableStateOf(AppThemeMode.System) }
             var fontScaleIndex by remember { mutableIntStateOf(DefaultFontScaleIndex) }
             var followSystemFont by remember { mutableStateOf(false) }
+            var palette by remember { mutableStateOf(PaletteScheme.NeutralGray) }
 
             val darkTheme = when (themeMode) {
                 AppThemeMode.System -> systemDark
@@ -53,7 +55,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            NovaTheme(darkTheme = darkTheme, fontScale = fontScale) {
+            NovaTheme(darkTheme = darkTheme, fontScale = fontScale, palette = palette) {
                 NovaApp(
                     themeMode = themeMode,
                     onThemeModeChange = { themeMode = it },
@@ -61,6 +63,8 @@ class MainActivity : ComponentActivity() {
                     followSystemFont = followSystemFont,
                     onFontScaleChange = { fontScaleIndex = it },
                     onFollowSystemFontChange = { followSystemFont = it },
+                    palette = palette,
+                    onPaletteChange = { palette = it },
                 )
             }
         }

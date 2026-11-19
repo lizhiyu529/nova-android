@@ -60,6 +60,7 @@ import com.nova.app.ui.drawer.pinnedAll
 import com.nova.app.ui.drawer.removed
 import com.nova.app.ui.drawer.renamed
 import com.nova.app.ui.drawer.toggledPin
+import com.nova.app.ui.theme.PaletteScheme
 import com.nova.app.ui.home.HomeScreen
 import com.nova.app.ui.search.SearchScreen
 import com.nova.app.ui.settings.AppLanguage
@@ -84,6 +85,8 @@ fun NovaApp(
     followSystemFont: Boolean,
     onFontScaleChange: (Int) -> Unit,
     onFollowSystemFontChange: (Boolean) -> Unit,
+    palette: PaletteScheme,
+    onPaletteChange: (PaletteScheme) -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -283,6 +286,8 @@ fun NovaApp(
                     PersonalizeScreen(
                         autoCollapseThinking = autoCollapseThinking,
                         onAutoCollapseThinkingChange = { autoCollapseThinking = it },
+                        palette = palette,
+                        onPaletteChange = onPaletteChange,
                     )
                 }
             }

@@ -8,15 +8,15 @@ import androidx.compose.ui.graphics.luminance
 @Composable
 private fun isDark(): Boolean = MaterialTheme.colorScheme.surface.luminance() < 0.5f
 
-/** 设置页需要「背景比卡片暗」的层次，Material 的容器色阶在暗色下顺序相反，单独取。 */
+/** 设置页背景：比卡片低一档的容器色。 */
 @Composable
-fun settingsPageBackground(): Color =
-    if (isDark()) Color(0xFF121214) else Color(0xFFF2F2F5)
+fun settingsPageBackground(): Color = MaterialTheme.colorScheme.background
 
+/** 设置卡片：主题 surface，随配色方案变化。 */
 @Composable
-fun settingsCardColor(): Color =
-    if (isDark()) Color(0xFF1E1E21) else Color(0xFFFFFFFF)
+fun settingsCardColor(): Color = MaterialTheme.colorScheme.surface
 
+/** 对话框：比卡片再亮一档，暗色下用高一阶容器色区分。 */
 @Composable
 fun settingsDialogColor(): Color =
-    if (isDark()) Color(0xFF2B2B2E) else Color(0xFFFFFFFF)
+    if (isDark()) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surface

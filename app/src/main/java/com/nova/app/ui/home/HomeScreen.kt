@@ -1,5 +1,8 @@
 package com.nova.app.ui.home
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -29,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -36,10 +40,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.nova.app.data.AppLogs
+import com.nova.app.data.CameraFiles
 import com.nova.app.ui.components.AttachmentPanel
 import com.nova.app.ui.components.ChatInputBar
 import com.nova.app.ui.components.NovaIcons
+import com.nova.app.ui.components.PermissionDialog
 import com.nova.app.ui.theme.NovaTheme
 
 @Composable
@@ -49,20 +56,69 @@ fun HomeScreen(
 ) {
     var draft by rememberSaveable { mutableStateOf("") }
     var showAttachments by rememberSaveable { mutableStateOf(false) }
+    var pickedImages by remember { mutableStateOf(listOf<String>()) }
+    var showCameraPrompt by rememberSaveable { mutableStateOf(false) }
     val greeting = rememberGreeting()
     val context = LocalContext.current
+
+    // 拍照目标 URI 需要跨重组保留，否则系统回调时对不上
+    val cameraTarget = remember { mutableStateOf<Uri?>(null) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
     ) { uri ->
-        uri?.let { AppLogs.record(context, "picked image ${it.lastPathSegment}") }
-        showAttachments = false
+        uri?.let {
+            pickedImages = pickedImages + it.toString()
+            AppLogs.record(context, "picked image ${it.lastPathSegment}")
+        }
     }
     val fileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
     ) { uri ->
-        uri?.let { AppLogs.record(context, "picked file ${it.lastPathSegment}") }
-        showAttachments = false
+        uri?.let {
+            AppLogs.record(context, "picked file ${it.lastPathSegment}")
+            showAttachments = false
+        }
+    }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+    ) { success ->
+        val target = cameraTarget.value
+        if (success && target != null) {
+            pickedImages = pickedImages + target.toString()
+            AppLogs.record(context, "captured photo")
+        } else {
+            AppLogs.record(context, "camera cancelled")
+        }
+        cameraTarget.value = null
+    }
+
+    fun launchCamera() {
+        val (_, uri) = CameraFiles.createCaptureTarget(context)
+        cameraTarget.value = uri
+        cameraLauncher.launch(uri)
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (granted) {
+            launchCamera()
+        } else {
+            AppLogs.record(context, "camera permission denied")
+        }
+    }
+
+    fun onCameraClick() {
+        val granted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CAMERA,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (granted) {
+            launchCamera()
+        } else {
+            showCameraPrompt = true
+        }
     }
 
     BackHandler(enabled = showAttachments) { showAttachments = false }
@@ -73,11 +129,14 @@ fun HomeScreen(
             HomeTopBar(onOpenDrawer = onOpenDrawer, onNewChat = onNewChat)
         },
         bottomBar = {
-            Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .imePadding()
+                    .navigationBarsPadding(),
+            ) {
                 Column(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 8.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 ) {
                     ChatInputBar(
                         value = draft,
@@ -94,10 +153,8 @@ fun HomeScreen(
                         slideOutVertically(tween(200)) { it / 2 },
                 ) {
                     AttachmentPanel(
-                        onCamera = {
-                            AppLogs.record(context, "camera picker")
-                            showAttachments = false
-                        },
+                        pickedImages = pickedImages,
+                        onCamera = { onCameraClick() },
                         onGallery = {
                             galleryLauncher.launch(
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
@@ -106,10 +163,12 @@ fun HomeScreen(
                         onFile = {
                             fileLauncher.launch(arrayOf("*/*"))
                         },
-                        modifier = Modifier.padding(bottom = 12.dp),
+                        onRemoveImage = { path ->
+                            pickedImages = pickedImages - path
+                        },
+                        modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
                     )
                 }
-                Spacer(Modifier.navigationBarsPadding().size(0.dp))
             }
         },
     ) { innerPadding ->
@@ -125,6 +184,19 @@ fun HomeScreen(
                 modifier = Modifier.padding(bottom = 120.dp),
             )
         }
+    }
+
+    if (showCameraPrompt) {
+        PermissionDialog(
+            icon = NovaIcons.Camera,
+            title = "需要相机权限",
+            message = "拍照发送图片需要访问相机，仅在你主动拍照时使用",
+            onConfirm = {
+                showCameraPrompt = false
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            },
+            onDismiss = { showCameraPrompt = false },
+        )
     }
 }
 
