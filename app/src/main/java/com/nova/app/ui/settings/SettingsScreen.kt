@@ -12,10 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -78,6 +77,10 @@ fun OptionPickerDialog(
                         textAlign = TextAlign.Center,
                     )
                 }
+                HorizontalDivider(
+                    thickness = 0.7.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                )
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -88,7 +91,7 @@ fun OptionPickerDialog(
                         modifier = Modifier
                             .verticalScroll(rememberScrollState())
                             .selectableGroup()
-                            .padding(vertical = 4.dp),
+                            .padding(vertical = 6.dp),
                     ) {
                         options.forEachIndexed { index, label ->
                             OptionRow(
@@ -99,6 +102,10 @@ fun OptionPickerDialog(
                         }
                     }
                 }
+                HorizontalDivider(
+                    thickness = 0.7.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                )
                 Surface(
                     onClick = { onConfirm(pending) },
                     modifier = Modifier.fillMaxWidth(),
@@ -131,17 +138,12 @@ private fun OptionRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .selectable(
-                selected = selected,
-                onClick = onClick,
-                role = Role.RadioButton,
-            )
-            .padding(horizontal = 20.dp, vertical = 14.dp),
+            .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         RadioButton(
             selected = selected,
-            onClick = null,
+            onClick = onClick,
             colors = RadioButtonDefaults.colors(
                 selectedColor = MaterialTheme.colorScheme.onSurface,
                 unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -153,6 +155,10 @@ private fun OptionRow(
             style = MaterialTheme.typography.bodyLarge,
             fontSize = 17.sp,
             color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .clickable(onClick = onClick)
+                .padding(horizontal = 4.dp, vertical = 4.dp),
         )
     }
 }
@@ -169,10 +175,7 @@ fun SettingsScreen(
     onPersonalize: () -> Unit,
     onAccount: () -> Unit,
     onDataManagement: () -> Unit,
-    onAssistantPresets: () -> Unit,
     onCheckUpdate: () -> Unit,
-    onTerms: () -> Unit,
-    onHelp: () -> Unit,
 ) {
     var languageDialog by remember { mutableStateOf(false) }
     var themeDialog by remember { mutableStateOf(false) }
@@ -192,18 +195,13 @@ fun SettingsScreen(
         SettingsCard {
             SettingsRow(
                 icon = NovaIcons.User,
-                title = "账号管理",
+                title = "助手预设",
                 onClick = onAccount,
             )
             SettingsRow(
                 icon = NovaIcons.Database,
                 title = "数据管理",
                 onClick = onDataManagement,
-            )
-            SettingsRow(
-                icon = NovaIcons.Sparkle,
-                title = "助手预设题目",
-                onClick = onAssistantPresets,
             )
         }
 
@@ -250,16 +248,6 @@ fun SettingsScreen(
                 title = "检查更新",
                 value = versionName,
                 onClick = onCheckUpdate,
-            )
-            SettingsRow(
-                icon = NovaIcons.Document,
-                title = "服务协议",
-                onClick = onTerms,
-            )
-            SettingsRow(
-                icon = NovaIcons.Help,
-                title = "帮助与反馈",
-                onClick = onHelp,
             )
         }
 

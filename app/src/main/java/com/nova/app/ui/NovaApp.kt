@@ -191,10 +191,7 @@ private fun SettingsPage(
                 onPersonalize = {},
                 onAccount = {},
                 onDataManagement = {},
-                onAssistantPresets = {},
                 onCheckUpdate = {},
-                onTerms = {},
-                onHelp = {},
             )
         }
     }
