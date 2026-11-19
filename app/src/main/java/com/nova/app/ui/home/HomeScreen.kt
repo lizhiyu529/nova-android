@@ -2,14 +2,7 @@ package com.nova.app.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Icon
@@ -67,7 +60,6 @@ fun HomeScreen(
         ) {
             GreetingBlock(
                 greeting = greetingFor(now.hour),
-                clock = formatClock(now.toLocalTime()),
                 modifier = Modifier.padding(horizontal = 32.dp),
             )
         }
@@ -106,26 +98,15 @@ private fun HomeTopBar(onOpenDrawer: () -> Unit, onNewChat: () -> Unit) {
 @Composable
 private fun GreetingBlock(
     greeting: String,
-    clock: String,
     modifier: Modifier = Modifier,
 ) {
-    Column(
+    Text(
+        text = greeting,
+        style = MaterialTheme.typography.headlineLargeEmphasized,
+        color = MaterialTheme.colorScheme.onSurface,
+        textAlign = TextAlign.Center,
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = greeting,
-            style = MaterialTheme.typography.headlineLargeEmphasized,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-        )
-        Spacer(Modifier.size(10.dp))
-        Text(
-            text = clock,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
+    )
 }
 
 @Preview(showBackground = true, showSystemUi = true)

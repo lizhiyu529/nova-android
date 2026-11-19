@@ -54,17 +54,17 @@ fun ChatInputBar(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
         color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)),
     ) {
         Column(
-            modifier = Modifier.padding(start = 18.dp, end = 10.dp, top = 12.dp, bottom = 8.dp),
+            modifier = Modifier.padding(start = 18.dp, end = 10.dp, top = 14.dp, bottom = 10.dp),
         ) {
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 26.dp, max = 132.dp)
+                    .heightIn(min = 32.dp, max = 132.dp)
                     .padding(end = 10.dp),
                 textStyle = TextStyle(
                     color = MaterialTheme.colorScheme.onSurface,
@@ -87,7 +87,7 @@ fun ChatInputBar(
                     }
                 },
             )
-            Spacer(Modifier.size(4.dp))
+            Spacer(Modifier.size(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -117,7 +117,7 @@ private fun AttachButton(onClick: () -> Unit) {
                 .scale(scale),
             shape = CircleShape,
             color = MaterialTheme.colorScheme.surfaceContainerLow,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)),
+            border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
             interactionSource = interactionSource,
         ) {
             Box(contentAlignment = Alignment.Center) {
@@ -169,7 +169,7 @@ private fun SendButton(enabled: Boolean, onClick: () -> Unit) {
             border = if (enabled) {
                 null
             } else {
-                BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f))
+                BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
             },
             interactionSource = interactionSource,
         ) {

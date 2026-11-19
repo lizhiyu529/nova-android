@@ -90,7 +90,7 @@ fun SearchScreen(
             }
         }
     }
-    val groups = remember(results, now) { groupConversations(results, now) }
+    val groups = remember(results) { groupConversations(results, now) }
 
     Column(
         modifier = Modifier

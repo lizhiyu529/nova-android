@@ -30,11 +30,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,12 +45,12 @@ import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.drawer.Conversation
 import com.nova.app.ui.drawer.NovaDrawer
 import com.nova.app.ui.home.HomeScreen
+import com.nova.app.ui.home.rememberCurrentTime
 import com.nova.app.ui.search.SearchScreen
 import com.nova.app.ui.settings.AppLanguage
 import com.nova.app.ui.settings.AppThemeMode
 import com.nova.app.ui.settings.SettingsScreen
 import com.nova.app.ui.settings.settingsPageBackground
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.util.UUID
@@ -62,19 +62,12 @@ fun NovaApp(
     themeMode: AppThemeMode,
     onThemeModeChange: (AppThemeMode) -> Unit,
 ) {
-    var now by remember { mutableStateOf(LocalDateTime.now()) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(1_000)
-            now = LocalDateTime.now()
-        }
-    }
-
+    val now = rememberCurrentTime()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var conversations by remember { mutableStateOf(sampleConversations(now)) }
-    var overlay by remember { mutableStateOf(Overlay.None) }
-    var language by remember { mutableStateOf(AppLanguage.Chinese) }
+    var overlay by rememberSaveable { mutableStateOf(Overlay.None) }
+    var language by rememberSaveable { mutableStateOf(AppLanguage.Chinese) }
 
     fun closeOverlay() {
         overlay = Overlay.None
