@@ -65,12 +65,12 @@ fun CenterToast(
                         .padding(horizontal = 18.dp, vertical = 11.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.inverseOnSurface,
-                textAlign = TextAlign.Center,
-            )
+                    Text(
+                        text = snapshot,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                        textAlign = TextAlign.Center,
+                    )
                 }
             }
         }
