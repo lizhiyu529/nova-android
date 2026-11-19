@@ -1,0 +1,2 @@
+-keep class com.nova.app.** { *; }
+-dontwarn org.jetbrains.annotations.**
