@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.theme.PaletteScheme
+import com.nova.app.ui.theme.preview
 
 @Composable
 fun PersonalizeScreen(
