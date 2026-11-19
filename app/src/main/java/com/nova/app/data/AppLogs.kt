@@ -23,20 +23,28 @@ object AppLogs {
         Thread(runnable, "nova-log-writer").apply { isDaemon = true }
     }
 
-    fun crashFile(context: Context): File = File(dir(context), CRASH_FILE)
+    fun crashFile(context: Context): File {
+        return File(dir(context), CRASH_FILE)
+    }
 
-    fun eventFile(context: Context): File = File(dir(context), EVENT_FILE)
+    fun eventFile(context: Context): File {
+        return File(dir(context), EVENT_FILE)
+    }
 
-    private fun dir(context: Context): File = File(context.filesDir, DIR).apply { mkdirs() }
+    private fun dir(context: Context): File {
+        val target = File(context.filesDir, DIR)
+        target.mkdirs()
+        return target
+    }
 
     fun record(context: Context, event: String) {
         val app = context.applicationContext
-        val line = "${stamp()} [$event]"
+        val line = stamp() + " [" + event + "]"
         Log.d(TAG, event)
         writer.execute {
             runCatching {
                 val file = eventFile(app)
-                file.appendText("$line\n")
+                file.appendText(line + "\n")
                 trim(file)
             }.onFailure { Log.w(TAG, "write event log failed", it) }
         }
@@ -48,40 +56,49 @@ object AppLogs {
         writer.execute {
             runCatching {
                 val file = eventFile(app)
-                file.appendText(
-                    "${stamp()} [$event] ${throwable.javaClass.simpleName}: ${throwable.message}\n",
-                )
+                val detail = throwable.javaClass.simpleName + ": " + throwable.message
+                file.appendText(stamp() + " [" + event + "] " + detail + "\n")
                 trim(file)
             }.onFailure { Log.w(TAG, "write event log failed", it) }
         }
     }
 
-    /** 只取末尾若干行，避免把整份日志读进内存再渲染。 */
-    fun readEvents(context: Context): List<String> = readTail(eventFile(context))
+    fun readEvents(context: Context): List<String> {
+        return readTail(eventFile(context))
+    }
 
-    fun readCrashes(context: Context): List<String> = readTail(crashFile(context))
+    fun readCrashes(context: Context): List<String> {
+        return readTail(crashFile(context))
+    }
 
-    private fun readTail(file: File): List<String> = runCatching {
+    private fun readTail(file: File): List<String> {
         if (!file.exists()) return emptyList()
-        file.useLines { lines -> lines.takeLast(DISPLAY_LINES).toList() }
-    }.getOrDefault(emptyList())
+        return runCatching {
+            file.readLines().takeLast(DISPLAY_LINES)
+        }.getOrDefault(emptyList())
+    }
 
     fun clearEvents(context: Context) {
         val app = context.applicationContext
-        writer.execute { runCatching { eventFile(app).delete() } }
+        writer.execute {
+            runCatching { eventFile(app).delete() }
+        }
     }
 
     fun clearCrashes(context: Context) {
         val app = context.applicationContext
-        writer.execute { runCatching { crashFile(app).delete() } }
+        writer.execute {
+            runCatching { crashFile(app).delete() }
+        }
     }
 
     private fun trim(file: File) {
         if (file.length() <= MAX_BYTES) return
-        val keep = file.useLines { it.takeLast(KEEP_LINES).toList() }
+        val keep = file.readLines().takeLast(KEEP_LINES)
         file.writeText(keep.joinToString("\n", postfix = "\n"))
     }
 
-    private fun stamp(): String =
-        SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(Date())
+    private fun stamp(): String {
+        return SimpleDateFormat("MM-dd HH:mm:ss", Locale.US).format(Date())
+    }
 }
