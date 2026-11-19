@@ -23,6 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,7 +57,7 @@ fun CenterToast(
         ) {
             Surface(
                 shape = RoundedCornerShape(14.dp),
-                color = MaterialTheme.colorScheme.inverseSurface,
+                color = toastContainer(),
                 shadowElevation = 6.dp,
             ) {
                 Box(
@@ -68,7 +70,7 @@ fun CenterToast(
                         text = snapshot,
                         style = MaterialTheme.typography.bodyMedium,
                         fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                        color = toastContent(),
                         textAlign = TextAlign.Center,
                     )
                 }
@@ -76,3 +78,16 @@ fun CenterToast(
         }
     }
 }
+
+/** 暗色下用深灰卡片而不是反色（反色会变白）。 */
+@Composable
+private fun toastContainer(): Color {
+    val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    return if (dark) Color(0xFF3A3A3D) else Color(0xFF2F3036)
+}
+
+@Composable
+private fun toastContent(): Color {
+    return Color(0xFFF2F2F5)
+}
+

@@ -1,7 +1,7 @@
 package com.nova.app.ui.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -28,10 +26,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -71,13 +67,13 @@ fun FontSizeScreen(
             ) {
                 Surface(
                     shape = RoundedCornerShape(18.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    color = MaterialTheme.colorScheme.primaryContainer,
                 ) {
                     Text(
-                        text = "这段文字会跟着变",
+                        text = "预览文字大小",
                         fontSize = (16 * scale).sp,
                         lineHeight = (22 * scale).sp,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                     )
                 }
@@ -101,7 +97,7 @@ fun FontSizeScreen(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            color = MaterialTheme.colorScheme.surface,
         ) {
             Column(
                 modifier = Modifier
@@ -121,6 +117,15 @@ fun FontSizeScreen(
                     Switch(
                         checked = followSystem,
                         onCheckedChange = onFollowSystemChange,
+                        modifier = Modifier.pointerInput(followSystem) {
+                            detectHorizontalDragGestures { _, dragAmount ->
+                                if (dragAmount > 24f && !followSystem) {
+                                    onFollowSystemChange(true)
+                                } else if (dragAmount < -24f && followSystem) {
+                                    onFollowSystemChange(false)
+                                }
+                            }
+                        },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
                             checkedTrackColor = Color(0xFF34C759),
@@ -166,15 +171,23 @@ fun FontSizeScreen(
                 Slider(
                     state = sliderState,
                     onValueChange = { if (!followSystem) onScaleChange(it.toInt()) },
-                    thumb = { SliderThumb(enabled = !followSystem) },
+                    thumb = {
+                        SliderDefaults.Thumb(
+                            interactionSource = remember { MutableInteractionSource() },
+                            colors = SliderDefaults.colors(
+                                thumbColor = Color.White,
+                                activeTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
+                                inactiveTrackColor = MaterialTheme.colorScheme.outlineVariant,
+                            ),
+                            thumbSize = DpSize(26.dp, 26.dp),
+                        )
+                    },
                     track = { state ->
                         SliderDefaults.Track(
                             sliderState = state,
                             colors = SliderDefaults.colors(
                                 activeTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
-                                inactiveTrackColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
-                                activeTickColor = Color.Transparent,
-                                inactiveTickColor = Color.Transparent,
+                                inactiveTrackColor = MaterialTheme.colorScheme.outlineVariant,
                             ),
                         )
                     },
@@ -184,19 +197,4 @@ fun FontSizeScreen(
     }
 }
 
-@Composable
-private fun SliderThumb(enabled: Boolean) {
-    Box(
-        modifier = Modifier
-            .size(24.dp)
-            .shadow(elevation = 4.dp, shape = CircleShape)
-            .background(Color.White, CircleShape)
-            .border(
-                width = 0.8.dp,
-                color = Color.Black.copy(alpha = 0.08f),
-                shape = CircleShape,
-            )
-            .alpha(if (enabled) 1f else 0.65f),
-    )
-}
 
