@@ -2,11 +2,12 @@ package com.nova.app.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.DrawerValue
@@ -46,7 +47,10 @@ fun NovaApp() {
     var conversations by remember { mutableStateOf(sampleConversations(now)) }
     var searching by remember { mutableStateOf(false) }
 
-    BackHandler(enabled = searching) { searching = false }
+    BackHandler(enabled = searching) {
+        searching = false
+        scope.launch { drawerState.open() }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         ModalNavigationDrawer(
@@ -59,8 +63,10 @@ fun NovaApp() {
                     onOpenConversation = { scope.launch { drawerState.close() } },
                     onOpenSettings = { scope.launch { drawerState.close() } },
                     onOpenSearch = {
-                        scope.launch { drawerState.close() }
-                        searching = true
+                        scope.launch {
+                            drawerState.close()
+                            searching = true
+                        }
                     },
                 )
             },
@@ -82,8 +88,10 @@ fun NovaApp() {
 
         AnimatedVisibility(
             visible = searching,
-            enter = fadeIn(tween(180)) + slideInVertically(tween(260)) { it / 14 },
-            exit = fadeOut(tween(140)) + slideOutVertically(tween(200)) { it / 14 },
+            enter = fadeIn(tween(320, delayMillis = 60)) +
+                slideInHorizontally(tween(420, easing = FastOutSlowInEasing)) { it },
+            exit = fadeOut(tween(260)) +
+                slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { it },
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -92,7 +100,10 @@ fun NovaApp() {
                 SearchScreen(
                     conversations = conversations,
                     now = now,
-                    onBack = { searching = false },
+                    onBack = {
+                        searching = false
+                        scope.launch { drawerState.open() }
+                    },
                     onOpenConversation = {
                         searching = false
                     },

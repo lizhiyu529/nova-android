@@ -76,7 +76,7 @@ fun SearchScreen(
     val keyboard = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
-        delay(180)
+        delay(420)
         focusRequester.requestFocus()
         keyboard?.show()
     }
@@ -114,7 +114,7 @@ fun SearchScreen(
                     Icon(
                         imageVector = NovaIcons.Back,
                         contentDescription = "返回",
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(17.dp),
                         tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
