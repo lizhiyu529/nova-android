@@ -3,7 +3,7 @@ package com.nova.app
 import android.app.Application
 import android.os.Build
 import android.util.Log
-import com.nova.app.data.CrashLogs
+import com.nova.app.data.AppLogs
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.text.SimpleDateFormat
@@ -14,6 +14,7 @@ class NovaApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        AppLogs.record(this, "app start ${BuildConfig.VERSION_NAME}")
         installCrashHandler()
     }
 
@@ -44,7 +45,7 @@ class NovaApplication : Application() {
             appendLine()
         }
 
-        val target = CrashLogs.file(this)
+        val target = AppLogs.crashFile(this)
         target.parentFile?.mkdirs()
         target.appendText(entry)
         Log.e(TAG, entry)

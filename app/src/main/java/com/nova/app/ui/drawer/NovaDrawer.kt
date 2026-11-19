@@ -67,9 +67,9 @@ fun NovaDrawer(
     var selecting by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf(setOf<String>()) }
 
-    val groups = groupConversations(conversations, now)
+    val groups = remember(conversations, now) { groupConversations(conversations, now) }
     val pinnedGroup = groups.firstOrNull { it.first == ConversationGroup.Pinned }
-    val restGroups = groups.filterNot { it.first == ConversationGroup.Pinned }
+    val restGroups = remember(groups) { groups.filterNot { it.first == ConversationGroup.Pinned } }
 
     fun toggleSelection(id: String) {
         selected = if (id in selected) selected - id else selected + id

@@ -11,14 +11,21 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
@@ -30,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,41 +52,53 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nova.app.BuildConfig
-import com.nova.app.data.CrashLogs
+import com.nova.app.data.AppLogs
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.drawer.Conversation
 import com.nova.app.ui.drawer.NovaDrawer
 import com.nova.app.ui.home.HomeScreen
-import com.nova.app.ui.home.rememberCurrentTime
 import com.nova.app.ui.search.SearchScreen
 import com.nova.app.ui.settings.AppLanguage
 import com.nova.app.ui.settings.AppThemeMode
 import com.nova.app.ui.settings.SettingsScreen
 import com.nova.app.ui.settings.settingsPageBackground
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.util.UUID
 
-private enum class Overlay { None, Search, Settings, Logs }
+private enum class Page { Search, Settings, Logs }
 
 @Composable
 fun NovaApp(
     themeMode: AppThemeMode,
     onThemeModeChange: (AppThemeMode) -> Unit,
 ) {
-    val now = rememberCurrentTime()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var conversations by remember { mutableStateOf(sampleConversations(now)) }
-    var overlay by rememberSaveable { mutableStateOf(Overlay.None) }
+    val context = LocalContext.current
+    var conversations by remember { mutableStateOf(sampleConversations(LocalDateTime.now())) }
+    val referenceTime = remember { LocalDateTime.now() }
+    var stack by rememberSaveable { mutableStateOf(listOf<Page>()) }
     var language by rememberSaveable { mutableStateOf(AppLanguage.Chinese) }
 
-    fun closeOverlay() {
-        overlay = Overlay.None
-        scope.launch { drawerState.open() }
+    val current = stack.lastOrNull()
+
+    fun push(page: Page) {
+        stack = stack + page
+        AppLogs.record(context, "open ${page.name.lowercase()}")
     }
 
-    BackHandler(enabled = overlay != Overlay.None) { closeOverlay() }
+    fun pop() {
+        val leaving = stack.lastOrNull()
+        stack = stack.dropLast(1)
+        AppLogs.record(context, "close ${leaving?.name?.lowercase()}")
+        if (stack.isEmpty()) {
+            scope.launch { drawerState.open() }
+        }
+    }
+
+    BackHandler(enabled = stack.isNotEmpty()) { pop() }
 
     Box(modifier = Modifier.fillMaxSize()) {
         ModalNavigationDrawer(
@@ -86,26 +106,25 @@ fun NovaApp(
             drawerContent = {
                 NovaDrawer(
                     conversations = conversations,
-                    now = now,
+                    now = referenceTime,
                     accountEmail = "357******66@qq.com",
                     onOpenConversation = { scope.launch { drawerState.close() } },
                     onOpenSettings = {
                         scope.launch {
                             drawerState.close()
-                            overlay = Overlay.Settings
+                            push(Page.Settings)
                         }
                     },
                     onOpenSearch = {
                         scope.launch {
                             drawerState.close()
-                            overlay = Overlay.Search
+                            push(Page.Search)
                         }
                     },
                 )
             },
         ) {
             HomeScreen(
-                now = now,
                 onOpenDrawer = { scope.launch { drawerState.open() } },
                 onNewChat = {
                     conversations = listOf(
@@ -115,12 +134,13 @@ fun NovaApp(
                             updatedAt = LocalDateTime.now(),
                         ),
                     ) + conversations
+                    AppLogs.record(context, "new chat")
                 },
             )
         }
 
         AnimatedVisibility(
-            visible = overlay == Overlay.Search,
+            visible = current == Page.Search,
             enter = fadeIn(tween(320, delayMillis = 60)) +
                 slideInHorizontally(tween(420, easing = FastOutSlowInEasing)) { it },
             exit = fadeOut(tween(260)) +
@@ -132,15 +152,18 @@ fun NovaApp(
             ) {
                 SearchScreen(
                     conversations = conversations,
-                    now = now,
-                    onBack = { closeOverlay() },
-                    onOpenConversation = { closeOverlay() },
+                    now = referenceTime,
+                    onBack = { pop() },
+                    onOpenConversation = { conversation ->
+                        AppLogs.record(context, "open conversation ${conversation.id}")
+                        pop()
+                    },
                 )
             }
         }
 
         AnimatedVisibility(
-            visible = overlay == Overlay.Settings,
+            visible = current == Page.Settings,
             enter = fadeIn(tween(260, delayMillis = 40)) +
                 slideInHorizontally(tween(460, easing = LinearOutSlowInEasing)) { it / 2 },
             exit = fadeOut(tween(200)) +
@@ -153,16 +176,16 @@ fun NovaApp(
                 SettingsPage(
                     language = language,
                     themeMode = themeMode,
-                    onBack = { closeOverlay() },
+                    onBack = { pop() },
                     onLanguageChange = { language = it },
                     onThemeChange = onThemeModeChange,
-                    onOpenLogs = { overlay = Overlay.Logs },
+                    onOpenLogs = { push(Page.Logs) },
                 )
             }
         }
 
         AnimatedVisibility(
-            visible = overlay == Overlay.Logs,
+            visible = current == Page.Logs,
             enter = fadeIn(tween(260, delayMillis = 40)) +
                 slideInHorizontally(tween(460, easing = LinearOutSlowInEasing)) { it / 2 },
             exit = fadeOut(tween(200)) +
@@ -172,16 +195,8 @@ fun NovaApp(
                 modifier = Modifier.fillMaxSize(),
                 color = settingsPageBackground(),
             ) {
-                val context = LocalContext.current
-                var logContent by remember { mutableStateOf(CrashLogs.read(context)) }
                 LogPage(
-                    content = logContent,
-                    logPath = CrashLogs.file(context).absolutePath,
-                    onBack = { overlay = Overlay.Settings },
-                    onClear = {
-                        CrashLogs.clear(context)
-                        logContent = ""
-                    },
+                    onBack = { pop() },
                 )
             }
         }
@@ -225,12 +240,23 @@ private fun SettingsPage(
 }
 
 @Composable
-private fun LogPage(
-    content: String,
-    logPath: String,
-    onBack: () -> Unit,
-    onClear: () -> Unit,
-) {
+private fun LogPage(onBack: () -> Unit) {
+    val context = LocalContext.current
+    var showCrashes by remember { mutableStateOf(false) }
+    var version by remember { mutableStateOf(0) }
+    val events = remember(version) { AppLogs.readEvents(context) }
+    val crashes = remember(version) { AppLogs.readCrashes(context) }
+    LaunchedEffect(Unit) {
+        delay(120)
+        version++
+    }
+    val content = if (showCrashes) crashes else events
+    val path = if (showCrashes) {
+        AppLogs.crashFile(context).absolutePath
+    } else {
+        AppLogs.eventFile(context).absolutePath
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
@@ -266,7 +292,14 @@ private fun LogPage(
             )
             CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                 Surface(
-                    onClick = onClear,
+                    onClick = {
+                        if (showCrashes) {
+                            AppLogs.clearCrashes(context)
+                        } else {
+                            AppLogs.clearEvents(context)
+                        }
+                        version++
+                    },
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .size(40.dp),
@@ -284,14 +317,36 @@ private fun LogPage(
                 }
             }
         }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 4.dp),
+        ) {
+            LogTab(
+                text = "运行记录",
+                selected = !showCrashes,
+                onClick = { showCrashes = false },
+                modifier = Modifier.weight(1f),
+            )
+            Spacer(Modifier.width(8.dp))
+            LogTab(
+                text = "崩溃记录",
+                selected = showCrashes,
+                onClick = { showCrashes = true },
+                modifier = Modifier.weight(1f),
+            )
+        }
+
         Text(
-            text = logPath,
+            text = path,
             style = MaterialTheme.typography.bodySmall,
             fontSize = 11.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         )
-        if (content.isBlank()) {
+
+        if (content.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -299,7 +354,7 @@ private fun LogPage(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "还没有崩溃记录",
+                    text = if (showCrashes) "还没有崩溃记录" else "还没有运行记录",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 )
@@ -313,19 +368,56 @@ private fun LogPage(
                 shape = MaterialTheme.shapes.medium,
                 color = MaterialTheme.colorScheme.surfaceContainerLow,
             ) {
-                Text(
-                    text = content,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 11.sp,
-                    lineHeight = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(14.dp),
-                )
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(14.dp),
+                ) {
+                    items(content) { line ->
+                        Text(
+                            text = line,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 11.sp,
+                            lineHeight = 16.sp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
             }
+        }
+    }
+}
+
+@Composable
+private fun LogTab(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        color = if (selected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        },
+    ) {
+        Box(
+            modifier = Modifier.padding(vertical = 9.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelLarge,
+                color = if (selected) {
+                    MaterialTheme.colorScheme.onPrimary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            )
         }
     }
 }

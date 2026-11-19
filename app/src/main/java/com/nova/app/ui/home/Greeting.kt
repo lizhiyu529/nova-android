@@ -18,16 +18,20 @@ fun greetingFor(hour: Int): String = when (hour) {
     else -> "夜深了，别熬太狠"
 }
 
-/** 分钟级刷新，避免每秒重组整棵界面。 */
+/**
+ * 只在问候语真正需要变化时才更新状态：跨过时段边界或跨天，
+ * 避免每分钟把整棵界面树重组一次。
+ */
 @Composable
-fun rememberCurrentTime(): LocalDateTime {
-    var now by remember { mutableStateOf(LocalDateTime.now()) }
+fun rememberGreeting(): String {
+    var greeting by remember { mutableStateOf(greetingFor(LocalDateTime.now().hour)) }
     LaunchedEffect(Unit) {
         while (true) {
             val current = LocalDateTime.now()
-            now = current
+            val next = greetingFor(current.hour)
+            if (next != greeting) greeting = next
             delay(60_000L - current.second * 1_000L)
         }
     }
-    return now
+    return greeting
 }

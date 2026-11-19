@@ -28,15 +28,14 @@ import androidx.compose.ui.unit.dp
 import com.nova.app.ui.components.ChatInputBar
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.theme.NovaTheme
-import java.time.LocalDateTime
 
 @Composable
 fun HomeScreen(
-    now: LocalDateTime,
     onOpenDrawer: () -> Unit,
     onNewChat: () -> Unit,
 ) {
     var draft by rememberSaveable { mutableStateOf("") }
+    val greeting = rememberGreeting()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -64,7 +63,7 @@ fun HomeScreen(
             contentAlignment = Alignment.Center,
         ) {
             GreetingBlock(
-                greeting = greetingFor(now.hour),
+                greeting = greeting,
                 modifier = Modifier.padding(horizontal = 32.dp),
             )
         }
@@ -119,7 +118,6 @@ private fun GreetingBlock(
 private fun HomeScreenPreview() {
     NovaTheme(darkTheme = false) {
         HomeScreen(
-            now = LocalDateTime.of(2026, 11, 19, 14, 32),
             onOpenDrawer = {},
             onNewChat = {},
         )
@@ -131,7 +129,6 @@ private fun HomeScreenPreview() {
 private fun HomeScreenDarkPreview() {
     NovaTheme(darkTheme = true) {
         HomeScreen(
-            now = LocalDateTime.of(2026, 11, 19, 23, 48),
             onOpenDrawer = {},
             onNewChat = {},
         )
