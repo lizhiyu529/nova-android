@@ -58,6 +58,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -614,8 +616,8 @@ private fun ConversationMenu(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 56.dp),
-            shape = RoundedCornerShape(20.dp),
+                .padding(horizontal = 68.dp),
+            shape = RoundedCornerShape(18.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 0.dp,
         ) {
@@ -672,19 +674,20 @@ private fun MenuRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 22.dp, vertical = 17.dp),
+            .padding(horizontal = 20.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(19.dp),
+            modifier = Modifier.size(18.dp),
             tint = tint,
         )
-        Spacer(Modifier.width(16.dp))
+        Spacer(Modifier.width(14.dp))
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
+            fontSize = 15.sp,
             color = tint,
         )
     }
@@ -697,11 +700,13 @@ private fun RenameDialog(
     onConfirm: (String) -> Unit,
 ) {
     var text by remember { mutableStateOf(initial) }
+    var selection by remember { mutableStateOf(TextRange(initial.length)) }
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         delay(120)
+        selection = TextRange(text.length)
         focusRequester.requestFocus()
         keyboard?.show()
     }
@@ -740,8 +745,11 @@ private fun RenameDialog(
                     color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 ) {
                     BasicTextField(
-                        value = text,
-                        onValueChange = { text = it },
+                        value = TextFieldValue(text = text, selection = selection),
+                        onValueChange = {
+                            text = it.text
+                            selection = it.selection
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 14.dp, vertical = 12.dp)
@@ -834,7 +842,7 @@ private fun DeleteConfirmDialog(
                 )
                 Spacer(Modifier.size(10.dp))
                 Text(
-                    text = "删除后，对话将不可恢复，由该对话生成的分享链接也将失效。",
+                    text = "删除后无法恢复，请确认是否继续。",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -858,12 +866,23 @@ private fun DeleteConfirmDialog(
                     }
                 }
                 Spacer(Modifier.size(4.dp))
-                DialogTextAction(
-                    text = "取消",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                Surface(
                     onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = CircleShape,
+                    color = Color.Transparent,
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "取消",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
             }
         }
     }

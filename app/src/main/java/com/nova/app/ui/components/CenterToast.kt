@@ -1,11 +1,13 @@
 package com.nova.app.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun CenterToast(
@@ -31,24 +34,27 @@ fun CenterToast(
     ) {
         AnimatedVisibility(
             visible = message != null,
-            enter = fadeIn(tween(180)) + scaleIn(tween(220), initialScale = 0.92f),
-            exit = fadeOut(tween(160)) + scaleOut(tween(180), targetScale = 0.96f),
+            enter = fadeIn(tween(160)) +
+                scaleIn(tween(260, easing = LinearOutSlowInEasing), initialScale = 0.88f) +
+                slideInVertically(tween(260, easing = LinearOutSlowInEasing)) { it / 3 },
+            exit = fadeOut(tween(220)) +
+                slideOutVertically(tween(240)) { it / 4 },
         ) {
             Surface(
-                modifier = Modifier
-                    .padding(horizontal = 48.dp)
-                    .widthIn(max = 280.dp),
-                shape = RoundedCornerShape(18.dp),
+                shape = RoundedCornerShape(14.dp),
                 color = MaterialTheme.colorScheme.inverseSurface,
-                shadowElevation = 8.dp,
+                shadowElevation = 6.dp,
             ) {
                 Box(
-                    modifier = Modifier.padding(horizontal = 22.dp, vertical = 16.dp),
+                    modifier = Modifier
+                        .widthIn(min = 0.dp, max = 260.dp)
+                        .padding(horizontal = 18.dp, vertical = 11.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         text = message.orEmpty(),
                         style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.inverseOnSurface,
                         textAlign = TextAlign.Center,
                     )

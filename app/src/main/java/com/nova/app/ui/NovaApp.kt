@@ -63,6 +63,7 @@ import com.nova.app.ui.home.HomeScreen
 import com.nova.app.ui.search.SearchScreen
 import com.nova.app.ui.settings.AppLanguage
 import com.nova.app.ui.settings.AppThemeMode
+import com.nova.app.ui.settings.FontSizeScreen
 import com.nova.app.ui.settings.SettingsScreen
 import com.nova.app.ui.settings.settingsPageBackground
 import kotlinx.coroutines.delay
@@ -70,12 +71,16 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.util.UUID
 
-private enum class Page { Search, Settings, Logs }
+private enum class Page { Search, Settings, Logs, FontSize }
 
 @Composable
 fun NovaApp(
     themeMode: AppThemeMode,
     onThemeModeChange: (AppThemeMode) -> Unit,
+    fontScaleIndex: Int,
+    followSystemFont: Boolean,
+    onFontScaleChange: (Int) -> Unit,
+    onFollowSystemFontChange: (Boolean) -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -207,9 +212,10 @@ fun NovaApp(
                     onLanguageChange = { language = it },
                     onThemeChange = onThemeModeChange,
                     onOpenLogs = { push(Page.Logs) },
+                    onFontSize = { push(Page.FontSize) },
                     onCheckUpdate = {
                         AppLogs.record(context, "check update")
-                        toast = "当前已是最新版本 ${BuildConfig.VERSION_NAME}"
+                        toast = "当前已是最新版本"
                     },
                 )
             }
@@ -232,6 +238,29 @@ fun NovaApp(
             }
         }
 
+        AnimatedVisibility(
+            visible = current == Page.FontSize,
+            enter = fadeIn(tween(260, delayMillis = 40)) +
+                slideInHorizontally(tween(460, easing = LinearOutSlowInEasing)) { it / 2 },
+            exit = fadeOut(tween(200)) +
+                slideOutHorizontally(tween(300, easing = FastOutSlowInEasing)) { it / 2 },
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = settingsPageBackground(),
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    SettingsTopBar(title = "字体大小", onBack = { pop() })
+                    FontSizeScreen(
+                        scaleIndex = fontScaleIndex,
+                        followSystem = followSystemFont,
+                        onScaleChange = onFontScaleChange,
+                        onFollowSystemChange = onFollowSystemFontChange,
+                    )
+                }
+            }
+        }
+
         CenterToast(message = toast)
     }
 }
@@ -244,6 +273,7 @@ private fun SettingsPage(
     onLanguageChange: (AppLanguage) -> Unit,
     onThemeChange: (AppThemeMode) -> Unit,
     onOpenLogs: () -> Unit,
+    onFontSize: () -> Unit,
     onCheckUpdate: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -262,7 +292,7 @@ private fun SettingsPage(
                 onBack = onBack,
                 onLanguageChange = onLanguageChange,
                 onThemeChange = onThemeChange,
-                onFontSize = {},
+                onFontSize = onFontSize,
                 onPersonalize = {},
                 onAccount = {},
                 onDataManagement = {},
@@ -421,7 +451,7 @@ private fun LogPage(onBack: () -> Unit) {
 }
 
 @Composable
-private fun SettingsTopBar(onBack: () -> Unit) {
+private fun SettingsTopBar(title: String = "设置", onBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -448,7 +478,7 @@ private fun SettingsTopBar(onBack: () -> Unit) {
             }
         }
         Text(
-            text = "设置",
+            text = title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface,
