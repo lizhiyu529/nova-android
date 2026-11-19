@@ -12,26 +12,25 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
@@ -163,7 +162,7 @@ fun NovaApp(
         }
 
         AnimatedVisibility(
-            visible = current == Page.Settings,
+            visible = stack.contains(Page.Settings),
             enter = fadeIn(tween(260, delayMillis = 40)) +
                 slideInHorizontally(tween(460, easing = LinearOutSlowInEasing)) { it / 2 },
             exit = fadeOut(tween(200)) +
@@ -318,23 +317,26 @@ private fun LogPage(onBack: () -> Unit) {
             }
         }
 
-        Row(
+        SingleChoiceSegmentedButtonRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 4.dp),
+                .padding(horizontal = 14.dp, vertical = 6.dp),
         ) {
-            LogTab(
-                text = "运行记录",
+            SegmentedButton(
                 selected = !showCrashes,
                 onClick = { showCrashes = false },
+                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
                 modifier = Modifier.weight(1f),
+                icon = {},
+                label = { Text("运行记录") },
             )
-            Spacer(Modifier.width(8.dp))
-            LogTab(
-                text = "崩溃记录",
+            SegmentedButton(
                 selected = showCrashes,
                 onClick = { showCrashes = true },
+                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
                 modifier = Modifier.weight(1f),
+                icon = {},
+                label = { Text("崩溃记录") },
             )
         }
 
@@ -384,40 +386,6 @@ private fun LogPage(onBack: () -> Unit) {
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun LogTab(
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        onClick = onClick,
-        modifier = modifier,
-        shape = RoundedCornerShape(14.dp),
-        color = if (selected) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            MaterialTheme.colorScheme.surfaceContainerHigh
-        },
-    ) {
-        Box(
-            modifier = Modifier.padding(vertical = 9.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelLarge,
-                color = if (selected) {
-                    MaterialTheme.colorScheme.onPrimary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-            )
         }
     }
 }

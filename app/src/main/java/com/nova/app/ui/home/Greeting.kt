@@ -9,21 +9,38 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 
-fun greetingFor(hour: Int): String = when (hour) {
-    in 5..8 -> "早上好，今天想写点什么？"
-    in 9..11 -> "上午好，有什么要搞的？"
-    in 12..13 -> "中午好，先吃口饭再说"
-    in 14..17 -> "下午好，接着干"
-    in 18..22 -> "晚上好，今晚搞定它"
-    else -> "夜深了，别熬太狠"
+data class Greeting(val title: String, val hint: String)
+
+private fun greetingFor(hour: Int): Greeting = when (hour) {
+    in 5..8 -> Greeting(
+        title = "早上好",
+        hint = "脑子最清醒的时候，先啃硬骨头",
+    )
+    in 9..11 -> Greeting(
+        title = "上午好",
+        hint = "今天想先解决什么问题？",
+    )
+    in 12..13 -> Greeting(
+        title = "中午好",
+        hint = "吃口饭再回来，代码不会跑",
+    )
+    in 14..17 -> Greeting(
+        title = "下午好",
+        hint = "有点困的话，来杯咖啡继续",
+    )
+    in 18..22 -> Greeting(
+        title = "晚上好",
+        hint = "安静的时候最适合写代码",
+    )
+    else -> Greeting(
+        title = "夜深了",
+        hint = "早点睡，明天再修也不迟",
+    )
 }
 
-/**
- * 只在问候语真正需要变化时才更新状态：跨过时段边界或跨天，
- * 避免每分钟把整棵界面树重组一次。
- */
+/** 只在问候语真正变化时才更新状态，避免每分钟重组整棵界面树。 */
 @Composable
-fun rememberGreeting(): String {
+fun rememberGreeting(): Greeting {
     var greeting by remember { mutableStateOf(greetingFor(LocalDateTime.now().hour)) }
     LaunchedEffect(Unit) {
         while (true) {

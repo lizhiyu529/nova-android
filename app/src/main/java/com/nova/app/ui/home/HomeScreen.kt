@@ -1,8 +1,9 @@
 package com.nova.app.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -22,7 +23,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nova.app.ui.components.ChatInputBar
@@ -56,16 +56,14 @@ fun HomeScreen(
             )
         },
     ) { innerPadding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.Center,
+                .padding(innerPadding)
+                .padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.Center,
         ) {
-            GreetingBlock(
-                greeting = greeting,
-                modifier = Modifier.padding(horizontal = 32.dp),
-            )
+            GreetingBlock(greeting = greeting)
         }
     }
 }
@@ -101,16 +99,24 @@ private fun HomeTopBar(onOpenDrawer: () -> Unit, onNewChat: () -> Unit) {
 
 @Composable
 private fun GreetingBlock(
-    greeting: String,
+    greeting: Greeting,
     modifier: Modifier = Modifier,
 ) {
-    Text(
-        text = greeting,
-        style = MaterialTheme.typography.headlineLargeEmphasized,
-        color = MaterialTheme.colorScheme.onSurface,
-        textAlign = TextAlign.Center,
-        modifier = modifier,
-    )
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = greeting.title,
+            style = MaterialTheme.typography.headlineLargeEmphasized,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.size(10.dp))
+        Text(
+            text = greeting.hint,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
 }
 
 @Preview(showBackground = true, showSystemUi = true)
