@@ -39,16 +39,6 @@ fun NovaApp() {
                 conversations = conversations,
                 now = now,
                 accountEmail = "357******66@qq.com",
-                onNewChat = {
-                    conversations = listOf(
-                        Conversation(
-                            id = UUID.randomUUID().toString(),
-                            title = "新对话",
-                            updatedAt = LocalDateTime.now(),
-                        ),
-                    ) + conversations
-                    scope.launch { drawerState.close() }
-                },
                 onOpenConversation = { scope.launch { drawerState.close() } },
                 onOpenSettings = { scope.launch { drawerState.close() } },
             )

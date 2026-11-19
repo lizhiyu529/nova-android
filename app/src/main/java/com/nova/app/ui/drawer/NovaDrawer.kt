@@ -1,5 +1,11 @@
 package com.nova.app.ui.drawer
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +25,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -52,12 +59,13 @@ fun NovaDrawer(
     conversations: List<Conversation>,
     now: LocalDateTime,
     accountEmail: String,
-    onNewChat: () -> Unit,
     onOpenConversation: (Conversation) -> Unit,
     onOpenSettings: () -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
     var pinnedExpanded by remember { mutableStateOf(true) }
+    var selecting by remember { mutableStateOf(false) }
+    var selected by remember { mutableStateOf(setOf<String>()) }
 
     val filtered = conversations.filter {
         query.isBlank() || it.title.contains(query, ignoreCase = true)
@@ -65,6 +73,15 @@ fun NovaDrawer(
     val groups = groupConversations(filtered, now)
     val pinnedGroup = groups.firstOrNull { it.first == ConversationGroup.Pinned }
     val restGroups = groups.filterNot { it.first == ConversationGroup.Pinned }
+
+    fun toggleSelection(id: String) {
+        selected = if (id in selected) selected - id else selected + id
+    }
+
+    fun exitSelection() {
+        selecting = false
+        selected = emptySet()
+    }
 
     ModalDrawerSheet(
         modifier = Modifier.fillMaxHeight(),
@@ -74,30 +91,45 @@ fun NovaDrawer(
     ) {
         Column(modifier = Modifier.fillMaxHeight()) {
             Spacer(Modifier.statusBarsPadding())
-            DrawerSearchField(
-                query = query,
-                onQueryChange = { query = it },
-                modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 6.dp),
-            )
+            if (selecting) {
+                SelectionTopBar(
+                    onClose = { exitSelection() },
+                )
+            } else {
+                DrawerSearchField(
+                    query = query,
+                    onQueryChange = { query = it },
+                    modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 4.dp),
+                )
+            }
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(
-                    start = 8.dp,
-                    end = 8.dp,
-                    bottom = 8.dp,
-                ),
+                contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp),
             ) {
-                pinnedGroup?.let { (group, items) ->
+                pinnedGroup?.let { (_, items) ->
                     item(key = "pinned-header") {
                         PinnedHeader(
                             count = items.size,
                             expanded = pinnedExpanded,
+                            showSelectAction = !selecting,
                             onToggle = { pinnedExpanded = !pinnedExpanded },
+                            onStartSelection = { selecting = true },
                         )
                     }
                     if (pinnedExpanded) {
                         items(items, key = { it.id }) { conversation ->
-                            ConversationRow(conversation, onClick = { onOpenConversation(conversation) })
+                            ConversationRow(
+                                conversation = conversation,
+                                selecting = selecting,
+                                selected = conversation.id in selected,
+                                onClick = {
+                                    if (selecting) {
+                                        toggleSelection(conversation.id)
+                                    } else {
+                                        onOpenConversation(conversation)
+                                    }
+                                },
+                            )
                         }
                     }
                 }
@@ -106,14 +138,33 @@ fun NovaDrawer(
                         SectionLabel(group.label)
                     }
                     items(items, key = { it.id }) { conversation ->
-                        ConversationRow(conversation, onClick = { onOpenConversation(conversation) })
+                        ConversationRow(
+                            conversation = conversation,
+                            selecting = selecting,
+                            selected = conversation.id in selected,
+                            onClick = {
+                                if (selecting) {
+                                    toggleSelection(conversation.id)
+                                } else {
+                                    onOpenConversation(conversation)
+                                }
+                            },
+                        )
                     }
                 }
             }
-            DrawerAccountBar(
-                email = accountEmail,
-                onOpenSettings = onOpenSettings,
-            )
+            if (selecting) {
+                SelectionActionBar(
+                    count = selected.size,
+                    onPin = { exitSelection() },
+                    onDelete = { exitSelection() },
+                )
+            } else {
+                DrawerAccountBar(
+                    email = accountEmail,
+                    onOpenSettings = onOpenSettings,
+                )
+            }
         }
     }
 }
@@ -126,20 +177,20 @@ private fun DrawerSearchField(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        shape = RoundedCornerShape(26.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 13.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 imageVector = NovaIcons.Search,
                 contentDescription = null,
-                modifier = Modifier.size(19.dp),
+                modifier = Modifier.size(20.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(11.dp))
             Box(modifier = Modifier.weight(1f)) {
                 BasicTextField(
                     value = query,
@@ -147,7 +198,7 @@ private fun DrawerSearchField(
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = TextStyle(
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 15.sp,
+                        fontSize = 16.sp,
                     ),
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                     singleLine = true,
@@ -155,8 +206,8 @@ private fun DrawerSearchField(
                         if (query.isEmpty()) {
                             Text(
                                 text = "搜索对话内容...",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 15.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+                                fontSize = 16.sp,
                             )
                         }
                         innerTextField()
@@ -168,38 +219,94 @@ private fun DrawerSearchField(
 }
 
 @Composable
+private fun SelectionTopBar(onClose: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 20.dp, end = 14.dp, top = 14.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = "选择对话",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+            Surface(
+                onClick = onClose,
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = NovaIcons.Close,
+                        contentDescription = "退出选择",
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun PinnedHeader(
     count: Int,
     expanded: Boolean,
+    showSelectAction: Boolean,
     onToggle: () -> Unit,
+    onStartSelection: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onToggle)
-            .padding(start = 10.dp, end = 6.dp, top = 10.dp, bottom = 8.dp),
+            .padding(top = 8.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = "置顶 $count 个对话",
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(Modifier.width(4.dp))
-        Icon(
-            imageVector = NovaIcons.ChevronDown,
-            contentDescription = if (expanded) "收起置顶" else "展开置顶",
+        Row(
             modifier = Modifier
-                .size(16.dp)
-                .rotate(if (expanded) 0f else -90f),            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(Modifier.weight(1f))
-        Icon(
-            imageVector = NovaIcons.Sort,
-            contentDescription = "排序",
-            modifier = Modifier.size(18.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+                .weight(1f)
+                .clickable(onClick = onToggle, shape = RoundedCornerShape(12.dp))
+                .padding(start = 10.dp, top = 8.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "置顶 $count 个对话",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer(Modifier.width(5.dp))
+            Icon(
+                imageVector = NovaIcons.ChevronDown,
+                contentDescription = if (expanded) "收起置顶" else "展开置顶",
+                modifier = Modifier
+                    .size(17.dp)
+                    .rotate(if (expanded) 0f else -90f),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        if (showSelectAction) {
+            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+                IconButton(
+                    onClick = onStartSelection,
+                    modifier = Modifier.size(36.dp),
+                ) {
+                    Icon(
+                        imageVector = NovaIcons.SelectAll,
+                        contentDescription = "多选对话",
+                        modifier = Modifier.size(19.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            Spacer(Modifier.width(4.dp))
+        }
     }
 }
 
@@ -208,24 +315,164 @@ private fun SectionLabel(text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(start = 10.dp, top = 14.dp, bottom = 6.dp),
+        fontWeight = FontWeight.Normal,
+        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+        modifier = Modifier.padding(start = 10.dp, top = 16.dp, bottom = 6.dp),
     )
 }
 
 @Composable
-private fun ConversationRow(conversation: Conversation, onClick: () -> Unit) {
-    Text(
-        text = conversation.title,
-        style = MaterialTheme.typography.bodyLarge,
-        color = MaterialTheme.colorScheme.onSurface,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
+private fun ConversationRow(
+    conversation: Conversation,
+    selecting: Boolean,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    val shape = RoundedCornerShape(14.dp)
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 11.dp),
-    )
+            .padding(vertical = 1.dp)
+            .then(
+                if (selecting) {
+                    Modifier.toggleable(
+                        value = selected,
+                        onValueChange = { onClick() },
+                        shape = shape,
+                    )
+                } else {
+                    Modifier.clickable(onClick = onClick, shape = shape)
+                },
+            )
+            .padding(start = if (selecting) 10.dp else 10.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        AnimatedVisibility(
+            visible = selecting,
+            enter = fadeIn() + slideInVertically(),
+            exit = fadeOut() + slideOutVertically(),
+        ) {
+            SelectionCircle(
+                selected = selected,
+                modifier = Modifier.padding(end = 12.dp),
+            )
+        }
+        Text(
+            text = conversation.title,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun SelectionCircle(selected: Boolean, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier.size(20.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Surface(
+            modifier = Modifier.size(20.dp),
+            shape = CircleShape,
+            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+            border = if (selected) {
+                null
+            } else {
+                BorderStroke(1.5.dp, MaterialTheme.colorScheme.outlineVariant)
+            },
+        ) {
+            if (selected) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = NovaIcons.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(13.dp),
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SelectionActionBar(
+    count: Int,
+    onPin: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 0.dp,
+        border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SelectionAction(
+                icon = NovaIcons.Pin,
+                label = "置顶",
+                enabled = count > 0,
+                onClick = onPin,
+                modifier = Modifier.weight(1f),
+            )
+            Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(22.dp)
+                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+            )
+            SelectionAction(
+                icon = NovaIcons.Trash,
+                label = "删除",
+                enabled = count > 0,
+                onClick = onDelete,
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+@Composable
+private fun SelectionAction(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val tint = if (enabled) {
+        MaterialTheme.colorScheme.onSurface
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+    }
+    Row(
+        modifier = modifier
+            .clickable(enabled = enabled, onClick = onClick, shape = RoundedCornerShape(14.dp))
+            .padding(vertical = 10.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(19.dp),
+            tint = tint,
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = tint,
+        )
+    }
 }
 
 @Composable
@@ -237,7 +484,8 @@ private fun DrawerAccountBar(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(start = 14.dp, end = 6.dp, top = 10.dp, bottom = 10.dp),
+            .clickable(onClick = onOpenSettings, shape = RoundedCornerShape(16.dp))
+            .padding(start = 16.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Surface(
@@ -254,7 +502,7 @@ private fun DrawerAccountBar(
                 )
             }
         }
-        Spacer(Modifier.width(10.dp))
+        Spacer(Modifier.width(11.dp))
         Text(
             text = email,
             style = MaterialTheme.typography.bodyMedium,

@@ -187,8 +187,7 @@ object NovaIcons {
 
     val Sort: ImageVector by lazy {
         ImageVector.Builder(
-            name = "Sort",
-            defaultWidth = 24.dp,
+            name = "Sort",            defaultWidth = 24.dp,
             defaultHeight = 24.dp,
             viewportWidth = 24f,
             viewportHeight = 24f,
@@ -279,6 +278,148 @@ object NovaIcons {
                 curveTo(4.4f, 20f, 3.9f, 19.6f, 4f, 19f)
                 curveTo(4.5f, 16f, 8f, 14f, 12f, 14f)
                 close()
+            }
+        }.build()
+    }
+
+    val SelectAll: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "SelectAll",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(4.5f, 8f)
+                horizontalLineTo(19.5f)
+            }
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(4.5f, 12.5f)
+                horizontalLineTo(12f)
+            }
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(4.5f, 17f)
+                horizontalLineTo(12f)
+            }
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(16f, 14.5f)
+                lineTo(18f, 16.5f)
+                lineTo(21.5f, 12.5f)
+            }
+        }.build()
+    }
+
+    val Check: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Check",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 2.4f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
+            ) {
+                moveTo(5f, 12.5f)
+                lineTo(10f, 17.5f)
+                lineTo(19f, 7f)
+            }
+        }.build()
+    }
+
+    val Pin: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Pin",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
+            ) {
+                moveTo(12f, 3.5f)
+                lineTo(19f, 8f)
+                lineTo(16.5f, 9.5f)
+                lineTo(16.5f, 14f)
+                lineTo(19f, 16.5f)
+                lineTo(5f, 16.5f)
+                lineTo(7.5f, 14f)
+                lineTo(7.5f, 9.5f)
+                lineTo(5f, 8f)
+                close()
+            }
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(12f, 16.5f)
+                verticalLineTo(21f)
+            }
+        }.build()
+    }
+
+    val Trash: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Trash",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
+            ) {
+                moveTo(4.5f, 6.5f)
+                horizontalLineTo(19.5f)
+            }
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
+            ) {
+                moveTo(6.5f, 6.5f)
+                lineTo(7.5f, 19.5f)
+                horizontalLineTo(16.5f)
+                lineTo(17.5f, 6.5f)
+            }
+            path(
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.8f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(9.5f, 6.5f)
+                verticalLineTo(4.5f)
+                horizontalLineTo(14.5f)
+                verticalLineTo(6.5f)
             }
         }.build()
     }
