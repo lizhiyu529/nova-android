@@ -1,5 +1,7 @@
 package com.nova.app.ui.settings
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -23,6 +26,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -64,13 +69,13 @@ fun FontSizeScreen(
             ) {
                 Surface(
                     shape = RoundedCornerShape(18.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer,
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
                 ) {
                     Text(
                         text = "这段文字会跟着变",
                         fontSize = (16 * scale).sp,
                         lineHeight = (22 * scale).sp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                     )
                 }
@@ -150,20 +155,40 @@ fun FontSizeScreen(
                 }
                 Slider(
                     value = scaleIndex.toFloat(),
-                    onValueChange = { onScaleChange(it.toInt()) },
+                    onValueChange = { if (!followSystem) onScaleChange(it.toInt()) },
                     valueRange = 0f..(FontScaleSteps.size - 1).toFloat(),
                     steps = FontScaleSteps.size - 2,
-                    enabled = !followSystem,
-                    colors = SliderDefaults.colors(
-                        thumbColor = Color.White,
-                        activeTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
-                        inactiveTrackColor = MaterialTheme.colorScheme.outlineVariant,
-                        disabledThumbColor = Color.White.copy(alpha = 0.7f),
-                        disabledActiveTrackColor = MaterialTheme.colorScheme.outlineVariant,
-                        disabledInactiveTrackColor = MaterialTheme.colorScheme.outlineVariant,
-                    ),
+                    thumb = { SliderThumb(enabled = !followSystem) },
+                    track = { sliderState ->
+                        SliderDefaults.Track(
+                            sliderState = sliderState,
+                            colors = SliderDefaults.colors(
+                                activeTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
+                                inactiveTrackColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
+                                activeTickColor = Color.Transparent,
+                                inactiveTickColor = Color.Transparent,
+                            ),
+                        )
+                    },
                 )
             }
         }
     }
 }
+
+@Composable
+private fun SliderThumb(enabled: Boolean) {
+    Box(
+        modifier = Modifier
+            .size(24.dp)
+            .shadow(elevation = 4.dp, shape = CircleShape)
+            .background(Color.White, CircleShape)
+            .border(
+                width = 0.8.dp,
+                color = Color.Black.copy(alpha = 0.08f),
+                shape = CircleShape,
+            )
+            .alpha(if (enabled) 1f else 0.65f),
+    )
+}
+

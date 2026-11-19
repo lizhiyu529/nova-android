@@ -17,17 +17,30 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * 居中提示。用 message 的「上一帧快照」渲染，
+ * 保证退出动画期间仍有内容，不会露出空气泡。
+ */
 @Composable
 fun CenterToast(
     message: String?,
     modifier: Modifier = Modifier,
 ) {
+    var snapshot by remember { mutableStateOf("") }
+    if (message != null && message != snapshot) {
+        snapshot = message
+    }
+
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -37,8 +50,8 @@ fun CenterToast(
             enter = fadeIn(tween(160)) +
                 scaleIn(tween(260, easing = LinearOutSlowInEasing), initialScale = 0.88f) +
                 slideInVertically(tween(260, easing = LinearOutSlowInEasing)) { it / 3 },
-            exit = fadeOut(tween(220)) +
-                slideOutVertically(tween(240)) { it / 4 },
+            exit = fadeOut(tween(200)) +
+                slideOutVertically(tween(220)) { it / 4 },
         ) {
             Surface(
                 shape = RoundedCornerShape(14.dp),
@@ -47,12 +60,12 @@ fun CenterToast(
             ) {
                 Box(
                     modifier = Modifier
-                        .widthIn(min = 0.dp, max = 260.dp)
+                        .widthIn(max = 260.dp)
                         .padding(horizontal = 18.dp, vertical = 11.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = message.orEmpty(),
+                        text = snapshot,
                         style = MaterialTheme.typography.bodyMedium,
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.inverseOnSurface,
