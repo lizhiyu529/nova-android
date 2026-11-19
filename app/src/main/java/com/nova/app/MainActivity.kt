@@ -8,8 +8,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
 import com.nova.app.ui.NovaApp
+import com.nova.app.ui.settings.AppThemeMode
 import com.nova.app.ui.theme.NovaTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,7 +25,13 @@ class MainActivity : ComponentActivity() {
         )
         super.onCreate(savedInstanceState)
         setContent {
-            val darkTheme = isSystemInDarkTheme()
+            val systemDark = isSystemInDarkTheme()
+            var themeMode by remember { mutableStateOf(AppThemeMode.System) }
+            val darkTheme = when (themeMode) {
+                AppThemeMode.System -> systemDark
+                AppThemeMode.Light -> false
+                AppThemeMode.Dark -> true
+            }
             SideEffect {
                 WindowCompat.getInsetsController(window, window.decorView).apply {
                     isAppearanceLightStatusBars = !darkTheme
@@ -28,7 +39,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
             NovaTheme(darkTheme = darkTheme) {
-                NovaApp()
+                NovaApp(
+                    themeMode = themeMode,
+                    onThemeModeChange = { themeMode = it },
+                )
             }
         }
     }
