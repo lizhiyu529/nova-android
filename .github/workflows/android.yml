@@ -6,7 +6,11 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+env:
+  ANDROID_HOME: /usr/local/lib/android/sdk
+  ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
 
 jobs:
   build:
@@ -21,27 +25,20 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Generate signing keystore on first build
+      - name: Install SDK packages
         run: |
-          mkdir -p keystore
+          SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -n 1)
+          echo "sdkmanager: $SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+          "$SDKMANAGER" "platforms;android-37" "build-tools;36.0.0" "platform-tools"
+
+      - name: Check keystore
+        run: |
           if [ ! -f keystore/nova-release.jks ]; then
-            keytool -genkeypair -v \
-              -keystore keystore/nova-release.jks \
-              -storetype PKCS12 \
-              -keyalg RSA -keysize 2048 -validity 36500 \
-              -alias nova \
-              -storepass nova123456 \
-              -keypass nova123456 \
-              -dname "CN=Nova, OU=Mobile, O=Nova, L=Beijing, S=Beijing, C=CN"
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add keystore/nova-release.jks
-            git commit -m "chore: add release signing keystore"
-            git push
+            echo "::error::keystore/nova-release.jks missing - run Init Keystore workflow and commit the file"
+            exit 1
           fi
+          ls -l keystore/nova-release.jks
 
       - name: Cache Gradle
         uses: actions/cache@v4
@@ -53,8 +50,6 @@ jobs:
           restore-keys: gradle-${{ runner.os }}-
 
       - name: Build release APK
-        env:
-          NOVA_GITHUB_TOKEN: ${{ secrets.NOVA_GITHUB_TOKEN }}
         run: ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Verify signature
