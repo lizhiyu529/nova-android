@@ -49,6 +49,7 @@ import com.nova.app.ui.search.SearchScreen
 import com.nova.app.ui.settings.AppLanguage
 import com.nova.app.ui.settings.AppThemeMode
 import com.nova.app.ui.settings.SettingsScreen
+import com.nova.app.ui.settings.settingsPageBackground
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -150,7 +151,7 @@ fun NovaApp(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.surface,
+                color = settingsPageBackground(),
             ) {
                 SettingsPage(
                     language = language,
@@ -212,7 +213,7 @@ private fun SettingsTopBar(onBack: () -> Unit) {
                     .align(Alignment.CenterStart)
                     .size(40.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                color = MaterialTheme.colorScheme.surfaceContainerHighest,
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(

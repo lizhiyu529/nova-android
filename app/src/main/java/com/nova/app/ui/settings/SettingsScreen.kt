@@ -61,7 +61,7 @@ fun OptionPickerDialog(
                 .fillMaxWidth()
                 .padding(horizontal = 44.dp),
             shape = RoundedCornerShape(26.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = settingsCardColor(),
             tonalElevation = 0.dp,
         ) {
             Column {
@@ -299,7 +299,7 @@ private fun SettingsCard(content: @Composable () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        color = settingsCardColor(),
     ) {
         Column(modifier = Modifier.padding(vertical = 2.dp)) {
             content()
