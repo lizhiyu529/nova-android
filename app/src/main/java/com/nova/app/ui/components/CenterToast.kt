@@ -82,7 +82,7 @@ fun CenterToast(
 @Composable
 private fun toastContainer(): Color {
     val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-    return if (dark) Color(0xFF44444A) else Color(0xFF2F3036)
+    return if (dark) Color(0xFF5A5A60) else Color(0xFF2F3036)
 }
 
 @Composable
