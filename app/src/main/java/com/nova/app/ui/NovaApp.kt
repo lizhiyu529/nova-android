@@ -177,7 +177,8 @@ private fun SettingsPage(
         SettingsTopBar(onBack = onBack)
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .weight(1f)
+                .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding(),
         ) {
@@ -219,7 +220,7 @@ private fun SettingsTopBar(onBack: () -> Unit) {
                     Icon(
                         imageVector = NovaIcons.Back,
                         contentDescription = "返回",
-                        modifier = Modifier.size(17.dp),
+                        modifier = Modifier.size(15.dp),
                         tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
@@ -227,7 +228,7 @@ private fun SettingsTopBar(onBack: () -> Unit) {
         }
         Text(
             text = "设置",
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.align(Alignment.Center),

@@ -13,8 +13,10 @@
 
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|density|keyboardHidden|uiMode"
             android:exported="true"
             android:label="@string/app_name"
+            android:resizeableActivity="true"
             android:theme="@style/Theme.Nova"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

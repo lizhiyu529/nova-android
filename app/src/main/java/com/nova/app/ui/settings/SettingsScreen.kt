@@ -32,6 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,7 +52,11 @@ fun OptionPickerDialog(
     onDismiss: () -> Unit,
 ) {
     var pending by remember { mutableStateOf(selectedIndex) }
-    val maxListHeight = 380.dp
+    val windowHeight = LocalConfiguration.current.screenHeightDp
+    val maxListHeight = (windowHeight * 0.52f).dp.coerceAtMost(380.dp)
+
+    val windowWidth = LocalConfiguration.current.screenWidthDp
+    val horizontalPadding = (windowWidth * 0.115f).dp.coerceIn(20.dp, 44.dp)
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -59,9 +65,9 @@ fun OptionPickerDialog(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 44.dp),
+                .padding(horizontal = horizontalPadding),
             shape = RoundedCornerShape(26.dp),
-            color = settingsCardColor(),
+            color = settingsDialogColor(),
             tonalElevation = 0.dp,
         ) {
             Column {
@@ -87,7 +93,7 @@ fun OptionPickerDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = maxListHeight),
-                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    color = Color.Transparent,
                 ) {
                     Column(
                         modifier = Modifier
@@ -112,7 +118,7 @@ fun OptionPickerDialog(
                     onClick = { onConfirm(pending) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(0.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    color = Color.Transparent,
                 ) {
                     Box(
                         modifier = Modifier.padding(vertical = 13.dp),
@@ -158,7 +164,7 @@ private fun OptionRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
-            fontSize = 17.sp,
+            fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
@@ -337,6 +343,7 @@ private fun SettingsRow(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
+                fontSize = 15.sp,
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
@@ -344,6 +351,7 @@ private fun SettingsRow(
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium,
+                fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 12.dp),
             )
