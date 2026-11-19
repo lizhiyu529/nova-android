@@ -17,12 +17,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,8 +59,8 @@ fun OptionPickerDialog(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 40.dp),
-            shape = RoundedCornerShape(28.dp),
+                .padding(horizontal = 44.dp),
+            shape = RoundedCornerShape(26.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 0.dp,
         ) {
@@ -66,7 +68,7 @@ fun OptionPickerDialog(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 22.dp, bottom = 18.dp),
+                        .padding(top = 20.dp, bottom = 14.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -91,7 +93,7 @@ fun OptionPickerDialog(
                         modifier = Modifier
                             .verticalScroll(rememberScrollState())
                             .selectableGroup()
-                            .padding(vertical = 6.dp),
+                            .padding(vertical = 2.dp),
                     ) {
                         options.forEachIndexed { index, label ->
                             OptionRow(
@@ -113,7 +115,7 @@ fun OptionPickerDialog(
                     color = MaterialTheme.colorScheme.surfaceContainerLowest,
                 ) {
                     Box(
-                        modifier = Modifier.padding(vertical = 16.dp),
+                        modifier = Modifier.padding(vertical = 13.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
@@ -138,18 +140,21 @@ private fun OptionRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 12.dp),
+            .padding(horizontal = 18.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        RadioButton(
-            selected = selected,
-            onClick = onClick,
-            colors = RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.onSurface,
-                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
-        )
-        Spacer(Modifier.width(16.dp))
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+            RadioButton(
+                selected = selected,
+                onClick = onClick,
+                modifier = Modifier.size(40.dp),
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = MaterialTheme.colorScheme.onSurface,
+                    unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
+            )
+        }
+        Spacer(Modifier.width(14.dp))
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
@@ -158,7 +163,7 @@ private fun OptionRow(
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
                 .clickable(onClick = onClick)
-                .padding(horizontal = 4.dp, vertical = 4.dp),
+                .padding(horizontal = 4.dp, vertical = 6.dp),
         )
     }
 }
