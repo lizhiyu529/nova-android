@@ -8,13 +8,13 @@ private val Base = Typography()
 
 val NovaTypography = Typography(
     headlineLargeEmphasized = Base.headlineLargeEmphasized.copy(
-        fontSize = 30.sp,
-        lineHeight = 38.sp,
+        fontSize = 22.sp,
+        lineHeight = 30.sp,
         fontWeight = FontWeight.SemiBold,
     ),
     headlineMediumEmphasized = Base.headlineMediumEmphasized.copy(
-        fontSize = 26.sp,
-        lineHeight = 33.sp,
+        fontSize = 20.sp,
+        lineHeight = 27.sp,
         fontWeight = FontWeight.SemiBold,
     ),
 )

@@ -38,9 +38,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.nova.app.BuildConfig
+import com.nova.app.data.CrashLogs
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.drawer.Conversation
 import com.nova.app.ui.drawer.NovaDrawer
@@ -55,7 +59,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.util.UUID
 
-private enum class Overlay { None, Search, Settings }
+private enum class Overlay { None, Search, Settings, Logs }
 
 @Composable
 fun NovaApp(
@@ -152,6 +156,32 @@ fun NovaApp(
                     onBack = { closeOverlay() },
                     onLanguageChange = { language = it },
                     onThemeChange = onThemeModeChange,
+                    onOpenLogs = { overlay = Overlay.Logs },
+                )
+            }
+        }
+
+        AnimatedVisibility(
+            visible = overlay == Overlay.Logs,
+            enter = fadeIn(tween(260, delayMillis = 40)) +
+                slideInHorizontally(tween(460, easing = LinearOutSlowInEasing)) { it / 2 },
+            exit = fadeOut(tween(200)) +
+                slideOutHorizontally(tween(300, easing = FastOutSlowInEasing)) { it / 2 },
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = settingsPageBackground(),
+            ) {
+                val context = LocalContext.current
+                var logContent by remember { mutableStateOf(CrashLogs.read(context)) }
+                LogPage(
+                    content = logContent,
+                    logPath = CrashLogs.file(context).absolutePath,
+                    onBack = { overlay = Overlay.Settings },
+                    onClear = {
+                        CrashLogs.clear(context)
+                        logContent = ""
+                    },
                 )
             }
         }
@@ -165,6 +195,7 @@ private fun SettingsPage(
     onBack: () -> Unit,
     onLanguageChange: (AppLanguage) -> Unit,
     onThemeChange: (AppThemeMode) -> Unit,
+    onOpenLogs: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         SettingsTopBar(onBack = onBack)
@@ -187,7 +218,114 @@ private fun SettingsPage(
                 onAccount = {},
                 onDataManagement = {},
                 onCheckUpdate = {},
+                onOpenLogs = onOpenLogs,
             )
+        }
+    }
+}
+
+@Composable
+private fun LogPage(
+    content: String,
+    logPath: String,
+    onBack: () -> Unit,
+    onClear: () -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = 8.dp, vertical = 6.dp),
+        ) {
+            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+                Surface(
+                    onClick = onBack,
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .size(40.dp),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = NovaIcons.Back,
+                            contentDescription = "返回",
+                            modifier = Modifier.size(15.dp),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
+            }
+            Text(
+                text = "运行日志",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.align(Alignment.Center),
+            )
+            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+                Surface(
+                    onClick = onClear,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .size(40.dp),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = NovaIcons.Trash,
+                            contentDescription = "清空日志",
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+        }
+        Text(
+            text = logPath,
+            style = MaterialTheme.typography.bodySmall,
+            fontSize = 11.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp),
+        )
+        if (content.isBlank()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .navigationBarsPadding(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "还没有崩溃记录",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                )
+            }
+        } else {
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp)
+                    .padding(bottom = 12.dp),
+                shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+            ) {
+                Text(
+                    text = content,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 11.sp,
+                    lineHeight = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(14.dp),
+                )
+            }
         }
     }
 }

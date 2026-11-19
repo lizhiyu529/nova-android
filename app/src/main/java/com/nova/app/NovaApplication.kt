@@ -3,7 +3,7 @@ package com.nova.app
 import android.app.Application
 import android.os.Build
 import android.util.Log
-import java.io.File
+import com.nova.app.data.CrashLogs
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.text.SimpleDateFormat
@@ -44,8 +44,9 @@ class NovaApplication : Application() {
             appendLine()
         }
 
-        val dir = File(filesDir, "logs").apply { mkdirs() }
-        File(dir, "crash.log").appendText(entry)
+        val target = CrashLogs.file(this)
+        target.parentFile?.mkdirs()
+        target.appendText(entry)
         Log.e(TAG, entry)
     }
 

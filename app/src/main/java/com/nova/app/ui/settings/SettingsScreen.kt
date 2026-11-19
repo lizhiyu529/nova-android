@@ -187,6 +187,7 @@ fun SettingsScreen(
     onAccount: () -> Unit,
     onDataManagement: () -> Unit,
     onCheckUpdate: () -> Unit,
+    onOpenLogs: () -> Unit,
 ) {
     var languageDialog by remember { mutableStateOf(false) }
     var themeDialog by remember { mutableStateOf(false) }
@@ -259,6 +260,11 @@ fun SettingsScreen(
                 title = "检查更新",
                 value = versionName,
                 onClick = onCheckUpdate,
+            )
+            SettingsRow(
+                icon = NovaIcons.Document,
+                title = "运行日志",
+                onClick = onOpenLogs,
             )
         }
 
