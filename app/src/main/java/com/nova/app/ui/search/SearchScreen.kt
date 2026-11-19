@@ -57,6 +57,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nova.app.ui.components.BackButton
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.drawer.Conversation
 import com.nova.app.ui.drawer.ConversationGroup
@@ -103,22 +104,12 @@ fun SearchScreen(
                 .padding(start = 4.dp, end = 14.dp, top = 10.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-                IconButton(
-                    onClick = {
-                        keyboard?.hide()
-                        onBack()
-                    },
-                    modifier = Modifier.size(40.dp),
-                ) {
-                    Icon(
-                        imageVector = NovaIcons.Back,
-                        contentDescription = "返回",
-                        modifier = Modifier.size(17.dp),
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-            }
+            BackButton(
+                onClick = {
+                    keyboard?.hide()
+                    onBack()
+                },
+            )
             Spacer(Modifier.width(4.dp))
             SearchField(
                 query = query,

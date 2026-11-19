@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nova.app.BuildConfig
 import com.nova.app.data.AppLogs
+import com.nova.app.ui.components.BackButton
 import com.nova.app.ui.components.CenterToast
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.drawer.Conversation
@@ -328,25 +329,10 @@ private fun LogPage(onBack: () -> Unit) {
                 .statusBarsPadding()
                 .padding(horizontal = 8.dp, vertical = 6.dp),
         ) {
-            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-                Surface(
-                    onClick = onBack,
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .size(40.dp),
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = NovaIcons.Back,
-                            contentDescription = "返回",
-                            modifier = Modifier.size(15.dp),
-                            tint = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-                }
-            }
+            BackButton(
+                onClick = onBack,
+                modifier = Modifier.align(Alignment.CenterStart),
+            )
             Text(
                 text = "运行日志",
                 style = MaterialTheme.typography.titleMedium,
@@ -458,25 +444,10 @@ private fun SettingsTopBar(title: String = "设置", onBack: () -> Unit) {
             .statusBarsPadding()
             .padding(horizontal = 8.dp, vertical = 6.dp),
     ) {
-        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-            Surface(
-                onClick = onBack,
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .size(40.dp),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceContainerHighest,
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = NovaIcons.Back,
-                        contentDescription = "返回",
-                        modifier = Modifier.size(15.dp),
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-            }
-        }
+        BackButton(
+            onClick = onBack,
+            modifier = Modifier.align(Alignment.CenterStart),
+        )
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,

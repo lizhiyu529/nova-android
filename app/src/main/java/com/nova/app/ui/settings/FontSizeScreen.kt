@@ -1,6 +1,5 @@
 package com.nova.app.ui.settings
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,12 +21,10 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -67,13 +64,13 @@ fun FontSizeScreen(
             ) {
                 Surface(
                     shape = RoundedCornerShape(18.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer,
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
                 ) {
                     Text(
                         text = "预览文字大小",
                         fontSize = (16 * scale).sp,
                         lineHeight = (22 * scale).sp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                     )
                 }
@@ -162,26 +159,10 @@ fun FontSizeScreen(
                 Slider(
                     state = sliderState,
                     onValueChange = { if (!followSystem) onScaleChange(it.toInt()) },
-                    thumb = {
-                        SliderDefaults.Thumb(
-                            interactionSource = remember { MutableInteractionSource() },
-                            colors = SliderDefaults.colors(
-                                thumbColor = Color.White,
-                                activeTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
-                                inactiveTrackColor = MaterialTheme.colorScheme.outlineVariant,
-                            ),
-                            thumbSize = DpSize(26.dp, 26.dp),
-                        )
-                    },
-                    track = { state ->
-                        SliderDefaults.Track(
-                            sliderState = state,
-                            colors = SliderDefaults.colors(
-                                activeTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
-                                inactiveTrackColor = MaterialTheme.colorScheme.outlineVariant,
-                            ),
-                        )
-                    },
+                    colors = SliderDefaults.colors(
+                        activeTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
+                        inactiveTrackColor = MaterialTheme.colorScheme.outlineVariant,
+                    ),
                 )
             }
         }
