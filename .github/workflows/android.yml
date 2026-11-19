@@ -50,7 +50,9 @@ jobs:
           restore-keys: gradle-${{ runner.os }}-
 
       - name: Build release APK
-        run: ./gradlew assembleRelease --no-daemon --stacktrace
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Verify signature
         run: |
