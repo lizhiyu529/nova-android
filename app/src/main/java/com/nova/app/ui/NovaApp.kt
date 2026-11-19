@@ -207,6 +207,10 @@ fun NovaApp(
                     onLanguageChange = { language = it },
                     onThemeChange = onThemeModeChange,
                     onOpenLogs = { push(Page.Logs) },
+                    onCheckUpdate = {
+                        AppLogs.record(context, "check update")
+                        toast = "当前已是最新版本 ${BuildConfig.VERSION_NAME}"
+                    },
                 )
             }
         }
@@ -240,6 +244,7 @@ private fun SettingsPage(
     onLanguageChange: (AppLanguage) -> Unit,
     onThemeChange: (AppThemeMode) -> Unit,
     onOpenLogs: () -> Unit,
+    onCheckUpdate: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         SettingsTopBar(onBack = onBack)
@@ -261,10 +266,7 @@ private fun SettingsPage(
                 onPersonalize = {},
                 onAccount = {},
                 onDataManagement = {},
-                onCheckUpdate = {
-                    AppLogs.record(context, "check update")
-                    toast = "当前已是最新版本 ${BuildConfig.VERSION_NAME}"
-                },
+                onCheckUpdate = onCheckUpdate,
                 onOpenLogs = onOpenLogs,
             )
         }
