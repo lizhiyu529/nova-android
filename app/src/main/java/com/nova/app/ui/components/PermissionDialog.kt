@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.theme.NovaTheme
 
 @Composable
@@ -30,11 +31,12 @@ fun PermissionDialog(
     icon: ImageVector,
     title: String,
     message: String,
-    confirmText: String = "去授权",
-    dismissText: String = "暂不",
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
+    confirmText: String? = null,
+    dismissText: String? = null,
 ) {
+    val strings = NovaStrings.strings
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -94,7 +96,7 @@ fun PermissionDialog(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
-                            text = confirmText,
+                            text = confirmText ?: strings.grant,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium,
                             color = NovaTheme.colors.onAccent,
@@ -112,7 +114,7 @@ fun PermissionDialog(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
-                            text = dismissText,
+                            text = dismissText ?: strings.notNow,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium,
                             color = NovaTheme.colors.textSecondary,

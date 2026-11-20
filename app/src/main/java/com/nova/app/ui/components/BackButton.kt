@@ -11,6 +11,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.theme.NovaTheme
 
 @Composable
@@ -28,7 +29,7 @@ fun BackButton(
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = NovaIcons.Back,
-                    contentDescription = "返回",
+                    contentDescription = NovaStrings.strings.back,
                     modifier = Modifier.size(16.dp),
                     tint = NovaTheme.colors.textPrimary,
                 )

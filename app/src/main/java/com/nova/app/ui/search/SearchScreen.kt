@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.components.BackButton
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.drawer.Conversation
@@ -118,12 +119,12 @@ fun SearchScreen(
 
         if (query.isBlank()) {
             EmptyHint(
-                text = "输入关键词搜索历史对话",
+                text = NovaStrings.strings.searchEmptyHint,
                 modifier = Modifier.padding(top = 60.dp),
             )
         } else if (results.isEmpty()) {
             EmptyHint(
-                text = "没有找到「$query」相关的对话",
+                text = NovaStrings.strings.searchNoResult(query),
                 modifier = Modifier.padding(top = 60.dp),
             )
         } else {
@@ -134,7 +135,7 @@ fun SearchScreen(
                 groups.forEach { (group, items) ->
                     item(key = "h-${group.name}") {
                         Text(
-                            text = group.label,
+                            text = group.label(NovaStrings.strings),
                             style = MaterialTheme.typography.labelLarge,
                             color = NovaTheme.colors.textSecondary,
                             modifier = Modifier.padding(start = 10.dp, top = 16.dp, bottom = 6.dp),
@@ -201,7 +202,7 @@ private fun SearchField(
                         Box(contentAlignment = Alignment.CenterStart) {
                             if (query.isEmpty()) {
                                 Text(
-                                    text = "搜索对话内容...",
+                                    text = NovaStrings.strings.searchPlaceholder,
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = NovaTheme.colors.textSecondary,
                                 )
@@ -223,7 +224,7 @@ private fun SearchField(
                     ) {
                         Icon(
                             imageVector = NovaIcons.Close,
-                            contentDescription = "清空",
+                            contentDescription = NovaStrings.strings.clear,
                             modifier = Modifier.size(15.dp),
                             tint = NovaTheme.colors.textSecondary,
                         )

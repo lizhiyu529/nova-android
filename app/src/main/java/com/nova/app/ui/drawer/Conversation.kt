@@ -1,14 +1,24 @@
 package com.nova.app.ui.drawer
 
+import com.nova.app.ui.Strings
 import java.time.Duration
 import java.time.LocalDateTime
 
-enum class ConversationGroup(val label: String) {
-    Pinned("置顶"),
-    Today("今天"),
-    Yesterday("昨天"),
-    LastWeek("7 天内"),
-    Earlier("更早"),
+enum class ConversationGroup {
+    Pinned,
+    Today,
+    Yesterday,
+    LastWeek,
+    Earlier,
+    ;
+
+    fun label(strings: Strings): String = when (this) {
+        Pinned -> strings.groupPinned
+        Today -> strings.groupToday
+        Yesterday -> strings.groupYesterday
+        LastWeek -> strings.groupLastWeek
+        Earlier -> strings.groupEarlier
+    }
 }
 
 data class Conversation(

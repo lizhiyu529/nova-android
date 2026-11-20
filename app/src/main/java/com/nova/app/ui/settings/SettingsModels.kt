@@ -1,16 +1,22 @@
 package com.nova.app.ui.settings
 
-enum class AppLanguage(val label: String, val tag: String) {
-    System("系统", "system"),
-    Chinese("中文 (简体中文)", "zh-CN"),
-    Japanese("日本語", "ja-JP"),
-    Arabic("العربية", "ar"),
-    Armenian("Հայերեն", "hy-AM"),
-    Azerbaijani("azərbaycan", "az-AZ"),
+import androidx.annotation.StringRes
+import com.nova.app.R
+
+enum class AppLanguage(@StringRes val labelRes: Int, val tag: String) {
+    System(R.string.language_system, ""),
+    Chinese(R.string.language_chinese, "zh"),
+    English(R.string.language_english, "en"),
+    ;
+
+    companion object {
+        fun fromTag(tag: String?): AppLanguage =
+            entries.firstOrNull { it.tag == tag } ?: System
+    }
 }
 
-enum class AppThemeMode(val label: String) {
-    System("系统"),
-    Light("浅色"),
-    Dark("深色"),
+enum class AppThemeMode(@StringRes val labelRes: Int) {
+    System(R.string.theme_system),
+    Light(R.string.theme_light),
+    Dark(R.string.theme_dark),
 }

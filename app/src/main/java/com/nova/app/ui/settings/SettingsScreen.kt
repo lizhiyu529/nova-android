@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.theme.NovaTheme
 
@@ -126,7 +127,7 @@ fun OptionPickerDialog(
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = "确认",
+                            text = NovaStrings.strings.confirm,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium,
                             color = NovaTheme.colors.accent,
@@ -199,7 +200,7 @@ fun SettingsScreen(
     ) {
         Spacer(Modifier.size(6.dp))
         Text(
-            text = "账户",
+            text = NovaStrings.strings.sectionAccount,
             style = MaterialTheme.typography.labelLarge,
             color = NovaTheme.colors.textSecondary,
             modifier = Modifier.padding(start = 6.dp, top = 12.dp, bottom = 8.dp),
@@ -207,18 +208,18 @@ fun SettingsScreen(
         SettingsCard {
             SettingsRow(
                 icon = NovaIcons.User,
-                title = "助手预设",
+                title = NovaStrings.strings.assistantPreset,
                 onClick = onAccount,
             )
             SettingsRow(
                 icon = NovaIcons.Database,
-                title = "数据管理",
+                title = NovaStrings.strings.dataManagement,
                 onClick = onDataManagement,
             )
         }
 
         Text(
-            text = "应用",
+            text = NovaStrings.strings.sectionApp,
             style = MaterialTheme.typography.labelLarge,
             color = NovaTheme.colors.textSecondary,
             modifier = Modifier.padding(start = 6.dp, top = 22.dp, bottom = 8.dp),
@@ -226,30 +227,30 @@ fun SettingsScreen(
         SettingsCard {
             SettingsRow(
                 icon = NovaIcons.Globe,
-                title = "语言",
-                value = language.label,
+                title = NovaStrings.strings.language,
+                value = NovaStrings.strings.languageLabel(language),
                 onClick = { languageDialog = true },
             )
             SettingsRow(
                 icon = NovaIcons.Sun,
-                title = "外观",
-                value = themeMode.label,
+                title = NovaStrings.strings.appearance,
+                value = NovaStrings.strings.themeLabel(themeMode),
                 onClick = { themeDialog = true },
             )
             SettingsRow(
                 icon = NovaIcons.FontSize,
-                title = "字体大小",
+                title = NovaStrings.strings.fontSize,
                 onClick = onFontSize,
             )
             SettingsRow(
                 icon = NovaIcons.Sparkle,
-                title = "个性化",
+                title = NovaStrings.strings.personalization,
                 onClick = onPersonalize,
             )
         }
 
         Text(
-            text = "关于",
+            text = NovaStrings.strings.sectionAbout,
             style = MaterialTheme.typography.labelLarge,
             color = NovaTheme.colors.textSecondary,
             modifier = Modifier.padding(start = 6.dp, top = 22.dp, bottom = 8.dp),
@@ -257,19 +258,19 @@ fun SettingsScreen(
         SettingsCard {
             SettingsRow(
                 icon = NovaIcons.Info,
-                title = "检查更新",
+                title = NovaStrings.strings.checkUpdate,
                 value = versionName,
                 onClick = onCheckUpdate,
             )
             SettingsRow(
                 icon = NovaIcons.Document,
-                title = "运行日志",
+                title = NovaStrings.strings.runtimeLogs,
                 onClick = onOpenLogs,
             )
         }
 
         Text(
-            text = "内容由 AI 生成，请仔细甄别，并合法使用",
+            text = NovaStrings.strings.disclaimer,
             style = MaterialTheme.typography.bodySmall,
             color = NovaTheme.colors.textTertiary,
             textAlign = TextAlign.Center,
@@ -281,8 +282,8 @@ fun SettingsScreen(
 
     if (languageDialog) {
         OptionPickerDialog(
-            title = "语言",
-            options = AppLanguage.entries.map { it.label },
+            title = NovaStrings.strings.language,
+            options = AppLanguage.entries.map { NovaStrings.strings.languageLabel(it) },
             selectedIndex = AppLanguage.entries.indexOf(language),
             onConfirm = { index ->
                 onLanguageChange(AppLanguage.entries[index])
@@ -294,8 +295,8 @@ fun SettingsScreen(
 
     if (themeDialog) {
         OptionPickerDialog(
-            title = "外观",
-            options = AppThemeMode.entries.map { it.label },
+            title = NovaStrings.strings.appearance,
+            options = AppThemeMode.entries.map { NovaStrings.strings.themeLabel(it) },
             selectedIndex = AppThemeMode.entries.indexOf(themeMode),
             onConfirm = { index ->
                 onThemeChange(AppThemeMode.entries[index])

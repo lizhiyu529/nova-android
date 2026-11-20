@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.theme.NovaTheme
 
@@ -48,7 +49,7 @@ fun DataManagementScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "导出所有历史对话",
+                    text = NovaStrings.strings.exportAll,
                     style = MaterialTheme.typography.bodyLarge,
                     color = NovaTheme.colors.textPrimary,
                     modifier = Modifier.weight(1f),
@@ -70,7 +71,7 @@ fun DataManagementScreen(
             color = NovaTheme.colors.card,
         ) {
             Text(
-                text = "删除所有历史对话",
+                text = NovaStrings.strings.deleteAll,
                 style = MaterialTheme.typography.bodyLarge,
                 color = NovaTheme.colors.danger,
                 modifier = Modifier

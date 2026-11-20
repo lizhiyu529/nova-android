@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.components.NovaSwitch
 import com.nova.app.ui.theme.NovaTheme
 
@@ -43,7 +44,7 @@ fun PersonalizeScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "思考内容自动折叠",
+                    text = NovaStrings.strings.autoCollapse,
                     style = MaterialTheme.typography.bodyLarge,
                     color = NovaTheme.colors.textPrimary,
                     modifier = Modifier.weight(1f),
@@ -55,7 +56,7 @@ fun PersonalizeScreen(
             }
         }
         Text(
-            text = "开启后，思考结束后将自动折叠思考内容",
+            text = NovaStrings.strings.autoCollapseHint,
             style = MaterialTheme.typography.bodyMedium,
             color = NovaTheme.colors.textSecondary,
             modifier = Modifier.padding(start = 18.dp, top = 8.dp),

@@ -62,6 +62,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.theme.NovaTheme
 import com.nova.app.ui.theme.NovaTransitions
@@ -89,6 +90,7 @@ fun NovaDrawer(
     var confirmDelete by remember { mutableStateOf<Set<String>?>(null) }
 
     val groups = remember(conversations, now) { groupConversations(conversations, now) }
+    val strings = NovaStrings.strings
     val pinnedGroup = groups.firstOrNull { it.first == ConversationGroup.Pinned }
     val restGroups = remember(groups) { groups.filterNot { it.first == ConversationGroup.Pinned } }
 
@@ -158,7 +160,7 @@ fun NovaDrawer(
                 }
                 restGroups.forEach { (group, items) ->
                     item(key = "header-${group.name}") {
-                        SectionLabel(group.label)
+                        SectionLabel(group.label(strings))
                     }
                     items(items, key = { it.id }) { conversation ->
                         ConversationRow(
@@ -270,7 +272,7 @@ private fun DrawerSearchField(
             )
             Spacer(Modifier.width(10.dp))
             Text(
-                text = "搜索对话内容...",
+                text = NovaStrings.strings.drawerSearchPlaceholder,
                 style = MaterialTheme.typography.bodyLarge,
                 color = NovaTheme.colors.textSecondary,
             )
@@ -288,7 +290,7 @@ private fun SelectionTopBar(onClose: () -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(
-            text = "选择对话",
+            text = NovaStrings.strings.selectConversations,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold,
             color = NovaTheme.colors.textPrimary,
@@ -304,7 +306,7 @@ private fun SelectionTopBar(onClose: () -> Unit) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = NovaIcons.Close,
-                        contentDescription = "退出选择",
+                        contentDescription = NovaStrings.strings.exitSelection,
                         modifier = Modifier.size(18.dp),
                         tint = NovaTheme.colors.textSecondary,
                     )
@@ -337,7 +339,7 @@ private fun PinnedHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "置顶 $count 个对话",
+                text = NovaStrings.strings.pinnedCount(count),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Normal,
                 color = NovaTheme.colors.textSecondary,
@@ -345,7 +347,7 @@ private fun PinnedHeader(
             Spacer(Modifier.width(5.dp))
             Icon(
                 imageVector = NovaIcons.ChevronDown,
-                contentDescription = if (expanded) "收起置顶" else "展开置顶",
+                contentDescription = if (expanded) NovaStrings.strings.collapsePinned else NovaStrings.strings.expandPinned,
                 modifier = Modifier
                     .size(16.dp)
                     .rotate(if (expanded) 0f else -90f),
@@ -360,7 +362,7 @@ private fun PinnedHeader(
                 ) {
                     Icon(
                         imageVector = NovaIcons.SelectAll,
-                        contentDescription = "多选对话",
+                        contentDescription = NovaStrings.strings.selectAll,
                         modifier = Modifier.size(19.dp),
                         tint = NovaTheme.colors.textSecondary,
                     )
@@ -483,7 +485,7 @@ private fun SelectionActionBar(
         ) {
             SelectionAction(
                 icon = NovaIcons.Pin,
-                label = "置顶",
+                label = NovaStrings.strings.pin,
                 enabled = count > 0,
                 onClick = onPin,
                 modifier = Modifier.weight(1f),
@@ -496,7 +498,7 @@ private fun SelectionActionBar(
             )
             SelectionAction(
                 icon = NovaIcons.Trash,
-                label = "删除",
+                label = NovaStrings.strings.delete,
                 enabled = count > 0,
                 onClick = onDelete,
                 modifier = Modifier.weight(1f),
@@ -619,7 +621,7 @@ private fun ConversationMenu(
             Column {
                 MenuRow(
                     icon = NovaIcons.Edit,
-                    label = "重命名",
+                    label = NovaStrings.strings.rename,
                     tint = NovaTheme.colors.textPrimary,
                     onClick = onRename,
                 )
@@ -629,7 +631,7 @@ private fun ConversationMenu(
                 )
                 MenuRow(
                     icon = NovaIcons.Pin,
-                    label = if (pinned) "取消置顶" else "置顶",
+                    label = if (pinned) NovaStrings.strings.unpin else NovaStrings.strings.pin,
                     tint = NovaTheme.colors.textPrimary,
                     onClick = onTogglePin,
                 )
@@ -639,7 +641,7 @@ private fun ConversationMenu(
                 )
                 MenuRow(
                     icon = NovaIcons.SelectAll,
-                    label = "多选",
+                    label = NovaStrings.strings.multiSelect,
                     tint = NovaTheme.colors.textPrimary,
                     onClick = onMultiSelect,
                 )
@@ -725,7 +727,7 @@ private fun RenameDialog(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "重命名对话",
+                        text = NovaStrings.strings.renameTitle,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = NovaTheme.colors.textPrimary,
@@ -772,7 +774,7 @@ private fun RenameDialog(
                 )
                 Row(modifier = Modifier.fillMaxWidth()) {
                     DialogTextAction(
-                        text = "取消",
+                        text = NovaStrings.strings.cancel,
                         color = NovaTheme.colors.textSecondary,
                         onClick = {
                             keyboard?.hide()
@@ -787,7 +789,7 @@ private fun RenameDialog(
                             .background(NovaTheme.colors.divider),
                     )
                     DialogTextAction(
-                        text = "确认",
+                        text = NovaStrings.strings.confirm,
                         color = NovaTheme.colors.accent,
                         onClick = {
                             val trimmed = text.trim()
@@ -827,7 +829,7 @@ private fun DeleteConfirmDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "删除选择的 $count 个对话？",
+                    text = NovaStrings.strings.deleteTitle(count),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = NovaTheme.colors.textPrimary,
@@ -835,7 +837,7 @@ private fun DeleteConfirmDialog(
                 )
                 Spacer(Modifier.size(10.dp))
                 Text(
-                    text = "删除后无法恢复，请确认是否继续。",
+                    text = NovaStrings.strings.deleteMessage,
                     style = MaterialTheme.typography.bodyMedium,
                     color = NovaTheme.colors.textSecondary,
                     textAlign = TextAlign.Center,

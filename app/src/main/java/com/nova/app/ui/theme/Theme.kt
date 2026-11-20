@@ -7,6 +7,8 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import com.nova.app.ui.LocalStrings
+import com.nova.app.ui.Strings
 
 val LocalNovaColors = staticCompositionLocalOf { NovaColorsLight }
 
@@ -21,6 +23,7 @@ object NovaTheme {
     operator fun invoke(
         darkTheme: Boolean,
         fontScale: Float = 1f,
+        strings: Strings,
         content: @Composable () -> Unit,
     ) {
         val density = LocalDensity.current
@@ -28,6 +31,7 @@ object NovaTheme {
         val colors = if (darkTheme) NovaColorsDark else NovaColorsLight
         CompositionLocalProvider(
             LocalNovaColors provides colors,
+            LocalStrings provides strings,
             LocalDensity provides scaledDensity,
         ) {
             MaterialExpressiveTheme(

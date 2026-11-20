@@ -24,6 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nova.app.ui.NovaStrings
+import com.nova.app.ui.Strings
 import com.nova.app.ui.components.NovaSwitch
 import com.nova.app.ui.theme.NovaTheme
 
@@ -34,10 +36,10 @@ val FontScaleSteps: List<Float> = listOf(
 
 const val DefaultFontScaleIndex = 3
 
-fun fontScaleLabel(index: Int): String = when (index) {
-    3 -> "标准"
-    in 0..2 -> "较小"
-    else -> "较大"
+fun fontScaleLabel(index: Int, strings: Strings): String = when (index) {
+    3 -> strings.sizeStandard
+    in 0..2 -> strings.sizeSmall
+    else -> strings.sizeLarge
 }
 
 @Composable
@@ -65,7 +67,7 @@ fun FontSizeScreen(
                     color = NovaTheme.colors.containerHighest,
                 ) {
                     Text(
-                        text = "预览文字大小",
+                        text = NovaStrings.strings.fontSizePreview,
                         fontSize = (16 * scale).sp,
                         lineHeight = (22 * scale).sp,
                         color = NovaTheme.colors.textPrimary,
@@ -75,14 +77,14 @@ fun FontSizeScreen(
             }
             Spacer(Modifier.height(26.dp))
             Text(
-                text = "拖动下方滑块就能调整全局字号，所见即所得。",
+                text = NovaStrings.strings.fontSizeDescription,
                 fontSize = (16 * scale).sp,
                 lineHeight = (24 * scale).sp,
                 color = NovaTheme.colors.textPrimary,
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                text = "长段代码看久了容易累，把字号调到自己舒服的档位，界面其它地方也会一起变。",
+                text = NovaStrings.strings.fontSizeDescriptionExtra,
                 fontSize = (16 * scale).sp,
                 lineHeight = (24 * scale).sp,
                 color = NovaTheme.colors.textPrimary,
@@ -105,7 +107,7 @@ fun FontSizeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        text = "跟随系统",
+                        text = NovaStrings.strings.followSystem,
                         style = MaterialTheme.typography.bodyLarge,
                         color = NovaTheme.colors.textPrimary,
                     )
@@ -129,7 +131,7 @@ fun FontSizeScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = fontScaleLabel(scaleIndex),
+                            text = fontScaleLabel(scaleIndex, NovaStrings.strings),
                             style = MaterialTheme.typography.labelMedium,
                             color = NovaTheme.colors.textPrimary,
                         )

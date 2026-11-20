@@ -43,6 +43,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nova.app.BuildConfig
 import com.nova.app.data.AppLogs
+import com.nova.app.ui.NovaStrings
+import com.nova.app.ui.Strings
 import com.nova.app.ui.components.BackButton
 import com.nova.app.ui.components.CenterToast
 import com.nova.app.ui.components.NovaIcons
@@ -73,6 +75,8 @@ private enum class Page { Search, Settings, Logs, FontSize, Personalize, DataMan
 fun NovaApp(
     themeMode: AppThemeMode,
     onThemeModeChange: (AppThemeMode) -> Unit,
+    language: AppLanguage,
+    onLanguageChange: (AppLanguage) -> Unit,
     fontScaleIndex: Int,
     followSystemFont: Boolean,
     onFontScaleChange: (Int) -> Unit,
@@ -81,10 +85,10 @@ fun NovaApp(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    var conversations by remember { mutableStateOf(sampleConversations(LocalDateTime.now())) }
+    val strings = NovaStrings.strings
+    var conversations by remember { mutableStateOf(sampleConversations(LocalDateTime.now(), strings)) }
     val referenceTime = remember { LocalDateTime.now() }
     var stack by rememberSaveable { mutableStateOf(listOf<Page>()) }
-    var language by rememberSaveable { mutableStateOf(AppLanguage.Chinese) }
     var autoCollapseThinking by rememberSaveable { mutableStateOf(true) }
     var toast by remember { mutableStateOf<String?>(null) }
 
@@ -193,7 +197,7 @@ fun NovaApp(
                     language = language,
                     themeMode = themeMode,
                     onBack = { pop() },
-                    onLanguageChange = { language = it },
+                    onLanguageChange = onLanguageChange,
                     onThemeChange = onThemeModeChange,
                     onOpenLogs = { push(Page.Logs) },
                     onFontSize = { push(Page.FontSize) },
@@ -201,7 +205,7 @@ fun NovaApp(
                     onDataManagement = { push(Page.DataManagement) },
                     onCheckUpdate = {
                         AppLogs.record(context, "check update")
-                        toast = "当前已是最新版本"
+                        toast = strings.upToDate
                     },
                 )
             }
@@ -232,7 +236,7 @@ fun NovaApp(
                 color = NovaTheme.colors.pageBackground,
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
-                    SettingsTopBar(title = "字体大小", onBack = { pop() })
+                    SettingsTopBar(title = NovaStrings.strings.fontSize, onBack = { pop() })
                     FontSizeScreen(
                         scaleIndex = fontScaleIndex,
                         followSystem = followSystemFont,
@@ -253,7 +257,7 @@ fun NovaApp(
                 color = NovaTheme.colors.pageBackground,
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
-                    SettingsTopBar(title = "个性化", onBack = { pop() })
+                    SettingsTopBar(title = NovaStrings.strings.personalization, onBack = { pop() })
                     PersonalizeScreen(
                         autoCollapseThinking = autoCollapseThinking,
                         onAutoCollapseThinkingChange = { autoCollapseThinking = it },
@@ -272,16 +276,16 @@ fun NovaApp(
                 color = NovaTheme.colors.pageBackground,
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
-                    SettingsTopBar(title = "数据管理", onBack = { pop() })
+                    SettingsTopBar(title = NovaStrings.strings.dataManagement, onBack = { pop() })
                     DataManagementScreen(
                         onExportAll = {
                             AppLogs.record(context, "export all conversations")
-                            toast = "已导出 ${conversations.size} 条对话"
+                            toast = strings.exported(conversations.size)
                         },
                         onDeleteAll = {
                             conversations = emptyList()
                             AppLogs.record(context, "delete all conversations")
-                            toast = "已清空所有对话"
+                            toast = strings.cleared
                         },
                     )
                 }
@@ -306,7 +310,7 @@ private fun SettingsPage(
     onCheckUpdate: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        SettingsTopBar(onBack = onBack)
+        SettingsTopBar(title = NovaStrings.strings.settingsTitle, onBack = onBack)
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -362,7 +366,7 @@ private fun LogPage(onBack: () -> Unit) {
                 modifier = Modifier.align(Alignment.CenterStart),
             )
             Text(
-                text = "运行日志",
+                text = NovaStrings.strings.logsTitle,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = NovaTheme.colors.textPrimary,
@@ -387,7 +391,7 @@ private fun LogPage(onBack: () -> Unit) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = NovaIcons.Trash,
-                            contentDescription = "清空日志",
+                            contentDescription = NovaStrings.strings.logsClear,
                             modifier = Modifier.size(16.dp),
                             tint = NovaTheme.colors.textSecondary,
                         )
@@ -405,12 +409,12 @@ private fun LogPage(onBack: () -> Unit) {
             Tab(
                 selected = !showCrashes,
                 onClick = { showCrashes = false },
-                text = { Text("运行记录") },
+                text = { Text(NovaStrings.strings.logsTabEvents) },
             )
             Tab(
                 selected = showCrashes,
                 onClick = { showCrashes = true },
-                text = { Text("崩溃记录") },
+                text = { Text(NovaStrings.strings.logsTabCrashes) },
             )
         }
 
@@ -429,7 +433,7 @@ private fun LogPage(onBack: () -> Unit) {
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = if (showCrashes) "还没有崩溃记录" else "还没有运行记录",
+                    text = if (showCrashes) NovaStrings.strings.logsEmptyCrashes else NovaStrings.strings.logsEmptyEvents,
                     style = MaterialTheme.typography.bodyMedium,
                     color = NovaTheme.colors.textSecondary,
                 )
@@ -462,7 +466,7 @@ private fun LogPage(onBack: () -> Unit) {
 }
 
 @Composable
-private fun SettingsTopBar(title: String = "设置", onBack: () -> Unit) {
+private fun SettingsTopBar(title: String, onBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -483,14 +487,14 @@ private fun SettingsTopBar(title: String = "设置", onBack: () -> Unit) {
     }
 }
 
-private fun sampleConversations(now: LocalDateTime): List<Conversation> = listOf(
-    Conversation("p1", "Kotlin 协程调度器原理", now.minusMinutes(4), pinned = true),
-    Conversation("p2", "Compose 重组性能优化", now.minusMinutes(12), pinned = true),
-    Conversation("p3", "Material 3 动态配色方案", now.minusHours(2)),
-    Conversation("p4", "Gradle 构建速度排查", now.minusHours(6)),
-    Conversation("p5", "Retrofit 拦截器写法", now.minusDays(1).minusHours(2)),
-    Conversation("p6", "Room 数据库迁移", now.minusDays(1).minusHours(5)),
-    Conversation("p7", "协程异常处理最佳实践", now.minusDays(3)),
-    Conversation("p8", "Jetpack Navigation 参数传递", now.minusDays(5)),
-    Conversation("p9", "单元测试 Mock 技巧", now.minusDays(9)),
+private fun sampleConversations(now: LocalDateTime, strings: Strings): List<Conversation> = listOf(
+    Conversation("p1", strings.sampleConversation(1), now.minusMinutes(4), pinned = true),
+    Conversation("p2", strings.sampleConversation(2), now.minusMinutes(12), pinned = true),
+    Conversation("p3", strings.sampleConversation(3), now.minusHours(2)),
+    Conversation("p4", strings.sampleConversation(4), now.minusHours(6)),
+    Conversation("p5", strings.sampleConversation(5), now.minusDays(1).minusHours(2)),
+    Conversation("p6", strings.sampleConversation(6), now.minusDays(1).minusHours(5)),
+    Conversation("p7", strings.sampleConversation(7), now.minusDays(3)),
+    Conversation("p8", strings.sampleConversation(8), now.minusDays(5)),
+    Conversation("p9", strings.sampleConversation(9), now.minusDays(9)),
 )

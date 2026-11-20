@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.components.rememberPressScale
 import com.nova.app.ui.theme.NovaMotion
 import com.nova.app.ui.theme.NovaTheme
@@ -75,7 +76,7 @@ fun ChatInputBar(
                     Box {
                         if (value.isEmpty()) {
                             Text(
-                                text = "发消息，问点代码上的事",
+                                text = NovaStrings.strings.inputPlaceholder,
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = NovaTheme.colors.textSecondary,
                             )
@@ -116,7 +117,7 @@ private fun AttachButton(onClick: () -> Unit) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = NovaIcons.Plus,
-                    contentDescription = "添加附件",
+                    contentDescription = NovaStrings.strings.addAttachment,
                     modifier = Modifier.size(16.dp),
                     tint = NovaTheme.colors.textSecondary,
                 )
@@ -167,7 +168,7 @@ private fun SendButton(enabled: Boolean, onClick: () -> Unit) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = NovaIcons.Send,
-                    contentDescription = "发送",
+                    contentDescription = NovaStrings.strings.send,
                     modifier = Modifier.size(17.dp),
                     tint = content,
                 )

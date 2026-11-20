@@ -41,6 +41,8 @@ import androidx.core.content.ContextCompat
 import com.nova.app.data.AppLogs
 import com.nova.app.data.CameraFiles
 import com.nova.app.data.loadRecentPhotos
+import com.nova.app.ui.NovaStrings
+import com.nova.app.ui.Strings
 import com.nova.app.ui.components.AttachmentPanel
 import com.nova.app.ui.components.ChatInputBar
 import com.nova.app.ui.components.NovaIcons
@@ -231,8 +233,8 @@ fun HomeScreen(
     if (showCameraPrompt) {
         PermissionDialog(
             icon = NovaIcons.Camera,
-            title = "需要相机权限",
-            message = "拍照发送图片需要访问相机，仅在你主动拍照时使用",
+            title = NovaStrings.strings.permissionCameraTitle,
+            message = NovaStrings.strings.permissionCameraMessage,
             onConfirm = {
                 showCameraPrompt = false
                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
@@ -244,8 +246,8 @@ fun HomeScreen(
     if (showMediaPrompt) {
         PermissionDialog(
             icon = NovaIcons.Gallery,
-            title = "需要照片权限",
-            message = "展示最近照片方便你快速选择，只读取相册内容，不会上传",
+            title = NovaStrings.strings.permissionMediaTitle,
+            message = NovaStrings.strings.permissionMediaMessage,
             onConfirm = {
                 showMediaPrompt = false
                 mediaPermissionLauncher.launch(mediaPermission())
@@ -271,7 +273,7 @@ private fun HomeTopBar(onOpenDrawer: () -> Unit, onNewChat: () -> Unit) {
         IconButton(onClick = onOpenDrawer) {
             Icon(
                 imageVector = NovaIcons.Menu,
-                contentDescription = "打开菜单",
+                contentDescription = NovaStrings.strings.openMenu,
                 tint = NovaTheme.colors.textPrimary,
                 modifier = Modifier.size(24.dp),
             )
@@ -279,7 +281,7 @@ private fun HomeTopBar(onOpenDrawer: () -> Unit, onNewChat: () -> Unit) {
         IconButton(onClick = onNewChat) {
             Icon(
                 imageVector = NovaIcons.NewChat,
-                contentDescription = "新建对话",
+                contentDescription = NovaStrings.strings.newConversation,
                 tint = NovaTheme.colors.textPrimary,
                 modifier = Modifier.size(24.dp),
             )
@@ -312,7 +314,7 @@ private fun GreetingBlock(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun HomeScreenPreview() {
-    NovaTheme(darkTheme = false) {
+    NovaTheme(darkTheme = false, strings = Strings(LocalContext.current)) {
         HomeScreen(
             onOpenDrawer = {},
             onNewChat = {},
@@ -323,7 +325,7 @@ private fun HomeScreenPreview() {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun HomeScreenDarkPreview() {
-    NovaTheme(darkTheme = true) {
+    NovaTheme(darkTheme = true, strings = Strings(LocalContext.current)) {
         HomeScreen(
             onOpenDrawer = {},
             onNewChat = {},

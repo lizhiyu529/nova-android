@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Nova</string>
+
+    <string name="language_system">系统</string>
+    <string name="language_chinese">中文（简体）</string>
+    <string name="language_english">English</string>
+
+    <string name="theme_system">系统</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+
+    <string name="action_confirm">确认</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_delete">删除</string>
+    <string name="action_back">返回</string>
+    <string name="action_send">发送</string>
+    <string name="action_clear">清空</string>
+    <string name="action_rename">重命名</string>
+    <string name="action_pin">置顶</string>
+    <string name="action_unpin">取消置顶</string>
+    <string name="action_multi_select">多选</string>
+    <string name="action_grant">去授权</string>
+    <string name="action_not_now">暂不</string>
+    <string name="action_export">导出</string>
+
+    <string name="settings_title">设置</string>
+    <string name="settings_section_account">账户</string>
+    <string name="settings_section_app">应用</string>
+    <string name="settings_section_about">关于</string>
+    <string name="settings_assistant_preset">助手预设</string>
+    <string name="settings_data_management">数据管理</string>
+    <string name="settings_language">语言</string>
+    <string name="settings_appearance">外观</string>
+    <string name="settings_font_size">字体大小</string>
+    <string name="settings_personalization">个性化</string>
+    <string name="settings_check_update">检查更新</string>
+    <string name="settings_runtime_logs">运行日志</string>
+    <string name="settings_disclaimer">内容由 AI 生成，请仔细甄别，并合法使用</string>
+
+    <string name="data_export_all">导出所有历史对话</string>
+    <string name="data_delete_all">删除所有历史对话</string>
+    <string name="toast_up_to_date">当前已是最新版本</string>
+    <string name="toast_exported">已导出 %1$d 条对话</string>
+    <string name="toast_cleared">已清空所有对话</string>
+
+    <string name="logs_title">运行日志</string>
+    <string name="logs_clear">清空日志</string>
+    <string name="logs_tab_events">运行记录</string>
+    <string name="logs_tab_crashes">崩溃记录</string>
+    <string name="logs_empty_events">还没有运行记录</string>
+    <string name="logs_empty_crashes">还没有崩溃记录</string>
+
+    <string name="personalize_auto_collapse">思考内容自动折叠</string>
+    <string name="personalize_auto_collapse_hint">开启后，思考结束后将自动折叠思考内容</string>
+
+    <string name="font_size_preview">预览文字大小</string>
+    <string name="font_size_description">拖动下方滑块就能调整全局字号，所见即所得。</string>
+    <string name="font_size_description_extra">长段代码看久了容易累，把字号调到自己舒服的档位，界面其它地方也会一起变。</string>
+    <string name="font_size_follow_system">跟随系统</string>
+    <string name="font_size_small">较小</string>
+    <string name="font_size_standard">标准</string>
+    <string name="font_size_large">较大</string>
+
+    <string name="chat_input_placeholder">发消息，问点代码上的事</string>
+    <string name="chat_add_attachment">添加附件</string>
+
+    <string name="attach_camera">拍照</string>
+    <string name="attach_gallery">相册</string>
+    <string name="attach_file">文件</string>
+
+    <string name="search_placeholder">搜索对话内容...</string>
+    <string name="search_empty_hint">输入关键词搜索历史对话</string>
+    <string name="search_no_result">没有找到「%1$s」相关的对话</string>
+
+    <string name="drawer_search_placeholder">搜索对话内容...</string>
+    <string name="drawer_select_conversations">选择对话</string>
+    <string name="drawer_exit_selection">退出选择</string>
+    <string name="drawer_select_all">多选对话</string>
+    <string name="drawer_pinned_count">置顶 %1$d 个对话</string>
+    <string name="drawer_collapse_pinned">收起置顶</string>
+    <string name="drawer_expand_pinned">展开置顶</string>
+    <string name="drawer_rename_title">重命名对话</string>
+    <string name="drawer_delete_title">删除选择的 %1$d 个对话？</string>
+    <string name="drawer_delete_message">删除后无法恢复，请确认是否继续。</string>
+    <string name="drawer_new_chat">新对话</string>
+    <string name="drawer_open_menu">打开菜单</string>
+    <string name="drawer_new_conversation">新建对话</string>
+
+    <string name="group_pinned">置顶</string>
+    <string name="group_today">今天</string>
+    <string name="group_yesterday">昨天</string>
+    <string name="group_last_week">7 天内</string>
+    <string name="group_earlier">更早</string>
+
+    <string name="permission_camera_title">需要相机权限</string>
+    <string name="permission_camera_message">拍照发送图片需要访问相机，仅在你主动拍照时使用</string>
+    <string name="permission_media_title">需要照片权限</string>
+    <string name="permission_media_message">展示最近照片方便你快速选择，只读取相册内容，不会上传</string>
+
+    <string name="greeting_morning_title">早上好</string>
+    <string name="greeting_morning_hint">脑子最清醒的时候，先啃硬骨头</string>
+    <string name="greeting_forenoon_title">上午好</string>
+    <string name="greeting_forenoon_hint">今天想先解决什么问题？</string>
+    <string name="greeting_noon_title">中午好</string>
+    <string name="greeting_noon_hint">吃口饭再回来，代码不会跑</string>
+    <string name="greeting_afternoon_title">下午好</string>
+    <string name="greeting_afternoon_hint">有点困的话，来杯咖啡继续</string>
+    <string name="greeting_evening_title">晚上好</string>
+    <string name="greeting_evening_hint">安静的时候最适合写代码</string>
+    <string name="greeting_night_title">夜深了</string>
+    <string name="greeting_night_hint">早点睡，明天再修也不迟</string>
+
+    <string name="sample_conversation_1">Kotlin 协程调度器原理</string>
+    <string name="sample_conversation_2">Compose 重组性能优化</string>
+    <string name="sample_conversation_3">Material 3 动态配色方案</string>
+    <string name="sample_conversation_4">Gradle 构建速度排查</string>
+    <string name="sample_conversation_5">Retrofit 拦截器写法</string>
+    <string name="sample_conversation_6">Room 数据库迁移</string>
+    <string name="sample_conversation_7">协程异常处理最佳实践</string>
+    <string name="sample_conversation_8">Jetpack Navigation 参数传递</string>
+    <string name="sample_conversation_9">单元测试 Mock 技巧</string>
+</resources>

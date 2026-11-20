@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.components.rememberPressScale
 import com.nova.app.ui.theme.NovaMotion
 import com.nova.app.ui.theme.NovaTheme
@@ -95,19 +96,19 @@ fun AttachmentPanel(
         ) {
             AttachmentAction(
                 icon = NovaIcons.Camera,
-                label = "拍照",
+                label = NovaStrings.strings.attachCamera,
                 onClick = onCamera,
                 modifier = Modifier.weight(1f),
             )
             AttachmentAction(
                 icon = NovaIcons.Gallery,
-                label = "相册",
+                label = NovaStrings.strings.attachGallery,
                 onClick = onGallery,
                 modifier = Modifier.weight(1f),
             )
             AttachmentAction(
                 icon = NovaIcons.File,
-                label = "文件",
+                label = NovaStrings.strings.attachFile,
                 onClick = onFile,
                 modifier = Modifier.weight(1f),
             )
