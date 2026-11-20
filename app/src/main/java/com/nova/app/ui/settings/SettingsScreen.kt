@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.nova.app.ui.NovaStrings
+import com.nova.app.ui.components.ConfirmDialog
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.theme.NovaTheme
 
@@ -182,6 +183,7 @@ fun SettingsScreen(
     versionName: String,
     onBack: () -> Unit,
     onLanguageChange: (AppLanguage) -> Unit,
+    onLanguageNeedsRestart: () -> Unit,
     onThemeChange: (AppThemeMode) -> Unit,
     onFontSize: () -> Unit,
     onPersonalize: () -> Unit,
@@ -191,6 +193,7 @@ fun SettingsScreen(
     onOpenLogs: () -> Unit,
 ) {
     var languageDialog by remember { mutableStateOf(false) }
+    var restartPrompt by remember { mutableStateOf(false) }
     var themeDialog by remember { mutableStateOf(false) }
 
     Column(
@@ -286,10 +289,27 @@ fun SettingsScreen(
             options = AppLanguage.entries.map { NovaStrings.strings.languageLabel(it) },
             selectedIndex = AppLanguage.entries.indexOf(language),
             onConfirm = { index ->
-                onLanguageChange(AppLanguage.entries[index])
+                val next = AppLanguage.entries[index]
+                val changed = next != language
+                onLanguageChange(next)
                 languageDialog = false
+                if (changed && next != AppLanguage.System) restartPrompt = true
             },
             onDismiss = { languageDialog = false },
+        )
+    }
+
+    if (restartPrompt) {
+        ConfirmDialog(
+            title = NovaStrings.strings.languageRestartTitle,
+            message = NovaStrings.strings.languageRestartMessage,
+            confirmText = NovaStrings.strings.languageRestartNow,
+            dismissText = NovaStrings.strings.languageRestartLater,
+            onConfirm = {
+                restartPrompt = false
+                onLanguageNeedsRestart()
+            },
+            onDismiss = { restartPrompt = false },
         )
     }
 

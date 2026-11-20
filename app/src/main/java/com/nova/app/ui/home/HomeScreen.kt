@@ -47,6 +47,7 @@ import com.nova.app.ui.components.AttachmentPanel
 import com.nova.app.ui.components.ChatInputBar
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.components.PermissionDialog
+import com.nova.app.ui.components.TextEditorDialog
 import com.nova.app.ui.theme.NovaTheme
 import com.nova.app.ui.theme.NovaTransitions
 
@@ -56,6 +57,7 @@ fun HomeScreen(
     onNewChat: () -> Unit,
 ) {
     var draft by rememberSaveable { mutableStateOf("") }
+    var showEditor by rememberSaveable { mutableStateOf(false) }
     var showAttachments by rememberSaveable { mutableStateOf(false) }
     var selectedPhotos by remember { mutableStateOf(setOf<String>()) }
     var recentPhotos by remember { mutableStateOf(listOf<String>()) }
@@ -162,6 +164,7 @@ fun HomeScreen(
     }
 
     BackHandler(enabled = showAttachments) { showAttachments = false }
+    BackHandler(enabled = showEditor) { showEditor = false }
 
     Scaffold(
         containerColor = NovaTheme.colors.pageBackground,
@@ -183,6 +186,7 @@ fun HomeScreen(
                         onValueChange = { draft = it },
                         onSend = { draft = "" },
                         onAttach = { showAttachments = !showAttachments },
+                        onExpand = { showEditor = true },
                     )
                 }
                 AnimatedVisibility(
@@ -228,6 +232,18 @@ fun HomeScreen(
                 modifier = Modifier.padding(bottom = 120.dp),
             )
         }
+    }
+
+    if (showEditor) {
+        TextEditorDialog(
+            text = draft,
+            onTextChange = { draft = it },
+            onSend = {
+                draft = ""
+                showEditor = false
+            },
+            onDismiss = { showEditor = false },
+        )
     }
 
     if (showCameraPrompt) {

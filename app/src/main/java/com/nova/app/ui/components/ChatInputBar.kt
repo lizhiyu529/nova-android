@@ -48,6 +48,7 @@ fun ChatInputBar(
     onValueChange: (String) -> Unit,
     onSend: () -> Unit,
     onAttach: () -> Unit,
+    onExpand: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -91,7 +92,13 @@ fun ChatInputBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                AttachButton(onClick = onAttach)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    AttachButton(onClick = onAttach)
+                    if (value.isNotBlank()) {
+                        Spacer(Modifier.size(8.dp))
+                        ExpandButton(onClick = onExpand)
+                    }
+                }
                 SendButton(enabled = value.isNotBlank(), onClick = onSend)
             }
         }
@@ -119,6 +126,34 @@ private fun AttachButton(onClick: () -> Unit) {
                     imageVector = NovaIcons.Plus,
                     contentDescription = NovaStrings.strings.addAttachment,
                     modifier = Modifier.size(16.dp),
+                    tint = NovaTheme.colors.textSecondary,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpandButton(onClick: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val scale by rememberPressScale(pressed, NovaMotion.PressScaleTight)
+    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+        Surface(
+            onClick = onClick,
+            modifier = Modifier
+                .size(ButtonTouchTarget)
+                .scale(scale),
+            shape = CircleShape,
+            color = NovaTheme.colors.containerHigh,
+            border = BorderStroke(0.8.dp, NovaTheme.colors.divider),
+            interactionSource = interactionSource,
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = NovaIcons.Expand,
+                    contentDescription = NovaStrings.strings.chatExpand,
+                    modifier = Modifier.size(15.dp),
                     tint = NovaTheme.colors.textSecondary,
                 )
             }

@@ -1073,4 +1073,97 @@ object NovaIcons {
             }
         }.build()
     }
+    val Expand: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Expand",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = SolidColor(IconSource),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(4f, 9f)
+                verticalLineTo(4f)
+                horizontalLineTo(9f)
+            }
+            path(
+                stroke = SolidColor(IconSource),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(15f, 4f)
+                horizontalLineTo(20f)
+                verticalLineTo(9f)
+            }
+            path(
+                stroke = SolidColor(IconSource),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(20f, 15f)
+                verticalLineTo(20f)
+                horizontalLineTo(15f)
+            }
+            path(
+                stroke = SolidColor(IconSource),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(9f, 20f)
+                horizontalLineTo(4f)
+                verticalLineTo(15f)
+            }
+        }.build()
+    }
+
+    val Collapse: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Collapse",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                stroke = SolidColor(IconSource),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(9f, 4f)
+                verticalLineTo(9f)
+                horizontalLineTo(4f)
+            }
+            path(
+                stroke = SolidColor(IconSource),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(20f, 9f)
+                horizontalLineTo(15f)
+                verticalLineTo(4f)
+            }
+            path(
+                stroke = SolidColor(IconSource),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(15f, 20f)
+                verticalLineTo(15f)
+                horizontalLineTo(20f)
+            }
+            path(
+                stroke = SolidColor(IconSource),
+                strokeLineWidth = 1.9f,
+                strokeLineCap = StrokeCap.Round,
+            ) {
+                moveTo(4f, 15f)
+                horizontalLineTo(9f)
+                verticalLineTo(20f)
+            }
+        }.build()
+    }
 }

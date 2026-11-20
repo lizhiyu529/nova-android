@@ -1,5 +1,6 @@
 package com.nova.app
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -75,8 +76,18 @@ class MainActivity : ComponentActivity() {
                     followSystemFont = followSystemFont,
                     onFontScaleChange = { fontScaleIndex = it },
                     onFollowSystemFontChange = { followSystemFont = it },
+                    onLanguageNeedsRestart = { restartActivity() },
                 )
             }
         }
+    }
+
+    private fun restartActivity() {
+        startActivity(
+            Intent(this, MainActivity::class.java).addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK,
+            ),
+        )
+        finish()
     }
 }

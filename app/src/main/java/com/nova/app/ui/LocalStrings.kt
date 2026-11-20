@@ -19,6 +19,16 @@ class Strings(private val context: Context) {
     val languageChinese: String get() = get(R.string.language_chinese)
     val languageEnglish: String get() = get(R.string.language_english)
 
+    val languageRestartTitle: String get() = get(R.string.language_restart_title)
+    val languageRestartMessage: String get() = get(R.string.language_restart_message)
+    val languageRestartNow: String get() = get(R.string.language_restart_confirm)
+    val languageRestartLater: String get() = get(R.string.language_restart_later)
+
+    val chatExpand: String get() = get(R.string.chat_expand)
+    val chatCollapse: String get() = get(R.string.chat_collapse)
+    val chatExpandTitle: String get() = get(R.string.chat_expand_title)
+    val chatExpandDone: String get() = get(R.string.chat_expand_done)
+
     val themeSystem: String get() = get(R.string.theme_system)
     val themeLight: String get() = get(R.string.theme_light)
     val themeDark: String get() = get(R.string.theme_dark)
