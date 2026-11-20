@@ -8,7 +8,7 @@ appcompat = "1.7.0"
 activityCompose = "1.13.0"
 lifecycle = "2.11.0"
 room = "2.8.1"
-ksp = "2.4.20-2.0.4"
+ksp = "2.3.14"
 coil = "2.7.0"
 
 compileSdk = "37"
