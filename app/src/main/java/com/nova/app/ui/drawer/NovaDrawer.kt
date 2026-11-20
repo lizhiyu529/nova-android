@@ -64,6 +64,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.components.NovaIcons
+import com.nova.app.ui.components.UserAvatar
 import com.nova.app.ui.theme.NovaTheme
 import com.nova.app.ui.theme.NovaTransitions
 import java.time.LocalDateTime
@@ -73,7 +74,10 @@ import kotlinx.coroutines.delay
 fun NovaDrawer(
     conversations: List<Conversation>,
     now: LocalDateTime,
-    accountEmail: String,
+    nickname: String,
+    avatarPath: String,
+    onEditNickname: (String) -> Unit,
+    onChangeAvatar: () -> Unit,
     onOpenConversation: (Conversation) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenSearch: () -> Unit,
@@ -88,6 +92,7 @@ fun NovaDrawer(
     var menuTarget by remember { mutableStateOf<Conversation?>(null) }
     var renameTarget by remember { mutableStateOf<Conversation?>(null) }
     var confirmDelete by remember { mutableStateOf<Set<String>?>(null) }
+    var nicknameEditing by remember { mutableStateOf(false) }
 
     val groups = remember(conversations, now) { groupConversations(conversations, now) }
     val strings = NovaStrings.strings
@@ -199,11 +204,25 @@ fun NovaDrawer(
                 )
             } else {
                 DrawerAccountBar(
-                    email = accountEmail,
+                    nickname = nickname,
+                    avatarPath = avatarPath,
                     onOpenSettings = onOpenSettings,
+                    onEditNickname = { nicknameEditing = true },
+                    onChangeAvatar = onChangeAvatar,
                 )
             }
         }
+    }
+
+    if (nicknameEditing) {
+        NicknameDialog(
+            initial = nickname,
+            onDismiss = { nicknameEditing = false },
+            onConfirm = { value ->
+                onEditNickname(value)
+                nicknameEditing = false
+            },
+        )
     }
 
     menuTarget?.let { target ->
@@ -550,42 +569,60 @@ private fun SelectionAction(
 
 @Composable
 private fun DrawerAccountBar(
-    email: String,
+    nickname: String,
+    avatarPath: String,
     onOpenSettings: () -> Unit,
+    onEditNickname: (String) -> Unit,
+    onChangeAvatar: () -> Unit,
 ) {
+    val strings = NovaStrings.strings
+    val label = nickname.ifBlank { strings.profileDefaultNickname }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
             .padding(horizontal = 4.dp)
             .clip(RoundedCornerShape(16.dp))
-            .clickable(onClick = onOpenSettings)
-            .padding(start = 12.dp, end = 6.dp, top = 8.dp, bottom = 8.dp),
+            .padding(start = 8.dp, end = 6.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Surface(
-            modifier = Modifier.size(34.dp),
-            shape = CircleShape,
-            color = NovaTheme.colors.containerHighest,
+        Box(
+            modifier = Modifier
+                .size(38.dp)
+                .combinedClickable(
+                    onClick = onEditNickname,
+                    onLongClick = onChangeAvatar,
+                ),
+            contentAlignment = Alignment.Center,
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = NovaIcons.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = NovaTheme.colors.textSecondary,
-                )
-            }
+            UserAvatar(avatarPath = avatarPath, size = 34.dp)
         }
-        Spacer(Modifier.width(11.dp))
-        Text(
-            text = email,
-            style = MaterialTheme.typography.bodyMedium,
-            color = NovaTheme.colors.textPrimary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
-        )
+        Spacer(Modifier.width(9.dp))
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .combinedClickable(
+                    onClick = onEditNickname,
+                    onLongClick = onChangeAvatar,
+                )
+                .padding(horizontal = 4.dp, vertical = 2.dp),
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = NovaTheme.colors.textPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = strings.avatarHint,
+                style = MaterialTheme.typography.labelSmall,
+                color = NovaTheme.colors.textTertiary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
         CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
             IconButton(
                 onClick = onOpenSettings,
@@ -593,7 +630,7 @@ private fun DrawerAccountBar(
             ) {
                 Icon(
                     imageVector = NovaIcons.More,
-                    contentDescription = "设置",
+                    contentDescription = NovaStrings.strings.settingsTitle,
                     modifier = Modifier.size(20.dp),
                     tint = NovaTheme.colors.textSecondary,
                 )
@@ -807,6 +844,135 @@ private fun RenameDialog(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun NicknameDialog(
+    initial: String,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit,
+) {
+    val strings = NovaStrings.strings
+    var text by remember { mutableStateOf(initial) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        delay(120)
+        focusRequester.requestFocus()
+        keyboard?.show()
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 44.dp),
+            shape = RoundedCornerShape(26.dp),
+            color = NovaTheme.colors.dialog,
+            tonalElevation = 0.dp,
+        ) {
+            Column {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 20.dp, bottom = 16.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = strings.nicknameTitle,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = NovaTheme.colors.textPrimary,
+                    )
+                }
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    color = NovaTheme.colors.containerHigh,
+                ) {
+                    BasicTextField(
+                        value = text,
+                        onValueChange = { text = it.take(24) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester)
+                            .padding(horizontal = 14.dp, vertical = 12.dp),
+                        singleLine = true,
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                            color = NovaTheme.colors.textPrimary,
+                        ),
+                        cursorBrush = SolidColor(NovaTheme.colors.accent),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { onConfirm(text) }),
+                        decorationBox = { innerTextField ->
+                            if (text.isEmpty()) {
+                                Text(
+                                    text = strings.nicknamePlaceholder,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = NovaTheme.colors.textSecondary,
+                                )
+                            }
+                            innerTextField()
+                        },
+                    )
+                }
+                Spacer(Modifier.height(14.dp))
+                HorizontalDivider(
+                    thickness = 0.7.dp,
+                    color = NovaTheme.colors.divider,
+                )
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    NicknameAction(
+                        text = strings.cancel,
+                        color = NovaTheme.colors.textSecondary,
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Box(
+                        modifier = Modifier
+                            .width(0.7.dp)
+                            .height(48.dp)
+                            .background(NovaTheme.colors.divider),
+                    )
+                    NicknameAction(
+                        text = strings.confirm,
+                        color = NovaTheme.colors.accent,
+                        onClick = { onConfirm(text) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NicknameAction(
+    text: String,
+    color: androidx.compose.ui.graphics.Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.height(48.dp),
+        color = androidx.compose.ui.graphics.Color.Transparent,
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium,
+                color = color,
+            )
         }
     }
 }

@@ -66,6 +66,14 @@ class Strings(private val context: Context) {
     val memoryAdd: String get() = get(R.string.assistant_memory_add)
     fun charCount(count: Int): String = format(R.string.assistant_char_count, count)
 
+    val profileDefaultNickname: String get() = get(R.string.profile_default_nickname)
+    val nicknameTitle: String get() = get(R.string.profile_nickname_title)
+    val nicknamePlaceholder: String get() = get(R.string.profile_nickname_placeholder)
+    val avatarChange: String get() = get(R.string.profile_avatar_change)
+    val avatarRemove: String get() = get(R.string.profile_avatar_remove)
+    val avatarHint: String get() = get(R.string.profile_avatar_hint)
+    val profileSaved: String get() = get(R.string.profile_saved)
+
     val promptPreviewEmpty: String get() = get(R.string.assistant_prompt_preview_empty)
     val promptEditTitle: String get() = get(R.string.assistant_prompt_edit_title)
     val memoryAddAction: String get() = get(R.string.assistant_memory_add_action)

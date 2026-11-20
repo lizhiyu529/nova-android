@@ -136,4 +136,11 @@
     <string name="empty_conversations">还没有对话</string>
     <string name="empty_conversations_hint">点右上角新建一个对话</string>
     <string name="empty_search">没有匹配的对话</string>
+    <string name="profile_avatar_change">更换头像</string>
+    <string name="profile_avatar_hint">长按头像可以更换</string>
+    <string name="profile_avatar_remove">移除头像</string>
+    <string name="profile_default_nickname">Nova 用户</string>
+    <string name="profile_nickname_placeholder">输入昵称</string>
+    <string name="profile_nickname_title">修改昵称</string>
+    <string name="profile_saved">资料已更新</string>
 </resources>

@@ -136,4 +136,11 @@
     <string name="empty_conversations">No conversations yet</string>
     <string name="empty_conversations_hint">Tap the compose icon to start one</string>
     <string name="empty_search">Nothing matches your search</string>
+    <string name="profile_avatar_change">Change avatar</string>
+    <string name="profile_avatar_hint">Long press the avatar to change it</string>
+    <string name="profile_avatar_remove">Remove avatar</string>
+    <string name="profile_default_nickname">Nova user</string>
+    <string name="profile_nickname_placeholder">Enter a nickname</string>
+    <string name="profile_nickname_title">Edit nickname</string>
+    <string name="profile_saved">Profile updated</string>
 </resources>

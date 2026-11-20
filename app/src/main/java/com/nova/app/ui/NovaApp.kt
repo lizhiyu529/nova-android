@@ -1,6 +1,10 @@
 package com.nova.app.ui
 
+import android.graphics.ImageDecoder
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +51,7 @@ import com.nova.app.data.AppLogs
 import com.nova.app.data.AssistantProfile
 import com.nova.app.data.AssistantStore
 import com.nova.app.data.ConversationRepository
+import com.nova.app.data.ProfileStore
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.components.BackButton
 import com.nova.app.ui.components.CenterToast
@@ -93,6 +98,28 @@ fun NovaApp(
     val referenceTime = remember { LocalDateTime.now() }
     var stack by rememberSaveable { mutableStateOf(listOf<Page>()) }
     var assistantProfile by remember { mutableStateOf(AssistantStore.load(context)) }
+    var userProfile by remember { mutableStateOf(ProfileStore.load(context)) }
+
+    val avatarPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+    ) { uri ->
+        if (uri != null) {
+            val bitmap = ImageDecoder.decodeBitmap(
+                ImageDecoder.createSource(context.contentResolver, uri),
+            ) { decoder, info, _ ->
+                val side = minOf(info.size.width, info.size.height)
+                val target = minOf(side, 512)
+                decoder.setTargetSize(
+                    (info.size.width * target / side).coerceAtLeast(1),
+                    (info.size.height * target / side).coerceAtLeast(1),
+                )
+            }
+            val path = ProfileStore.saveAvatar(context, bitmap)
+            userProfile = userProfile.copy(avatarPath = path)
+            AppLogs.record(context, "avatar updated")
+        }
+    }
+
     var toast by remember { mutableStateOf<String?>(null) }
 
     fun updateAssistantProfile(profile: AssistantProfile) {
@@ -129,7 +156,17 @@ fun NovaApp(
                 NovaDrawer(
                     conversations = conversations,
                     now = referenceTime,
-                    accountEmail = "357******66@qq.com",
+                    nickname = userProfile.nickname,
+                    avatarPath = userProfile.avatarPath,
+                    onEditNickname = { value ->
+                        ProfileStore.setNickname(context, value)
+                        userProfile = userProfile.copy(nickname = value.trim())
+                    },
+                    onChangeAvatar = {
+                        avatarPicker.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                        )
+                    },
                     onOpenConversation = { scope.launch { drawerState.close() } },
                     onOpenSettings = {
                         push(Page.Settings)
