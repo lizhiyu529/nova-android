@@ -327,6 +327,7 @@ private fun SettingsPage(
                 versionName = BuildConfig.VERSION_NAME,
                 onBack = onBack,
                 onLanguageChange = onLanguageChange,
+                onLanguageNeedsRestart = onLanguageNeedsRestart,
                 onThemeChange = onThemeChange,
                 onFontSize = onFontSize,
                 onPersonalize = onPersonalize,
