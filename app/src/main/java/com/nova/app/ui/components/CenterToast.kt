@@ -70,7 +70,7 @@ fun CenterToast(
                     Text(
                         text = snapshot,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                        color = toastContent(),
                         textAlign = TextAlign.Center,
                     )
                 }

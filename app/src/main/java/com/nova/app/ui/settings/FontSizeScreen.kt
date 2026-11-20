@@ -94,7 +94,7 @@ fun FontSizeScreen(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            color = MaterialTheme.colorScheme.secondaryContainer,
         ) {
             Column(
                 modifier = Modifier

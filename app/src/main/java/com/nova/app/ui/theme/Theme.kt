@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.Density
 fun NovaTheme(
     darkTheme: Boolean,
     fontScale: Float = 1f,
-    palette: PaletteScheme = PaletteScheme.NeutralGray,
     content: @Composable () -> Unit,
 ) {
     val density = LocalDensity.current
@@ -27,7 +26,7 @@ fun NovaTheme(
     }
     CompositionLocalProvider(LocalDensity provides scaledDensity) {
         MaterialExpressiveTheme(
-            colorScheme = if (darkTheme) Palette.dark(palette) else Palette.light(palette),
+            colorScheme = if (darkTheme) Palette.Dark else Palette.Light,
             motionScheme = MotionScheme.expressive(),
             shapes = NovaShapes,
             typography = NovaTypography,

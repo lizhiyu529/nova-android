@@ -59,15 +59,6 @@ import com.nova.app.ui.drawer.pinnedAll
 import com.nova.app.ui.drawer.removed
 import com.nova.app.ui.drawer.renamed
 import com.nova.app.ui.drawer.toggledPin
-import com.nova.app.ui.theme.PaletteScheme
-import com.nova.app.ui.home.HomeScreen
-import com.nova.app.ui.search.SearchScreen
-import com.nova.app.ui.settings.AppLanguage
-import com.nova.app.ui.settings.AppThemeMode
-import com.nova.app.ui.settings.DataManagementScreen
-import com.nova.app.ui.settings.FontSizeScreen
-import com.nova.app.ui.settings.PersonalizeScreen
-import com.nova.app.ui.settings.SettingsScreen
 import com.nova.app.ui.settings.settingsPageBackground
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -75,6 +66,9 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 private enum class Page { Search, Settings, Logs, FontSize, Personalize, DataManagement }
+
+/** 页面退场动画时长，抽屉需等它播完再打开。 */
+private const val PAGE_EXIT_MILLIS = 320L
 
 @Composable
 fun NovaApp(
@@ -84,8 +78,6 @@ fun NovaApp(
     followSystemFont: Boolean,
     onFontScaleChange: (Int) -> Unit,
     onFollowSystemFontChange: (Boolean) -> Unit,
-    palette: PaletteScheme,
-    onPaletteChange: (PaletteScheme) -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -116,7 +108,11 @@ fun NovaApp(
         stack = stack.dropLast(1)
         AppLogs.record(context, "close ${leaving?.name?.lowercase()}")
         if (stack.isEmpty()) {
-            scope.launch { drawerState.open() }
+            // 等页面退出动画播完再开抽屉，否则两段动画会叠在一起
+            scope.launch {
+                delay(PAGE_EXIT_MILLIS)
+                drawerState.open()
+            }
         }
     }
 
@@ -285,8 +281,6 @@ fun NovaApp(
                     PersonalizeScreen(
                         autoCollapseThinking = autoCollapseThinking,
                         onAutoCollapseThinkingChange = { autoCollapseThinking = it },
-                        palette = palette,
-                        onPaletteChange = onPaletteChange,
                     )
                 }
             }

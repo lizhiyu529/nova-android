@@ -4,14 +4,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-/** 设置页背景：主题 background，比卡片低一档。 */
+/** 设置页背景：主题 background。 */
 @Composable
 fun settingsPageBackground(): Color = MaterialTheme.colorScheme.background
 
-/** 设置卡片：surface 与 background 同色，卡片必须用容器色区分。 */
+/**
+ * 设置卡片：与 RikkaHub 一致，用 secondaryContainer。
+ * 它的对比度比 surfaceContainerLow 高得多，卡片边界清楚。
+ */
 @Composable
-fun settingsCardColor(): Color = MaterialTheme.colorScheme.surfaceContainerLow
+fun settingsCardColor(): Color = MaterialTheme.colorScheme.secondaryContainer
 
-/** 对话框：再高一层，浮在遮罩上。 */
+/** 对话框：用卡片色，浮在遮罩上。 */
 @Composable
-fun settingsDialogColor(): Color = MaterialTheme.colorScheme.surfaceContainerLow
+fun settingsDialogColor(): Color = MaterialTheme.colorScheme.secondaryContainer

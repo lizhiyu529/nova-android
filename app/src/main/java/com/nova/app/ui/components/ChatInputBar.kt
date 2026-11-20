@@ -51,7 +51,7 @@ fun ChatInputBar(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        color = MaterialTheme.colorScheme.secondaryContainer,
         border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)),
     ) {
         Column(
@@ -141,7 +141,7 @@ private fun SendButton(enabled: Boolean, onClick: () -> Unit) {
         targetValue = if (enabled) {
             MaterialTheme.colorScheme.primary
         } else {
-            MaterialTheme.colorScheme.surfaceContainerLow
+            MaterialTheme.colorScheme.secondaryContainer
         },
         label = "sendContainer",
     )
