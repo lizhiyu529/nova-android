@@ -1,11 +1,11 @@
 package com.nova.app.ui.components
 
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.nova.app.ui.theme.NovaTheme
 
 @Composable
 fun AttachmentPanel(
@@ -131,7 +132,7 @@ private fun PhotoSkeleton() {
         modifier = Modifier
             .size(72.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = alpha)),
+            .background(NovaTheme.colors.containerHigh.copy(alpha = alpha)),
     )
 }
 
@@ -147,9 +148,9 @@ private fun PhotoThumb(
             onClick = onClick,
             modifier = Modifier.size(72.dp),
             shape = RoundedCornerShape(14.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            color = NovaTheme.colors.containerLow,
             border = if (selected) {
-                androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                androidx.compose.foundation.BorderStroke(2.dp, NovaTheme.colors.accent)
             } else {
                 null
             },
@@ -175,14 +176,14 @@ private fun PhotoThumb(
                         Surface(
                             modifier = Modifier.size(18.dp),
                             shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = NovaTheme.colors.accent,
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = NovaIcons.Check,
                                     contentDescription = null,
                                     modifier = Modifier.size(11.dp),
-                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    tint = NovaTheme.colors.onAccent,
                                 )
                             }
                         }
@@ -214,10 +215,10 @@ private fun AttachmentAction(
                 .height(76.dp)
                 .scale(scale),
             shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            color = NovaTheme.colors.containerHigh,
             border = androidx.compose.foundation.BorderStroke(
                 0.8.dp,
-                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f),
+                NovaTheme.colors.border,
             ),
             interactionSource = interactionSource,
         ) {
@@ -230,13 +231,13 @@ private fun AttachmentAction(
                     imageVector = icon,
                     contentDescription = null,
                     modifier = Modifier.size(22.dp),
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = NovaTheme.colors.textPrimary,
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = label,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = NovaTheme.colors.textPrimary,
                 )
             }
         }

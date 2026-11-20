@@ -7,6 +7,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
+private val IconSource = Color.Black
+
 object NovaIcons {
 
     val Menu: ImageVector by lazy {
@@ -17,21 +19,21 @@ object NovaIcons {
             viewportWidth = 24f,
             viewportHeight = 24f,
         ).apply {
-            path(fill = SolidColor(Color.Black)) {
+            path(fill = SolidColor(IconSource)) {
                 moveTo(4f, 6.5f)
                 horizontalLineTo(20f)
                 verticalLineTo(8.5f)
                 horizontalLineTo(4f)
                 close()
             }
-            path(fill = SolidColor(Color.Black)) {
+            path(fill = SolidColor(IconSource)) {
                 moveTo(4f, 11f)
                 horizontalLineTo(20f)
                 verticalLineTo(13f)
                 horizontalLineTo(4f)
                 close()
             }
-            path(fill = SolidColor(Color.Black)) {
+            path(fill = SolidColor(IconSource)) {
                 moveTo(4f, 15.5f)
                 horizontalLineTo(14f)
                 verticalLineTo(17.5f)
@@ -50,7 +52,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.9f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -65,7 +67,7 @@ object NovaIcons {
                 horizontalLineTo(12.5f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.9f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -73,7 +75,7 @@ object NovaIcons {
                 verticalLineTo(8.2f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.9f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -91,7 +93,7 @@ object NovaIcons {
             viewportWidth = 24f,
             viewportHeight = 24f,
         ).apply {
-            path(fill = SolidColor(Color.Black)) {
+            path(fill = SolidColor(IconSource)) {
                 moveTo(12f, 4.2f)
                 lineTo(19.2f, 11.4f)
                 lineTo(17.8f, 12.8f)
@@ -115,7 +117,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.9f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -123,7 +125,7 @@ object NovaIcons {
                 verticalLineTo(19f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.9f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -142,7 +144,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.9f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -154,7 +156,7 @@ object NovaIcons {
                 close()
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.9f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -173,7 +175,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.9f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -193,7 +195,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.9f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -201,7 +203,7 @@ object NovaIcons {
                 horizontalLineTo(20f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.9f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -209,7 +211,7 @@ object NovaIcons {
                 horizontalLineTo(14f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.9f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -227,7 +229,7 @@ object NovaIcons {
             viewportWidth = 24f,
             viewportHeight = 24f,
         ).apply {
-            path(fill = SolidColor(Color.Black)) {
+            path(fill = SolidColor(IconSource)) {
                 moveTo(5.6f, 10.4f)
                 curveTo(6.5f, 10.4f, 7.2f, 11.1f, 7.2f, 12f)
                 curveTo(7.2f, 12.9f, 6.5f, 13.6f, 5.6f, 13.6f)
@@ -235,7 +237,7 @@ object NovaIcons {
                 curveTo(4f, 11.1f, 4.7f, 10.4f, 5.6f, 10.4f)
                 close()
             }
-            path(fill = SolidColor(Color.Black)) {
+            path(fill = SolidColor(IconSource)) {
                 moveTo(12f, 10.4f)
                 curveTo(12.9f, 10.4f, 13.6f, 11.1f, 13.6f, 12f)
                 curveTo(13.6f, 12.9f, 12.9f, 13.6f, 12f, 13.6f)
@@ -243,7 +245,7 @@ object NovaIcons {
                 curveTo(10.4f, 11.1f, 11.1f, 10.4f, 12f, 10.4f)
                 close()
             }
-            path(fill = SolidColor(Color.Black)) {
+            path(fill = SolidColor(IconSource)) {
                 moveTo(18.4f, 10.4f)
                 curveTo(19.3f, 10.4f, 20f, 11.1f, 20f, 12f)
                 curveTo(20f, 12.9f, 19.3f, 13.6f, 18.4f, 13.6f)
@@ -262,7 +264,7 @@ object NovaIcons {
             viewportWidth = 24f,
             viewportHeight = 24f,
         ).apply {
-            path(fill = SolidColor(Color.Black)) {
+            path(fill = SolidColor(IconSource)) {
                 moveTo(12f, 4f)
                 curveTo(14.2f, 4f, 16f, 5.8f, 16f, 8f)
                 curveTo(16f, 10.2f, 14.2f, 12f, 12f, 12f)
@@ -270,7 +272,7 @@ object NovaIcons {
                 curveTo(8f, 5.8f, 9.8f, 4f, 12f, 4f)
                 close()
             }
-            path(fill = SolidColor(Color.Black)) {
+            path(fill = SolidColor(IconSource)) {
                 moveTo(12f, 14f)
                 curveTo(16f, 14f, 19.5f, 16f, 20f, 19f)
                 curveTo(20.1f, 19.6f, 19.6f, 20f, 19f, 20f)
@@ -291,7 +293,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.8f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -299,7 +301,7 @@ object NovaIcons {
                 horizontalLineTo(19.5f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.8f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -307,7 +309,7 @@ object NovaIcons {
                 horizontalLineTo(12f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.8f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -315,7 +317,7 @@ object NovaIcons {
                 horizontalLineTo(12f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.8f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -335,7 +337,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 2.4f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -356,7 +358,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.8f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -371,7 +373,7 @@ object NovaIcons {
                 close()
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.8f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -389,7 +391,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.8f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -406,7 +408,7 @@ object NovaIcons {
                 close()
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.8f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -425,7 +427,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.8f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -434,7 +436,7 @@ object NovaIcons {
                 horizontalLineTo(19.5f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.8f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -445,7 +447,7 @@ object NovaIcons {
                 lineTo(17.5f, 6.5f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.8f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -466,7 +468,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 2f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -487,7 +489,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -508,7 +510,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -521,7 +523,7 @@ object NovaIcons {
                 close()
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -542,7 +544,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -555,7 +557,7 @@ object NovaIcons {
                 close()
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -566,7 +568,7 @@ object NovaIcons {
                 verticalLineTo(6f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -586,7 +588,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -598,7 +600,7 @@ object NovaIcons {
                 close()
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -606,7 +608,7 @@ object NovaIcons {
                 horizontalLineTo(20.5f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -629,7 +631,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -641,7 +643,7 @@ object NovaIcons {
                 close()
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -649,7 +651,7 @@ object NovaIcons {
                 verticalLineTo(4.2f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -657,7 +659,7 @@ object NovaIcons {
                 verticalLineTo(21.5f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -665,7 +667,7 @@ object NovaIcons {
                 horizontalLineTo(4.2f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -673,7 +675,7 @@ object NovaIcons {
                 horizontalLineTo(21.5f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -681,7 +683,7 @@ object NovaIcons {
                 lineTo(6.5f, 6.5f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -689,7 +691,7 @@ object NovaIcons {
                 lineTo(18.7f, 18.7f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -697,7 +699,7 @@ object NovaIcons {
                 lineTo(17.5f, 6.5f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -716,7 +718,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -726,7 +728,7 @@ object NovaIcons {
                 lineTo(12.5f, 18.5f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -734,7 +736,7 @@ object NovaIcons {
                 horizontalLineTo(10.7f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -744,7 +746,7 @@ object NovaIcons {
                 lineTo(21f, 18.5f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -763,7 +765,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -779,7 +781,7 @@ object NovaIcons {
                 close()
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -806,7 +808,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
             ) {
                 moveTo(12f, 3.5f)
@@ -817,14 +819,14 @@ object NovaIcons {
                 close()
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
                 moveTo(12f, 11f)
                 verticalLineTo(16.5f)
             }
-            path(fill = SolidColor(Color.Black)) {
+            path(fill = SolidColor(IconSource)) {
                 moveTo(12f, 6.9f)
                 curveTo(12.6f, 6.9f, 13.1f, 7.4f, 13.1f, 8f)
                 curveTo(13.1f, 8.6f, 12.6f, 9.1f, 12f, 9.1f)
@@ -844,7 +846,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -860,7 +862,7 @@ object NovaIcons {
                 close()
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -869,7 +871,7 @@ object NovaIcons {
                 horizontalLineTo(19f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -877,7 +879,7 @@ object NovaIcons {
                 horizontalLineTo(15.5f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -896,7 +898,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
             ) {
                 moveTo(12f, 3.5f)
@@ -907,7 +909,7 @@ object NovaIcons {
                 close()
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -917,7 +919,7 @@ object NovaIcons {
                 curveTo(13.7f, 6.9f, 14.8f, 7.9f, 14.8f, 9.2f)
                 curveTo(14.8f, 10.9f, 12.6f, 11.2f, 12.2f, 13f)
             }
-            path(fill = SolidColor(Color.Black)) {
+            path(fill = SolidColor(IconSource)) {
                 moveTo(12.2f, 15.4f)
                 curveTo(12.8f, 15.4f, 13.3f, 15.9f, 13.3f, 16.5f)
                 curveTo(13.3f, 17.1f, 12.8f, 17.6f, 12.2f, 17.6f)
@@ -937,7 +939,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -955,7 +957,7 @@ object NovaIcons {
                 close()
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
             ) {
                 moveTo(12f, 9.5f)
@@ -977,7 +979,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -994,7 +996,7 @@ object NovaIcons {
                 close()
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.7f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -1005,7 +1007,7 @@ object NovaIcons {
                 lineTo(15.5f, 13.5f)
                 lineTo(20.2f, 18f)
             }
-            path(fill = SolidColor(Color.Black)) {
+            path(fill = SolidColor(IconSource)) {
                 moveTo(15.6f, 7.4f)
                 curveTo(16.5f, 7.4f, 17.2f, 8.1f, 17.2f, 9f)
                 curveTo(17.2f, 9.9f, 16.5f, 10.6f, 15.6f, 10.6f)
@@ -1025,7 +1027,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.8f,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
@@ -1054,7 +1056,7 @@ object NovaIcons {
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.9f,
                 strokeLineCap = StrokeCap.Round,
             ) {
@@ -1062,7 +1064,7 @@ object NovaIcons {
                 lineTo(18f, 18f)
             }
             path(
-                stroke = SolidColor(Color.Black),
+                stroke = SolidColor(IconSource),
                 strokeLineWidth = 1.9f,
                 strokeLineCap = StrokeCap.Round,
             ) {

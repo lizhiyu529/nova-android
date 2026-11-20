@@ -14,23 +14,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.rememberSliderState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nova.app.ui.theme.Palette
+import com.nova.app.ui.components.NovaSwitch
+import com.nova.app.ui.theme.NovaTheme
 
-/** 字号档位：0.85 到 1.30，步进 0.05，共 10 档。 */
 val FontScaleSteps: List<Float> = listOf(
     0.85f, 0.90f, 0.95f, 1.00f, 1.05f,
     1.10f, 1.15f, 1.20f, 1.25f, 1.30f,
@@ -52,7 +48,6 @@ fun FontSizeScreen(
     onFollowSystemChange: (Boolean) -> Unit,
 ) {
     val scale = FontScaleSteps[scaleIndex.coerceIn(FontScaleSteps.indices)]
-    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
 
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -67,13 +62,13 @@ fun FontSizeScreen(
             ) {
                 Surface(
                     shape = RoundedCornerShape(18.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    color = NovaTheme.colors.containerHighest,
                 ) {
                     Text(
                         text = "预览文字大小",
                         fontSize = (16 * scale).sp,
                         lineHeight = (22 * scale).sp,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = NovaTheme.colors.textPrimary,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                     )
                 }
@@ -83,21 +78,21 @@ fun FontSizeScreen(
                 text = "拖动下方滑块就能调整全局字号，所见即所得。",
                 fontSize = (16 * scale).sp,
                 lineHeight = (24 * scale).sp,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = NovaTheme.colors.textPrimary,
             )
             Spacer(Modifier.height(16.dp))
             Text(
                 text = "长段代码看久了容易累，把字号调到自己舒服的档位，界面其它地方也会一起变。",
                 fontSize = (16 * scale).sp,
                 lineHeight = (24 * scale).sp,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = NovaTheme.colors.textPrimary,
             )
         }
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = NovaTheme.colors.card,
         ) {
             Column(
                 modifier = Modifier
@@ -112,16 +107,11 @@ fun FontSizeScreen(
                     Text(
                         text = "跟随系统",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = NovaTheme.colors.textPrimary,
                     )
-                    Switch(
+                    NovaSwitch(
                         checked = followSystem,
                         onCheckedChange = onFollowSystemChange,
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
-                            checkedTrackColor = Palette.green(isDark),
-                            checkedBorderColor = Color.Transparent,
-                        ),
                     )
                 }
                 Spacer(Modifier.height(6.dp))
@@ -132,7 +122,7 @@ fun FontSizeScreen(
                     Text(
                         text = "A",
                         fontSize = 15.sp,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = NovaTheme.colors.textPrimary,
                     )
                     Box(
                         modifier = Modifier.weight(1f),
@@ -141,14 +131,14 @@ fun FontSizeScreen(
                         Text(
                             text = fontScaleLabel(scaleIndex),
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = NovaTheme.colors.textPrimary,
                         )
                     }
                     Text(
                         text = "A",
                         fontSize = 23.sp,
                         fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = NovaTheme.colors.textPrimary,
                     )
                 }
                 val sliderState = rememberSliderState(
@@ -163,13 +153,11 @@ fun FontSizeScreen(
                     state = sliderState,
                     onValueChange = { if (!followSystem) onScaleChange(it.toInt()) },
                     colors = SliderDefaults.colors(
-                        activeTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
-                        inactiveTrackColor = MaterialTheme.colorScheme.outlineVariant,
+                        activeTrackColor = NovaTheme.colors.textSecondary,
+                        inactiveTrackColor = NovaTheme.colors.divider,
                     ),
                 )
             }
         }
     }
 }
-
-

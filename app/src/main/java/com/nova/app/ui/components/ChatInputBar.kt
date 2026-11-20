@@ -1,7 +1,12 @@
 package com.nova.app.ui.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,11 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.nova.app.ui.theme.NovaTheme
 
 private val ButtonTouchTarget = 34.dp
 
@@ -51,8 +52,8 @@ fun ChatInputBar(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
-        color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)),
+        color = NovaTheme.colors.card,
+        border = BorderStroke(0.8.dp, NovaTheme.colors.border),
     ) {
         Column(
             modifier = Modifier.padding(start = 18.dp, end = 10.dp, top = 16.dp, bottom = 12.dp),
@@ -65,9 +66,9 @@ fun ChatInputBar(
                     .heightIn(min = 38.dp, max = 132.dp)
                     .padding(end = 10.dp),
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = NovaTheme.colors.textPrimary,
                 ),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                cursorBrush = SolidColor(NovaTheme.colors.accent),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                 keyboardActions = KeyboardActions(onSend = { if (value.isNotBlank()) onSend() }),
                 decorationBox = { innerTextField ->
@@ -76,7 +77,7 @@ fun ChatInputBar(
                             Text(
                                 text = "发消息，问点代码上的事",
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = NovaTheme.colors.textSecondary,
                             )
                         }
                         innerTextField()
@@ -112,8 +113,8 @@ private fun AttachButton(onClick: () -> Unit) {
                 .size(ButtonTouchTarget)
                 .scale(scale),
             shape = CircleShape,
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-            border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+            color = NovaTheme.colors.containerHigh,
+            border = BorderStroke(0.8.dp, NovaTheme.colors.divider),
             interactionSource = interactionSource,
         ) {
             Box(contentAlignment = Alignment.Center) {
@@ -121,7 +122,7 @@ private fun AttachButton(onClick: () -> Unit) {
                     imageVector = NovaIcons.Plus,
                     contentDescription = "添加附件",
                     modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = NovaTheme.colors.textSecondary,
                 )
             }
         }
@@ -139,17 +140,17 @@ private fun SendButton(enabled: Boolean, onClick: () -> Unit) {
     )
     val container by animateColorAsState(
         targetValue = if (enabled) {
-            MaterialTheme.colorScheme.primary
+            NovaTheme.colors.accent
         } else {
-            MaterialTheme.colorScheme.surfaceContainerHigh
+            NovaTheme.colors.containerHigh
         },
         label = "sendContainer",
     )
     val content by animateColorAsState(
         targetValue = if (enabled) {
-            MaterialTheme.colorScheme.onPrimary
+            NovaTheme.colors.onAccent
         } else {
-            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
+            NovaTheme.colors.textDisabled
         },
         label = "sendContent",
     )
@@ -165,7 +166,7 @@ private fun SendButton(enabled: Boolean, onClick: () -> Unit) {
             border = if (enabled) {
                 null
             } else {
-                BorderStroke(0.8.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                BorderStroke(0.8.dp, NovaTheme.colors.divider)
             },
             interactionSource = interactionSource,
         ) {

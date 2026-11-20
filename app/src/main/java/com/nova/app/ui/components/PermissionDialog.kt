@@ -9,24 +9,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.material3.Icon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.nova.app.ui.theme.NovaTheme
 
-/**
- * 权限说明弹窗：先讲清楚用途，再让用户决定是否去系统授权。
- * 只负责展示，实际请求由调用方发起。
- */
 @Composable
 fun PermissionDialog(
     icon: ImageVector,
@@ -46,7 +44,7 @@ fun PermissionDialog(
                 .fillMaxWidth()
                 .padding(horizontal = 44.dp),
             shape = RoundedCornerShape(26.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            color = NovaTheme.colors.containerLow,
             tonalElevation = 0.dp,
         ) {
             Column(
@@ -56,7 +54,7 @@ fun PermissionDialog(
                 Surface(
                     modifier = Modifier.height(52.dp),
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer,
+                    color = NovaTheme.colors.accentSubtle,
                 ) {
                     Box(
                         modifier = Modifier.padding(horizontal = 18.dp),
@@ -66,7 +64,7 @@ fun PermissionDialog(
                             imageVector = icon,
                             contentDescription = null,
                             modifier = Modifier.height(24.dp),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            tint = NovaTheme.colors.onAccentSubtle,
                         )
                     }
                 }
@@ -75,14 +73,14 @@ fun PermissionDialog(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = NovaTheme.colors.textPrimary,
                     textAlign = TextAlign.Center,
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = message,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = NovaTheme.colors.textSecondary,
                     textAlign = TextAlign.Center,
                 )
                 Spacer(Modifier.height(22.dp))
@@ -92,14 +90,14 @@ fun PermissionDialog(
                         .fillMaxWidth()
                         .height(46.dp),
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = NovaTheme.colors.accent,
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = confirmText,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = NovaTheme.colors.onAccent,
                         )
                     }
                 }
@@ -110,14 +108,14 @@ fun PermissionDialog(
                         .fillMaxWidth()
                         .height(44.dp),
                     shape = CircleShape,
-                    color = androidx.compose.ui.graphics.Color.Transparent,
+                    color = Color.Transparent,
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = dismissText,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = NovaTheme.colors.textSecondary,
                         )
                     }
                 }

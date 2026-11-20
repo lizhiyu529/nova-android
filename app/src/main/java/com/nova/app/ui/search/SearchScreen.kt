@@ -59,8 +59,9 @@ import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.drawer.Conversation
 import com.nova.app.ui.drawer.ConversationGroup
 import com.nova.app.ui.drawer.groupConversations
-import kotlinx.coroutines.delay
+import com.nova.app.ui.theme.NovaTheme
 import java.time.LocalDateTime
+import kotlinx.coroutines.delay
 
 @Composable
 fun SearchScreen(
@@ -137,7 +138,7 @@ fun SearchScreen(
                         Text(
                             text = group.label,
                             style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                            color = NovaTheme.colors.textSecondary,
                             modifier = Modifier.padding(start = 10.dp, top = 16.dp, bottom = 6.dp),
                         )
                     }
@@ -168,7 +169,7 @@ private fun SearchField(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(26.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = NovaTheme.colors.card,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
@@ -178,7 +179,7 @@ private fun SearchField(
                 imageVector = NovaIcons.Search,
                 contentDescription = null,
                 modifier = Modifier.size(19.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = NovaTheme.colors.textSecondary,
             )
             Spacer(Modifier.width(9.dp))
             Box(
@@ -192,9 +193,9 @@ private fun SearchField(
                         .fillMaxWidth()
                         .focusRequester(focusRequester),
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = NovaTheme.colors.textPrimary,
                     ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    cursorBrush = SolidColor(NovaTheme.colors.accent),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(onSearch = { onSearch() }),
@@ -204,7 +205,7 @@ private fun SearchField(
                                 Text(
                                     text = "搜索对话内容...",
                                     style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                                    color = NovaTheme.colors.textSecondary,
                                 )
                             }
                             innerTextField()
@@ -226,7 +227,7 @@ private fun SearchField(
                             imageVector = NovaIcons.Close,
                             contentDescription = "清空",
                             modifier = Modifier.size(15.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = NovaTheme.colors.textSecondary,
                         )
                     }
                 }
@@ -244,7 +245,7 @@ private fun EmptyHint(text: String, modifier: Modifier = Modifier) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+            color = NovaTheme.colors.textSecondary,
         )
     }
 }
@@ -269,7 +270,7 @@ private fun ResultRow(
             Text(
                 text = conversation.title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = NovaTheme.colors.textPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -280,7 +281,7 @@ private fun ResultRow(
             modifier = Modifier
                 .size(16.dp)
                 .rotate(180f),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+            tint = NovaTheme.colors.textTertiary,
         )
     }
 }

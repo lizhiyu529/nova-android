@@ -10,7 +10,6 @@ import java.util.Locale
 
 object CameraFiles {
 
-    /** 在 cache/camera 下新建一个待拍照的文件，返回 file:/// 与可分享的 content:// URI。 */
     fun createCaptureTarget(context: Context): Pair<File, Uri> {
         val dir = File(context.cacheDir, "camera").apply { mkdirs() }
         val name = "IMG_" + SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date()) + ".jpg"

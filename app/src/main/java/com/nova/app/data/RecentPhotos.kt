@@ -6,7 +6,6 @@ import android.provider.MediaStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/** 相册里最近的照片，供附件面板直接勾选。 */
 suspend fun loadRecentPhotos(context: Context, limit: Int = 30): List<String> {
     return withContext(Dispatchers.IO) {
         val result = mutableListOf<String>()

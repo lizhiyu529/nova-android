@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.nova.app.ui.components.NovaIcons
+import com.nova.app.ui.theme.NovaTheme
 
 @Composable
 fun DataManagementScreen(
@@ -37,7 +38,7 @@ fun DataManagementScreen(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = NovaTheme.colors.card,
         ) {
             Row(
                 modifier = Modifier
@@ -49,14 +50,14 @@ fun DataManagementScreen(
                 Text(
                     text = "导出所有历史对话",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = NovaTheme.colors.textPrimary,
                     modifier = Modifier.weight(1f),
                 )
                 Icon(
                     imageVector = NovaIcons.ChevronRight,
                     contentDescription = null,
                     modifier = Modifier.size(17.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    tint = NovaTheme.colors.textTertiary,
                 )
             }
         }
@@ -66,12 +67,12 @@ fun DataManagementScreen(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = NovaTheme.colors.card,
         ) {
             Text(
                 text = "删除所有历史对话",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.error,
+                color = NovaTheme.colors.danger,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(20.dp))

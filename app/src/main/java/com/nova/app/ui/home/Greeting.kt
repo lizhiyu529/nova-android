@@ -6,8 +6,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.delay
 import java.time.LocalDateTime
+import kotlinx.coroutines.delay
 
 data class Greeting(val title: String, val hint: String)
 
@@ -38,7 +38,6 @@ private fun greetingFor(hour: Int): Greeting = when (hour) {
     )
 }
 
-/** 只在问候语真正变化时才更新状态，避免每分钟重组整棵界面树。 */
 @Composable
 fun rememberGreeting(): Greeting {
     var greeting by remember { mutableStateOf(greetingFor(LocalDateTime.now().hour)) }

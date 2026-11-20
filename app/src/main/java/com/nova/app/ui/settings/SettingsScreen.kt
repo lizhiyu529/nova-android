@@ -34,14 +34,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.nova.app.ui.components.NovaIcons
+import com.nova.app.ui.theme.NovaTheme
 
 @Composable
 fun OptionPickerDialog(
@@ -67,7 +68,7 @@ fun OptionPickerDialog(
                 .fillMaxWidth()
                 .padding(horizontal = horizontalPadding),
             shape = RoundedCornerShape(26.dp),
-            color = settingsDialogColor(),
+            color = NovaTheme.colors.dialog,
             tonalElevation = 0.dp,
         ) {
             Column {
@@ -81,13 +82,13 @@ fun OptionPickerDialog(
                         text = title,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = NovaTheme.colors.textPrimary,
                         textAlign = TextAlign.Center,
                     )
                 }
                 HorizontalDivider(
                     thickness = 0.7.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                    color = NovaTheme.colors.divider,
                 )
                 Surface(
                     modifier = Modifier
@@ -112,7 +113,7 @@ fun OptionPickerDialog(
                 }
                 HorizontalDivider(
                     thickness = 0.7.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                    color = NovaTheme.colors.divider,
                 )
                 Surface(
                     onClick = { onConfirm(pending) },
@@ -128,7 +129,7 @@ fun OptionPickerDialog(
                             text = "确认",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = NovaTheme.colors.accent,
                         )
                     }
                 }
@@ -155,8 +156,8 @@ private fun OptionRow(
                 onClick = onClick,
                 modifier = Modifier.size(40.dp),
                 colors = RadioButtonDefaults.colors(
-                    selectedColor = MaterialTheme.colorScheme.onSurface,
-                    unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    selectedColor = NovaTheme.colors.textPrimary,
+                    unselectedColor = NovaTheme.colors.textSecondary,
                 ),
             )
         }
@@ -164,7 +165,7 @@ private fun OptionRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = NovaTheme.colors.textPrimary,
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
                 .clickable(onClick = onClick)
@@ -200,7 +201,7 @@ fun SettingsScreen(
         Text(
             text = "账户",
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+            color = NovaTheme.colors.textSecondary,
             modifier = Modifier.padding(start = 6.dp, top = 12.dp, bottom = 8.dp),
         )
         SettingsCard {
@@ -219,7 +220,7 @@ fun SettingsScreen(
         Text(
             text = "应用",
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+            color = NovaTheme.colors.textSecondary,
             modifier = Modifier.padding(start = 6.dp, top = 22.dp, bottom = 8.dp),
         )
         SettingsCard {
@@ -250,7 +251,7 @@ fun SettingsScreen(
         Text(
             text = "关于",
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+            color = NovaTheme.colors.textSecondary,
             modifier = Modifier.padding(start = 6.dp, top = 22.dp, bottom = 8.dp),
         )
         SettingsCard {
@@ -270,7 +271,7 @@ fun SettingsScreen(
         Text(
             text = "内容由 AI 生成，请仔细甄别，并合法使用",
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            color = NovaTheme.colors.textTertiary,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
@@ -310,7 +311,7 @@ private fun SettingsCard(content: @Composable () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        color = settingsCardColor(),
+        color = NovaTheme.colors.card,
     ) {
         Column(modifier = Modifier.padding(vertical = 2.dp)) {
             content()
@@ -342,20 +343,20 @@ private fun SettingsRow(
                 imageVector = icon,
                 contentDescription = null,
                 modifier = Modifier.size(21.dp),
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = NovaTheme.colors.textPrimary,
             )
             Spacer(Modifier.width(14.dp))
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = NovaTheme.colors.textPrimary,
             )
         }
         if (value != null) {
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = NovaTheme.colors.textSecondary,
                 modifier = Modifier.padding(start = 12.dp),
             )
             Spacer(Modifier.width(6.dp))
@@ -366,7 +367,7 @@ private fun SettingsRow(
             imageVector = NovaIcons.ChevronRight,
             contentDescription = null,
             modifier = Modifier.size(17.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            tint = NovaTheme.colors.textTertiary,
         )
     }
 }

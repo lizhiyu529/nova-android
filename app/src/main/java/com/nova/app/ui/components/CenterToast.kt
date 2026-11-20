@@ -24,15 +24,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.nova.app.ui.theme.Palette
+import com.nova.app.ui.theme.NovaTheme
 
-/**
- * 居中提示。用 message 的「上一帧快照」渲染，
- * 保证退出动画期间仍有内容，不会露出空气泡。
- */
 @Composable
 fun CenterToast(
     message: String?,
@@ -57,7 +52,7 @@ fun CenterToast(
         ) {
             Surface(
                 shape = RoundedCornerShape(14.dp),
-                color = toastContainer(),
+                color = NovaTheme.colors.toastContainer,
                 shadowElevation = 6.dp,
             ) {
                 Box(
@@ -69,7 +64,7 @@ fun CenterToast(
                     Text(
                         text = snapshot,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = toastContent(),
+                        color = NovaTheme.colors.toastContent,
                         textAlign = TextAlign.Center,
                     )
                 }
@@ -77,15 +72,3 @@ fun CenterToast(
         }
     }
 }
-
-/** 浮层用独立色阶，比卡片再亮一档，两种主题下都能浮起来。 */
-@Composable
-private fun toastContainer(): Color {
-    return Palette.overlay()
-}
-
-@Composable
-private fun toastContent(): Color {
-    return Palette.onOverlay()
-}
-

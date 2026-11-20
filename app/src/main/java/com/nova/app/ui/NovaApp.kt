@@ -67,11 +67,11 @@ import com.nova.app.ui.settings.DataManagementScreen
 import com.nova.app.ui.settings.FontSizeScreen
 import com.nova.app.ui.settings.PersonalizeScreen
 import com.nova.app.ui.settings.SettingsScreen
-import com.nova.app.ui.settings.settingsPageBackground
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.nova.app.ui.theme.NovaTheme
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private enum class Page { Search, Settings, Logs, FontSize, Personalize, DataManagement }
 
@@ -126,7 +126,6 @@ fun NovaApp(
                     accountEmail = "357******66@qq.com",
                     onOpenConversation = { scope.launch { drawerState.close() } },
                     onOpenSettings = {
-                        // 抽屉不关闭，页面直接盖在抽屉上面；返回时抽屉原地不动，不会重播动画
                         push(Page.Settings)
                     },
                     onOpenSearch = {
@@ -175,7 +174,7 @@ fun NovaApp(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                color = NovaTheme.colors.containerLow,
             ) {
                 SearchScreen(
                     conversations = conversations,
@@ -198,7 +197,7 @@ fun NovaApp(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = settingsPageBackground(),
+                color = NovaTheme.colors.pageBackground,
             ) {
                 SettingsPage(
                     language = language,
@@ -227,7 +226,7 @@ fun NovaApp(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = settingsPageBackground(),
+                color = NovaTheme.colors.pageBackground,
             ) {
                 LogPage(
                     onBack = { pop() },
@@ -244,7 +243,7 @@ fun NovaApp(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = settingsPageBackground(),
+                color = NovaTheme.colors.pageBackground,
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     SettingsTopBar(title = "字体大小", onBack = { pop() })
@@ -267,7 +266,7 @@ fun NovaApp(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = settingsPageBackground(),
+                color = NovaTheme.colors.pageBackground,
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     SettingsTopBar(title = "个性化", onBack = { pop() })
@@ -288,7 +287,7 @@ fun NovaApp(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = settingsPageBackground(),
+                color = NovaTheme.colors.pageBackground,
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     SettingsTopBar(title = "数据管理", onBack = { pop() })
@@ -384,7 +383,7 @@ private fun LogPage(onBack: () -> Unit) {
                 text = "运行日志",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = NovaTheme.colors.textPrimary,
                 modifier = Modifier.align(Alignment.Center),
             )
             CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
@@ -401,14 +400,14 @@ private fun LogPage(onBack: () -> Unit) {
                         .align(Alignment.CenterEnd)
                         .size(40.dp),
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    color = NovaTheme.colors.containerHighest,
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = NovaIcons.Trash,
                             contentDescription = "清空日志",
                             modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = NovaTheme.colors.textSecondary,
                         )
                     }
                 }
@@ -418,8 +417,8 @@ private fun LogPage(onBack: () -> Unit) {
         PrimaryTabRow(
             selectedTabIndex = if (showCrashes) 1 else 0,
             modifier = Modifier.fillMaxWidth(),
-            containerColor = settingsPageBackground(),
-            contentColor = MaterialTheme.colorScheme.onSurface,
+            containerColor = NovaTheme.colors.pageBackground,
+            contentColor = NovaTheme.colors.textPrimary,
         ) {
             Tab(
                 selected = !showCrashes,
@@ -436,7 +435,7 @@ private fun LogPage(onBack: () -> Unit) {
         Text(
             text = path,
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+            color = NovaTheme.colors.textSecondary,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         )
 
@@ -450,7 +449,7 @@ private fun LogPage(onBack: () -> Unit) {
                 Text(
                     text = if (showCrashes) "还没有崩溃记录" else "还没有运行记录",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                    color = NovaTheme.colors.textSecondary,
                 )
             }
         } else {
@@ -460,7 +459,7 @@ private fun LogPage(onBack: () -> Unit) {
                     .padding(horizontal = 12.dp)
                     .padding(bottom = 12.dp),
                 shape = MaterialTheme.shapes.medium,
-                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                color = NovaTheme.colors.containerLow,
             ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -471,7 +470,7 @@ private fun LogPage(onBack: () -> Unit) {
                             text = line,
                             style = MaterialTheme.typography.labelSmall,
                             fontFamily = FontFamily.Monospace,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = NovaTheme.colors.textPrimary,
                         )
                     }
                 }
@@ -496,7 +495,7 @@ private fun SettingsTopBar(title: String = "设置", onBack: () -> Unit) {
             text = title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = NovaTheme.colors.textPrimary,
             modifier = Modifier.align(Alignment.Center),
         )
     }

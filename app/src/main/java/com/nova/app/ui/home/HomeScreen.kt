@@ -104,7 +104,6 @@ fun HomeScreen(
         }
     }
 
-    // 拍照目标 URI 需要跨重组保留，否则系统回调时对不上
     val cameraTarget = remember { mutableStateOf<Uri?>(null) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -167,7 +166,7 @@ fun HomeScreen(
     BackHandler(enabled = showAttachments) { showAttachments = false }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = NovaTheme.colors.pageBackground,
         topBar = {
             HomeTopBar(onOpenDrawer = onOpenDrawer, onNewChat = onNewChat)
         },
@@ -279,7 +278,7 @@ private fun HomeTopBar(onOpenDrawer: () -> Unit, onNewChat: () -> Unit) {
             Icon(
                 imageVector = NovaIcons.Menu,
                 contentDescription = "打开菜单",
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = NovaTheme.colors.textPrimary,
                 modifier = Modifier.size(24.dp),
             )
         }
@@ -287,7 +286,7 @@ private fun HomeTopBar(onOpenDrawer: () -> Unit, onNewChat: () -> Unit) {
             Icon(
                 imageVector = NovaIcons.NewChat,
                 contentDescription = "新建对话",
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = NovaTheme.colors.textPrimary,
                 modifier = Modifier.size(24.dp),
             )
         }
@@ -303,14 +302,14 @@ private fun GreetingBlock(
         Text(
             text = greeting.title,
             style = MaterialTheme.typography.headlineLargeEmphasized,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = NovaTheme.colors.textPrimary,
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.size(10.dp))
         Text(
             text = greeting.hint,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = NovaTheme.colors.textSecondary,
             modifier = Modifier.fillMaxWidth(),
         )
     }

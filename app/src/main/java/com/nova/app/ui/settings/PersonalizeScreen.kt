@@ -12,23 +12,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
-import com.nova.app.ui.theme.Palette
+import com.nova.app.ui.components.NovaSwitch
+import com.nova.app.ui.theme.NovaTheme
 
 @Composable
 fun PersonalizeScreen(
     autoCollapseThinking: Boolean,
     onAutoCollapseThinkingChange: (Boolean) -> Unit,
 ) {
-    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -38,7 +34,7 @@ fun PersonalizeScreen(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(18.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = NovaTheme.colors.card,
         ) {
             Row(
                 modifier = Modifier
@@ -49,24 +45,19 @@ fun PersonalizeScreen(
                 Text(
                     text = "思考内容自动折叠",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = NovaTheme.colors.textPrimary,
                     modifier = Modifier.weight(1f),
                 )
-                Switch(
+                NovaSwitch(
                     checked = autoCollapseThinking,
                     onCheckedChange = onAutoCollapseThinkingChange,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = Palette.green(isDark),
-                        checkedBorderColor = Color.Transparent,
-                    ),
                 )
             }
         }
         Text(
             text = "开启后，思考结束后将自动折叠思考内容",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = NovaTheme.colors.textSecondary,
             modifier = Modifier.padding(start = 18.dp, top = 8.dp),
         )
         Spacer(Modifier.height(24.dp))

@@ -67,8 +67,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.nova.app.ui.components.NovaIcons
-import kotlinx.coroutines.delay
+import com.nova.app.ui.theme.NovaTheme
 import java.time.LocalDateTime
+import kotlinx.coroutines.delay
 
 @Composable
 fun NovaDrawer(
@@ -111,7 +112,7 @@ fun NovaDrawer(
             .fillMaxHeight()
             .width(drawerWidth),
         drawerShape = RoundedCornerShape(topEnd = 28.dp, bottomEnd = 28.dp),
-        drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        drawerContainerColor = NovaTheme.colors.containerLow,
         windowInsets = WindowInsets(0, 0, 0, 0),
     ) {
         Column(modifier = Modifier.fillMaxHeight()) {
@@ -258,7 +259,7 @@ private fun DrawerSearchField(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = NovaTheme.colors.containerHigh,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 15.dp, vertical = 11.dp),
@@ -268,13 +269,13 @@ private fun DrawerSearchField(
                 imageVector = NovaIcons.Search,
                 contentDescription = null,
                 modifier = Modifier.size(19.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = NovaTheme.colors.textSecondary,
             )
             Spacer(Modifier.width(10.dp))
             Text(
                 text = "搜索对话内容...",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                color = NovaTheme.colors.textSecondary,
             )
         }
     }
@@ -293,22 +294,22 @@ private fun SelectionTopBar(onClose: () -> Unit) {
             text = "选择对话",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = NovaTheme.colors.textPrimary,
         )
         CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
             Surface(
                 onClick = onClose,
                 modifier = Modifier.size(40.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+                color = NovaTheme.colors.containerHigh,
+                border = BorderStroke(1.dp, NovaTheme.colors.divider),
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = NovaIcons.Close,
                         contentDescription = "退出选择",
                         modifier = Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = NovaTheme.colors.textSecondary,
                     )
                 }
             }
@@ -342,7 +343,7 @@ private fun PinnedHeader(
                 text = "置顶 $count 个对话",
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Normal,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                color = NovaTheme.colors.textSecondary,
             )
             Spacer(Modifier.width(5.dp))
             Icon(
@@ -351,7 +352,7 @@ private fun PinnedHeader(
                 modifier = Modifier
                     .size(16.dp)
                     .rotate(if (expanded) 0f else -90f),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                tint = NovaTheme.colors.textSecondary,
             )
         }
         if (showSelectAction) {
@@ -364,7 +365,7 @@ private fun PinnedHeader(
                         imageVector = NovaIcons.SelectAll,
                         contentDescription = "多选对话",
                         modifier = Modifier.size(19.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = NovaTheme.colors.textSecondary,
                     )
                 }
             }
@@ -379,7 +380,7 @@ private fun SectionLabel(text: String) {
         text = text,
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.Normal,
-        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+        color = NovaTheme.colors.textSecondary,
         modifier = Modifier.padding(start = 10.dp, top = 16.dp, bottom = 6.dp),
     )
 }
@@ -427,7 +428,7 @@ private fun ConversationRow(
         Text(
             text = conversation.title,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = NovaTheme.colors.textPrimary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
@@ -444,11 +445,11 @@ private fun SelectionCircle(selected: Boolean, modifier: Modifier = Modifier) {
         Surface(
             modifier = Modifier.size(20.dp),
             shape = CircleShape,
-            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+            color = if (selected) NovaTheme.colors.accent else NovaTheme.colors.card,
             border = if (selected) {
                 null
             } else {
-                BorderStroke(1.5.dp, MaterialTheme.colorScheme.outlineVariant)
+                BorderStroke(1.5.dp, NovaTheme.colors.divider)
             },
         ) {
             if (selected) {
@@ -457,7 +458,7 @@ private fun SelectionCircle(selected: Boolean, modifier: Modifier = Modifier) {
                         imageVector = NovaIcons.Check,
                         contentDescription = null,
                         modifier = Modifier.size(13.dp),
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = NovaTheme.colors.onAccent,
                     )
                 }
             }
@@ -472,9 +473,9 @@ private fun SelectionActionBar(
     onDelete: () -> Unit,
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.surface,
+        color = NovaTheme.colors.card,
         shadowElevation = 0.dp,
-        border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
+        border = BorderStroke(0.5.dp, NovaTheme.colors.divider),
     ) {
         Row(
             modifier = Modifier
@@ -494,7 +495,7 @@ private fun SelectionActionBar(
                 modifier = Modifier
                     .width(1.dp)
                     .height(22.dp)
-                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+                    .background(NovaTheme.colors.divider),
             )
             SelectionAction(
                 icon = NovaIcons.Trash,
@@ -516,9 +517,9 @@ private fun SelectionAction(
     modifier: Modifier = Modifier,
 ) {
     val tint = if (enabled) {
-        MaterialTheme.colorScheme.onSurface
+        NovaTheme.colors.textPrimary
     } else {
-        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+        NovaTheme.colors.textDisabled
     }
     Row(
         modifier = modifier
@@ -561,14 +562,14 @@ private fun DrawerAccountBar(
         Surface(
             modifier = Modifier.size(34.dp),
             shape = CircleShape,
-            color = MaterialTheme.colorScheme.surfaceContainerHighest,
+            color = NovaTheme.colors.containerHighest,
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = NovaIcons.Person,
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = NovaTheme.colors.textSecondary,
                 )
             }
         }
@@ -576,7 +577,7 @@ private fun DrawerAccountBar(
         Text(
             text = email,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = NovaTheme.colors.textPrimary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
@@ -590,7 +591,7 @@ private fun DrawerAccountBar(
                     imageVector = NovaIcons.More,
                     contentDescription = "设置",
                     modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = NovaTheme.colors.textSecondary,
                 )
             }
         }
@@ -615,44 +616,44 @@ private fun ConversationMenu(
                 .fillMaxWidth()
                 .padding(horizontal = 68.dp),
             shape = RoundedCornerShape(18.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = NovaTheme.colors.card,
             tonalElevation = 0.dp,
         ) {
             Column {
                 MenuRow(
                     icon = NovaIcons.Edit,
                     label = "重命名",
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = NovaTheme.colors.textPrimary,
                     onClick = onRename,
                 )
                 HorizontalDivider(
                     thickness = 0.7.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                    color = NovaTheme.colors.divider,
                 )
                 MenuRow(
                     icon = NovaIcons.Pin,
                     label = if (pinned) "取消置顶" else "置顶",
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = NovaTheme.colors.textPrimary,
                     onClick = onTogglePin,
                 )
                 HorizontalDivider(
                     thickness = 0.7.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                    color = NovaTheme.colors.divider,
                 )
                 MenuRow(
                     icon = NovaIcons.SelectAll,
                     label = "多选",
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = NovaTheme.colors.textPrimary,
                     onClick = onMultiSelect,
                 )
                 HorizontalDivider(
                     thickness = 0.7.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                    color = NovaTheme.colors.divider,
                 )
                 MenuRow(
                     icon = NovaIcons.Trash,
                     label = "删除",
-                    tint = MaterialTheme.colorScheme.error,
+                    tint = NovaTheme.colors.danger,
                     onClick = onDelete,
                 )
             }
@@ -716,7 +717,7 @@ private fun RenameDialog(
                 .fillMaxWidth()
                 .padding(horizontal = 44.dp),
             shape = RoundedCornerShape(26.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = NovaTheme.colors.card,
             tonalElevation = 0.dp,
         ) {
             Column {
@@ -730,7 +731,7 @@ private fun RenameDialog(
                         text = "重命名对话",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = NovaTheme.colors.textPrimary,
                     )
                 }
                 Surface(
@@ -738,7 +739,7 @@ private fun RenameDialog(
                         .fillMaxWidth()
                         .padding(horizontal = 18.dp, vertical = 4.dp),
                     shape = RoundedCornerShape(14.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    color = NovaTheme.colors.containerHigh,
                 ) {
                     BasicTextField(
                         value = TextFieldValue(text = text, selection = selection),
@@ -751,9 +752,9 @@ private fun RenameDialog(
                             .padding(horizontal = 14.dp, vertical = 12.dp)
                             .focusRequester(focusRequester),
                         textStyle = MaterialTheme.typography.bodyLarge.copy(
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = NovaTheme.colors.textPrimary,
                         ),
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                        cursorBrush = SolidColor(NovaTheme.colors.accent),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(
@@ -770,12 +771,12 @@ private fun RenameDialog(
                 Spacer(Modifier.size(16.dp))
                 HorizontalDivider(
                     thickness = 0.7.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
+                    color = NovaTheme.colors.divider,
                 )
                 Row(modifier = Modifier.fillMaxWidth()) {
                     DialogTextAction(
                         text = "取消",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = NovaTheme.colors.textSecondary,
                         onClick = {
                             keyboard?.hide()
                             onDismiss()
@@ -786,11 +787,11 @@ private fun RenameDialog(
                         modifier = Modifier
                             .width(0.7.dp)
                             .height(52.dp)
-                            .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f)),
+                            .background(NovaTheme.colors.divider),
                     )
                     DialogTextAction(
                         text = "确认",
-                        color = MaterialTheme.colorScheme.primary,
+                        color = NovaTheme.colors.accent,
                         onClick = {
                             val trimmed = text.trim()
                             if (trimmed.isNotEmpty()) {
@@ -821,7 +822,7 @@ private fun DeleteConfirmDialog(
                 .fillMaxWidth()
                 .padding(horizontal = 44.dp),
             shape = RoundedCornerShape(26.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = NovaTheme.colors.card,
             tonalElevation = 0.dp,
         ) {
             Column(
@@ -832,14 +833,14 @@ private fun DeleteConfirmDialog(
                     text = "删除选择的 $count 个对话？",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = NovaTheme.colors.textPrimary,
                     textAlign = TextAlign.Center,
                 )
                 Spacer(Modifier.size(10.dp))
                 Text(
                     text = "删除后无法恢复，请确认是否继续。",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = NovaTheme.colors.textSecondary,
                     textAlign = TextAlign.Center,
                 )
                 Spacer(Modifier.size(22.dp))
@@ -849,14 +850,14 @@ private fun DeleteConfirmDialog(
                         .fillMaxWidth()
                         .height(48.dp),
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.error,
+                    color = NovaTheme.colors.danger,
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = "删除",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onError,
+                            color = NovaTheme.colors.onDanger,
                         )
                     }
                 }
@@ -874,7 +875,7 @@ private fun DeleteConfirmDialog(
                             text = "取消",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = NovaTheme.colors.textSecondary,
                         )
                     }
                 }
@@ -904,4 +905,3 @@ private fun DialogTextAction(
         )
     }
 }
-

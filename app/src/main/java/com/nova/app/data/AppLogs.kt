@@ -18,7 +18,6 @@ object AppLogs {
     private const val KEEP_LINES = 400
     private const val DISPLAY_LINES = 500
 
-    /** 单线程串行写，避免主线程磁盘 IO 与并发写乱序。 */
     private val writer = Executors.newSingleThreadExecutor { runnable ->
         Thread(runnable, "nova-log-writer").apply { isDaemon = true }
     }
