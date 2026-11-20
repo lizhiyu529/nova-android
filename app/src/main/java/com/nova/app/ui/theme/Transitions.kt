@@ -67,4 +67,16 @@ object NovaTransitions {
     val sectionExit: ExitTransition =
         fadeOut(NovaMotion.exit<Float>(NovaMotion.Instant)) +
             shrinkVertically(NovaMotion.exit<androidx.compose.ui.unit.IntSize>(NovaMotion.Fast))
+
+    val childEnter: EnterTransition =
+        fadeIn(NovaMotion.enter<Float>(NovaMotion.Fast)) +
+            slideInHorizontally(NovaMotion.emphasized<IntOffset>(NovaMotion.Emphasized)) { it }
+
+    val childExit: ExitTransition =
+        fadeOut(NovaMotion.exit<Float>(NovaMotion.Fast)) +
+            slideOutHorizontally(NovaMotion.exit<IntOffset>(NovaMotion.Standard)) { it }
+
+    val coveredExit: ExitTransition = fadeOut(NovaMotion.exit<Float>(NovaMotion.Fast))
+
+    val coveredEnter: EnterTransition = fadeIn(NovaMotion.enter<Float>(NovaMotion.Fast))
 }

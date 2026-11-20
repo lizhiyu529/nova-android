@@ -306,9 +306,9 @@ fun NovaApp(
         }
 
         AnimatedVisibility(
-            visible = current == Page.Assistant,
-            enter = NovaTransitions.pageEnter,
-            exit = NovaTransitions.pageExit,
+            visible = stack.contains(Page.Assistant),
+            enter = NovaTransitions.coveredEnter,
+            exit = NovaTransitions.coveredExit,
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -327,8 +327,8 @@ fun NovaApp(
 
         AnimatedVisibility(
             visible = current == Page.PromptEditor,
-            enter = NovaTransitions.pageEnter,
-            exit = NovaTransitions.pageExit,
+            enter = NovaTransitions.childEnter,
+            exit = NovaTransitions.childExit,
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),

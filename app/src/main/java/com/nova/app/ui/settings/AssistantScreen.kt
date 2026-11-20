@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -154,7 +154,7 @@ fun PromptEditorScreen(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .heightIn(min = 168.dp, max = 260.dp),
             shape = RoundedCornerShape(22.dp),
             color = NovaTheme.colors.card,
             border = BorderStroke(0.8.dp, NovaTheme.colors.border),
@@ -163,7 +163,8 @@ fun PromptEditorScreen(
                 value = value,
                 onValueChange = onValueChange,
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .heightIn(min = 168.dp, max = 260.dp)
                     .padding(horizontal = 18.dp, vertical = 16.dp),
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     color = NovaTheme.colors.textPrimary,
@@ -325,10 +326,7 @@ private fun MemoryBlock(
         }
 
         memories.forEachIndexed { index, item ->
-            if (index > 0) {
-                HorizontalDivider(thickness = 0.7.dp, color = NovaTheme.colors.divider)
-            }
-            MemoryRow(text = item, onDelete = { onDelete(index) })
+            MemoryRow(text = item, index = index, onDelete = { onDelete(index) })
         }
 
         AnimatedVisibility(
@@ -421,38 +419,57 @@ private fun MemoryBlock(
 }
 
 @Composable
-private fun MemoryRow(text: String, onDelete: () -> Unit) {
+private fun MemoryRow(text: String, index: Int, onDelete: () -> Unit) {
     val strings = NovaStrings.strings
-    Row(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(vertical = 3.dp),
+        shape = RoundedCornerShape(14.dp),
+        color = NovaTheme.colors.containerLow,
     ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyMedium,
-            color = NovaTheme.colors.textPrimary,
-            modifier = Modifier.weight(1f),
-        )
-        Spacer(Modifier.width(10.dp))
-        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+        Row(
+            modifier = Modifier.padding(start = 12.dp, end = 8.dp, top = 9.dp, bottom = 9.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Surface(
-                onClick = onDelete,
+                modifier = Modifier.size(20.dp),
                 shape = CircleShape,
-                color = NovaTheme.colors.containerHigh,
+                color = NovaTheme.colors.accentSubtle,
             ) {
-                Row(
-                    modifier = Modifier.size(28.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = NovaIcons.Close,
-                        contentDescription = strings.memoryDelete,
-                        modifier = Modifier.size(12.dp),
-                        tint = NovaTheme.colors.textSecondary,
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        text = (index + 1).toString(),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = NovaTheme.colors.onAccentSubtle,
                     )
+                }
+            }
+            Spacer(Modifier.width(10.dp))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
+                color = NovaTheme.colors.textPrimary,
+                modifier = Modifier.weight(1f),
+            )
+            Spacer(Modifier.width(8.dp))
+            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+                Surface(
+                    onClick = onDelete,
+                    shape = CircleShape,
+                    color = NovaTheme.colors.containerHigh,
+                ) {
+                    Box(
+                        modifier = Modifier.size(26.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = NovaIcons.Close,
+                            contentDescription = strings.memoryDelete,
+                            modifier = Modifier.size(11.dp),
+                            tint = NovaTheme.colors.textTertiary,
+                        )
+                    }
                 }
             }
         }
