@@ -214,6 +214,7 @@ fun NovaApp(
                     onFontSize = { push(Page.FontSize) },
                     onPersonalize = { push(Page.Personalize) },
                     onDataManagement = { push(Page.DataManagement) },
+                    onAssistant = { push(Page.Assistant) },
                     onCheckUpdate = {
                         AppLogs.record(context, "check update")
                         toast = strings.upToDate
@@ -338,6 +339,7 @@ private fun SettingsPage(
     onFontSize: () -> Unit,
     onPersonalize: () -> Unit,
     onDataManagement: () -> Unit,
+    onAssistant: () -> Unit,
     onCheckUpdate: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -359,7 +361,7 @@ private fun SettingsPage(
                 onThemeChange = onThemeChange,
                 onFontSize = onFontSize,
                 onPersonalize = onPersonalize,
-                onAccount = { push(Page.Assistant) },
+                onAccount = onAssistant,
                 onDataManagement = onDataManagement,
                 onCheckUpdate = onCheckUpdate,
                 onOpenLogs = onOpenLogs,
