@@ -164,7 +164,6 @@ fun HomeScreen(
     }
 
     BackHandler(enabled = showAttachments) { showAttachments = false }
-    BackHandler(enabled = showEditor) { showEditor = false }
 
     Scaffold(
         containerColor = NovaTheme.colors.pageBackground,

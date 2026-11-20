@@ -7,14 +7,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -64,7 +62,10 @@ fun TextEditorDialog(
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnClickOutside = false,
+        ),
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -83,8 +84,8 @@ fun TextEditorDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    TextButtonText(
-                        text = strings.chatExpandDone,
+                    CloseActionButton(
+                        contentDescription = strings.cancel,
                         onClick = {
                             onTextChange(field.text)
                             onDismiss()
@@ -149,19 +150,25 @@ fun TextEditorDialog(
 }
 
 @Composable
-private fun TextButtonText(text: String, onClick: () -> Unit) {
+private fun CloseActionButton(contentDescription: String, onClick: () -> Unit) {
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
         Surface(
             onClick = onClick,
-            shape = RoundedCornerShape(16.dp),
+            shape = CircleShape,
             color = NovaTheme.colors.containerHigh,
         ) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.titleMedium,
-                color = NovaTheme.colors.textPrimary,
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-            )
+            Row(
+                modifier = Modifier.size(38.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = NovaIcons.Close,
+                    contentDescription = contentDescription,
+                    modifier = Modifier.size(15.dp),
+                    tint = NovaTheme.colors.textPrimary,
+                )
+            }
         }
     }
 }

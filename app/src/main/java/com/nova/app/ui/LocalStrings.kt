@@ -25,9 +25,7 @@ class Strings(private val context: Context) {
     val languageRestartLater: String get() = get(R.string.language_restart_later)
 
     val chatExpand: String get() = get(R.string.chat_expand)
-    val chatCollapse: String get() = get(R.string.chat_collapse)
     val chatExpandTitle: String get() = get(R.string.chat_expand_title)
-    val chatExpandDone: String get() = get(R.string.chat_expand_done)
 
     val themeSystem: String get() = get(R.string.theme_system)
     val themeLight: String get() = get(R.string.theme_light)

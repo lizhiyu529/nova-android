@@ -120,9 +120,7 @@
     <string name="sample_conversation_7">Coroutine exception handling</string>
     <string name="sample_conversation_8">Navigation argument passing</string>
     <string name="sample_conversation_9">Unit test mocking tips</string>
-    <string name="chat_collapse">Collapse editor</string>
     <string name="chat_expand">Expand editor</string>
-    <string name="chat_expand_done">Done</string>
     <string name="chat_expand_title">Edit message</string>
     <string name="language_restart_confirm">Restart now</string>
     <string name="language_restart_later">Later</string>

@@ -120,9 +120,7 @@
     <string name="sample_conversation_7">协程异常处理最佳实践</string>
     <string name="sample_conversation_8">Jetpack Navigation 参数传递</string>
     <string name="sample_conversation_9">单元测试 Mock 技巧</string>
-    <string name="chat_collapse">收起编辑</string>
     <string name="chat_expand">放大编辑</string>
-    <string name="chat_expand_done">完成</string>
     <string name="chat_expand_title">编辑消息</string>
     <string name="language_restart_confirm">立即重启</string>
     <string name="language_restart_later">稍后</string>
