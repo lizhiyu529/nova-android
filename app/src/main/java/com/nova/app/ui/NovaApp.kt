@@ -81,6 +81,8 @@ fun NovaApp(
     followSystemFont: Boolean,
     onFontScaleChange: (Int) -> Unit,
     onFollowSystemFontChange: (Boolean) -> Unit,
+    autoCollapseThinking: Boolean,
+    onAutoCollapseThinkingChange: (Boolean) -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -90,7 +92,6 @@ fun NovaApp(
     val conversations by repository.observeConversations().collectAsState(initial = emptyList())
     val referenceTime = remember { LocalDateTime.now() }
     var stack by rememberSaveable { mutableStateOf(listOf<Page>()) }
-    var autoCollapseThinking by rememberSaveable { mutableStateOf(true) }
     var assistantProfile by remember { mutableStateOf(AssistantStore.load(context)) }
     var toast by remember { mutableStateOf<String?>(null) }
 
@@ -274,7 +275,7 @@ fun NovaApp(
                     SettingsTopBar(title = NovaStrings.strings.personalization, onBack = { pop() })
                     PersonalizeScreen(
                         autoCollapseThinking = autoCollapseThinking,
-                        onAutoCollapseThinkingChange = { autoCollapseThinking = it },
+                        onAutoCollapseThinkingChange = onAutoCollapseThinkingChange,
                     )
                 }
             }

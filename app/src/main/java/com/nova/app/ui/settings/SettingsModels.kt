@@ -15,8 +15,14 @@ enum class AppLanguage(@StringRes val labelRes: Int, val tag: String) {
     }
 }
 
-enum class AppThemeMode(@StringRes val labelRes: Int) {
-    System(R.string.theme_system),
-    Light(R.string.theme_light),
-    Dark(R.string.theme_dark),
+enum class AppThemeMode(@StringRes val labelRes: Int, val key: String) {
+    System(R.string.theme_system, "system"),
+    Light(R.string.theme_light, "light"),
+    Dark(R.string.theme_dark, "dark"),
+    ;
+
+    companion object {
+        fun fromKey(key: String?): AppThemeMode =
+            entries.firstOrNull { it.key == key } ?: System
+    }
 }

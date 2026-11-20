@@ -10,7 +10,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -23,7 +22,6 @@ import com.nova.app.ui.NovaApp
 import com.nova.app.ui.Strings
 import com.nova.app.ui.settings.AppLanguage
 import com.nova.app.ui.settings.AppThemeMode
-import com.nova.app.ui.settings.DefaultFontScaleIndex
 import com.nova.app.ui.settings.FontScaleSteps
 import com.nova.app.ui.theme.NovaTheme
 
@@ -37,10 +35,22 @@ class MainActivity : ComponentActivity() {
         setContent {
             val baseContext = LocalContext.current
             val systemDark = isSystemInDarkTheme()
-            var language by remember { mutableStateOf(AppLanguage.fromTag(AppSettings.languageTag(baseContext))) }
-            var themeMode by remember { mutableStateOf(AppThemeMode.System) }
-            var fontScaleIndex by remember { mutableIntStateOf(DefaultFontScaleIndex) }
-            var followSystemFont by remember { mutableStateOf(false) }
+
+            var language by remember {
+                mutableStateOf(AppLanguage.fromTag(AppSettings.languageTag(baseContext)))
+            }
+            var themeMode by remember {
+                mutableStateOf(AppThemeMode.fromKey(AppSettings.themeMode(baseContext)))
+            }
+            var fontScaleIndex by remember {
+                mutableStateOf(AppSettings.fontScaleIndex(baseContext))
+            }
+            var followSystemFont by remember {
+                mutableStateOf(AppSettings.followSystemFont(baseContext))
+            }
+            var autoCollapseThinking by remember {
+                mutableStateOf(AppSettings.autoCollapseThinking(baseContext))
+            }
 
             val darkTheme = when (themeMode) {
                 AppThemeMode.System -> systemDark
@@ -65,7 +75,10 @@ class MainActivity : ComponentActivity() {
             NovaTheme(darkTheme = darkTheme, fontScale = fontScale, strings = strings) {
                 NovaApp(
                     themeMode = themeMode,
-                    onThemeModeChange = { themeMode = it },
+                    onThemeModeChange = {
+                        themeMode = it
+                        AppSettings.setThemeMode(baseContext, it.key)
+                    },
                     language = language,
                     onLanguageChange = { selected ->
                         language = selected
@@ -74,8 +87,19 @@ class MainActivity : ComponentActivity() {
                     },
                     fontScaleIndex = fontScaleIndex,
                     followSystemFont = followSystemFont,
-                    onFontScaleChange = { fontScaleIndex = it },
-                    onFollowSystemFontChange = { followSystemFont = it },
+                    onFontScaleChange = {
+                        fontScaleIndex = it
+                        AppSettings.setFontScaleIndex(baseContext, it)
+                    },
+                    onFollowSystemFontChange = {
+                        followSystemFont = it
+                        AppSettings.setFollowSystemFont(baseContext, it)
+                    },
+                    autoCollapseThinking = autoCollapseThinking,
+                    onAutoCollapseThinkingChange = {
+                        autoCollapseThinking = it
+                        AppSettings.setAutoCollapseThinking(baseContext, it)
+                    },
                     onLanguageNeedsRestart = { restartActivity() },
                 )
             }
