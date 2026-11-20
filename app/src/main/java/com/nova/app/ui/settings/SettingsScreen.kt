@@ -211,7 +211,7 @@ fun SettingsScreen(
         SettingsCard {
             SettingsRow(
                 icon = NovaIcons.User,
-                title = NovaStrings.strings.assistantPreset,
+                title = NovaStrings.strings.assistantCapabilities,
                 onClick = onAccount,
             )
             SettingsRow(

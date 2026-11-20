@@ -28,7 +28,6 @@
     <string name="settings_section_account">账户</string>
     <string name="settings_section_app">应用</string>
     <string name="settings_section_about">关于</string>
-    <string name="settings_assistant_preset">助手预设</string>
     <string name="settings_data_management">数据管理</string>
     <string name="settings_language">语言</string>
     <string name="settings_appearance">外观</string>
@@ -126,4 +125,17 @@
     <string name="language_restart_later">稍后</string>
     <string name="language_restart_message">语言切换需要退出并重新打开应用才能完全生效。现在退出吗？</string>
     <string name="language_restart_title">需要重启应用</string>
+    <string name="assistant_char_count">%1$d 字</string>
+    <string name="assistant_memory_add">添加</string>
+    <string name="assistant_memory_delete">删除记忆</string>
+    <string name="assistant_memory_empty">还没有记忆</string>
+    <string name="assistant_memory_enable">启用记忆</string>
+    <string name="assistant_memory_hint">跨对话保留的信息。</string>
+    <string name="assistant_memory_placeholder">添加一条记忆</string>
+    <string name="assistant_memory_section">记忆</string>
+    <string name="assistant_prompt_enable">启用提示词注入</string>
+    <string name="assistant_prompt_hint">作为系统上下文附加在每次对话开头。</string>
+    <string name="assistant_prompt_placeholder">例如：用中文回答，优先 Kotlin 惯用写法，回答尽量简短。</string>
+    <string name="assistant_prompt_section">提示词注入</string>
+    <string name="settings_assistant_capabilities">助手能力</string>
 </resources>

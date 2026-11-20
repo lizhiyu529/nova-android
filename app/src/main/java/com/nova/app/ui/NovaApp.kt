@@ -43,6 +43,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.nova.app.BuildConfig
 import com.nova.app.data.AppLogs
+import com.nova.app.data.AssistantProfile
+import com.nova.app.data.AssistantStore
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.Strings
 import com.nova.app.ui.components.BackButton
@@ -58,6 +60,7 @@ import com.nova.app.ui.home.HomeScreen
 import com.nova.app.ui.search.SearchScreen
 import com.nova.app.ui.settings.AppLanguage
 import com.nova.app.ui.settings.AppThemeMode
+import com.nova.app.ui.settings.AssistantScreen
 import com.nova.app.ui.settings.DataManagementScreen
 import com.nova.app.ui.settings.FontSizeScreen
 import com.nova.app.ui.settings.PersonalizeScreen
@@ -69,7 +72,7 @@ import java.util.UUID
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private enum class Page { Search, Settings, Logs, FontSize, Personalize, DataManagement }
+private enum class Page { Search, Settings, Logs, FontSize, Personalize, DataManagement, Assistant }
 
 @Composable
 fun NovaApp(
@@ -91,7 +94,13 @@ fun NovaApp(
     val referenceTime = remember { LocalDateTime.now() }
     var stack by rememberSaveable { mutableStateOf(listOf<Page>()) }
     var autoCollapseThinking by rememberSaveable { mutableStateOf(true) }
+    var assistantProfile by remember { mutableStateOf(AssistantStore.load(context)) }
     var toast by remember { mutableStateOf<String?>(null) }
+
+    fun updateAssistantProfile(profile: AssistantProfile) {
+        assistantProfile = profile
+        AssistantStore.save(context, profile)
+    }
 
     LaunchedEffect(toast) {
         if (toast != null) {
@@ -294,6 +303,25 @@ fun NovaApp(
             }
         }
 
+        AnimatedVisibility(
+            visible = current == Page.Assistant,
+            enter = NovaTransitions.pageEnter,
+            exit = NovaTransitions.pageExit,
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = NovaTheme.colors.pageBackground,
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    SettingsTopBar(title = strings.assistantCapabilities, onBack = { pop() })
+                    AssistantScreen(
+                        profile = assistantProfile,
+                        onProfileChange = { updateAssistantProfile(it) },
+                    )
+                }
+            }
+        }
+
         CenterToast(message = toast)
     }
 }
@@ -331,7 +359,7 @@ private fun SettingsPage(
                 onThemeChange = onThemeChange,
                 onFontSize = onFontSize,
                 onPersonalize = onPersonalize,
-                onAccount = {},
+                onAccount = { push(Page.Assistant) },
                 onDataManagement = onDataManagement,
                 onCheckUpdate = onCheckUpdate,
                 onOpenLogs = onOpenLogs,
