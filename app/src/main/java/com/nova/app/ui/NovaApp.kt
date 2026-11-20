@@ -68,6 +68,8 @@ import com.nova.app.ui.settings.DataManagementScreen
 import com.nova.app.ui.settings.FontSizeScreen
 import com.nova.app.ui.settings.PersonalizeScreen
 import com.nova.app.ui.settings.PromptEditorScreen
+import com.nova.app.ui.settings.ProviderDetailScreen
+import com.nova.app.ui.settings.ProvidersScreen
 import com.nova.app.ui.settings.SettingsScreen
 import com.nova.app.ui.theme.NovaTheme
 import com.nova.app.ui.theme.NovaTransitions

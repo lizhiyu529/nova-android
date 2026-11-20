@@ -3,8 +3,10 @@ package com.nova.app.data.provider
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
 sealed interface FetchResult {
@@ -88,12 +90,7 @@ object ProviderClient {
                 }
                 val request = Request.Builder()
                     .url(chatUrl(endpoint))
-                    .post(
-                        okhttp3.RequestBody.create(
-                            okhttp3.MediaType.parse("application/json; charset=utf-8"),
-                            payload.toString(),
-                        ),
-                    )
+                    .post(payload.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull()))
                     .also { builder ->
                         if (provider.apiKey.isNotBlank()) {
                             builder.header("Authorization", "Bearer ${provider.apiKey.trim()}")
