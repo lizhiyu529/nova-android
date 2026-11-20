@@ -59,6 +59,14 @@ import com.nova.app.ui.drawer.pinnedAll
 import com.nova.app.ui.drawer.removed
 import com.nova.app.ui.drawer.renamed
 import com.nova.app.ui.drawer.toggledPin
+import com.nova.app.ui.home.HomeScreen
+import com.nova.app.ui.search.SearchScreen
+import com.nova.app.ui.settings.AppLanguage
+import com.nova.app.ui.settings.AppThemeMode
+import com.nova.app.ui.settings.DataManagementScreen
+import com.nova.app.ui.settings.FontSizeScreen
+import com.nova.app.ui.settings.PersonalizeScreen
+import com.nova.app.ui.settings.SettingsScreen
 import com.nova.app.ui.settings.settingsPageBackground
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
