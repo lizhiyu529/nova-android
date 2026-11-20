@@ -64,6 +64,7 @@ import com.nova.app.ui.settings.AssistantScreen
 import com.nova.app.ui.settings.DataManagementScreen
 import com.nova.app.ui.settings.FontSizeScreen
 import com.nova.app.ui.settings.PersonalizeScreen
+import com.nova.app.ui.settings.PromptEditorScreen
 import com.nova.app.ui.settings.SettingsScreen
 import com.nova.app.ui.theme.NovaTheme
 import com.nova.app.ui.theme.NovaTransitions
@@ -72,7 +73,7 @@ import java.util.UUID
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private enum class Page { Search, Settings, Logs, FontSize, Personalize, DataManagement, Assistant }
+private enum class Page { Search, Settings, Logs, FontSize, Personalize, DataManagement, Assistant, PromptEditor }
 
 @Composable
 fun NovaApp(
@@ -318,6 +319,28 @@ fun NovaApp(
                     AssistantScreen(
                         profile = assistantProfile,
                         onProfileChange = { updateAssistantProfile(it) },
+                        onOpenPromptEditor = { push(Page.PromptEditor) },
+                    )
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = current == Page.PromptEditor,
+            enter = NovaTransitions.pageEnter,
+            exit = NovaTransitions.pageExit,
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = NovaTheme.colors.pageBackground,
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    SettingsTopBar(title = strings.promptEditTitle, onBack = { pop() })
+                    PromptEditorScreen(
+                        value = assistantProfile.prompt,
+                        onValueChange = {
+                            updateAssistantProfile(assistantProfile.copy(prompt = it))
+                        },
                     )
                 }
             }

@@ -138,4 +138,8 @@
     <string name="assistant_prompt_placeholder">例如：用中文回答，优先 Kotlin 惯用写法，回答尽量简短。</string>
     <string name="assistant_prompt_section">提示词注入</string>
     <string name="settings_assistant_capabilities">助手能力</string>
+    <string name="assistant_memory_add_action">添加记忆</string>
+    <string name="assistant_prompt_edit_title">提示词注入</string>
+    <string name="assistant_prompt_preview_empty">尚未设置提示词，点击编辑</string>
+    <string name="assistant_prompt_tap_hint">点击编辑</string>
 </resources>

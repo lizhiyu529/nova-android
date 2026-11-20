@@ -2,9 +2,11 @@ package com.nova.app.ui.theme
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
@@ -57,4 +59,12 @@ object NovaTransitions {
     val subtleEnter: EnterTransition = fadeIn(NovaMotion.enter<Float>(NovaMotion.Fast))
 
     val subtleExit: ExitTransition = fadeOut(NovaMotion.exit<Float>(NovaMotion.Instant))
+
+    val sectionEnter: EnterTransition =
+        fadeIn(NovaMotion.enter<Float>(NovaMotion.Fast)) +
+            expandVertically(NovaMotion.enter<Int>(NovaMotion.Standard))
+
+    val sectionExit: ExitTransition =
+        fadeOut(NovaMotion.exit<Float>(NovaMotion.Instant)) +
+            shrinkVertically(NovaMotion.exit<Int>(NovaMotion.Fast))
 }

@@ -66,6 +66,11 @@ class Strings(private val context: Context) {
     val memoryAdd: String get() = get(R.string.assistant_memory_add)
     fun charCount(count: Int): String = format(R.string.assistant_char_count, count)
 
+    val promptPreviewEmpty: String get() = get(R.string.assistant_prompt_preview_empty)
+    val promptEditTitle: String get() = get(R.string.assistant_prompt_edit_title)
+    val memoryAddAction: String get() = get(R.string.assistant_memory_add_action)
+    val promptTapHint: String get() = get(R.string.assistant_prompt_tap_hint)
+
     val dataManagement: String get() = get(R.string.settings_data_management)
     val language: String get() = get(R.string.settings_language)
     val appearance: String get() = get(R.string.settings_appearance)

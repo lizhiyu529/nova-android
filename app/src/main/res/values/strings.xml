@@ -138,4 +138,8 @@
     <string name="assistant_prompt_placeholder">e.g. Reply in Chinese, prefer Kotlin idioms, keep answers short.</string>
     <string name="assistant_prompt_section">Prompt injection</string>
     <string name="settings_assistant_capabilities">Assistant capabilities</string>
+    <string name="assistant_memory_add_action">Add memory</string>
+    <string name="assistant_prompt_edit_title">Prompt injection</string>
+    <string name="assistant_prompt_preview_empty">No prompt yet, tap to edit</string>
+    <string name="assistant_prompt_tap_hint">Tap to edit</string>
 </resources>
