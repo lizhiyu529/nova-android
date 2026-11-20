@@ -45,9 +45,9 @@ import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.Strings
 import com.nova.app.ui.components.AttachmentPanel
 import com.nova.app.ui.components.ChatInputBar
+import com.nova.app.ui.components.EditorOverlay
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.components.PermissionDialog
-import com.nova.app.ui.components.TextEditorDialog
 import com.nova.app.ui.theme.NovaTheme
 import com.nova.app.ui.theme.NovaTransitions
 
@@ -163,86 +163,88 @@ fun HomeScreen(
         }
     }
 
-    BackHandler(enabled = showAttachments) { showAttachments = false }
+    BackHandler(enabled = showAttachments && !showEditor) { showAttachments = false }
 
-    Scaffold(
-        containerColor = NovaTheme.colors.pageBackground,
-        topBar = {
-            HomeTopBar(onOpenDrawer = onOpenDrawer, onNewChat = onNewChat)
-        },
-        bottomBar = {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            containerColor = NovaTheme.colors.pageBackground,
+            topBar = {
+                HomeTopBar(onOpenDrawer = onOpenDrawer, onNewChat = onNewChat)
+            },
+            bottomBar = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .imePadding()
+                        .navigationBarsPadding(),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    ) {
+                        ChatInputBar(
+                            value = draft,
+                            onValueChange = { draft = it },
+                            onSend = { draft = "" },
+                            onAttach = { showAttachments = !showAttachments },
+                            onExpand = { showEditor = true },
+                        )
+                    }
+                    AnimatedVisibility(
+                        visible = showAttachments,
+                        enter = NovaTransitions.panelEnter,
+                        exit = NovaTransitions.panelExit,
+                    ) {
+                        AttachmentPanel(
+                            recentPhotos = recentPhotos,
+                            selectedPhotos = selectedPhotos,
+                            loading = photosLoading,
+                            onTogglePhoto = { uri ->
+                                selectedPhotos = if (uri in selectedPhotos) {
+                                    selectedPhotos - uri
+                                } else {
+                                    selectedPhotos + uri
+                                }
+                            },
+                            onCamera = { onCameraClick() },
+                            onGallery = {
+                                galleryLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                                )
+                            },
+                            onFile = {
+                                fileLauncher.launch(arrayOf("*/*"))
+                            },
+                            modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
+                        )
+                    }
+                }
+            },
+        ) { innerPadding ->
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .imePadding()
-                    .navigationBarsPadding(),
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 24.dp),
+                verticalArrangement = Arrangement.Center,
             ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                ) {
-                    ChatInputBar(
-                        value = draft,
-                        onValueChange = { draft = it },
-                        onSend = { draft = "" },
-                        onAttach = { showAttachments = !showAttachments },
-                        onExpand = { showEditor = true },
-                    )
-                }
-                AnimatedVisibility(
-                    visible = showAttachments,
-                    enter = NovaTransitions.panelEnter,
-                    exit = NovaTransitions.panelExit,
-                ) {
-                    AttachmentPanel(
-                        recentPhotos = recentPhotos,
-                        selectedPhotos = selectedPhotos,
-                        loading = photosLoading,
-                        onTogglePhoto = { uri ->
-                            selectedPhotos = if (uri in selectedPhotos) {
-                                selectedPhotos - uri
-                            } else {
-                                selectedPhotos + uri
-                            }
-                        },
-                        onCamera = { onCameraClick() },
-                        onGallery = {
-                            galleryLauncher.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                            )
-                        },
-                        onFile = {
-                            fileLauncher.launch(arrayOf("*/*"))
-                        },
-                        modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
-                    )
-                }
+                GreetingBlock(
+                    greeting = greeting,
+                    modifier = Modifier.padding(bottom = 120.dp),
+                )
             }
-        },
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.Center,
-        ) {
-            GreetingBlock(
-                greeting = greeting,
-                modifier = Modifier.padding(bottom = 120.dp),
+        }
+
+        if (showEditor) {
+            EditorOverlay(
+                text = draft,
+                onTextChange = { draft = it },
+                onSend = {
+                    draft = ""
+                    showEditor = false
+                },
+                onDismiss = { showEditor = false },
             )
         }
-    }
-
-    if (showEditor) {
-        TextEditorDialog(
-            text = draft,
-            onTextChange = { draft = it },
-            onSend = {
-                draft = ""
-                showEditor = false
-            },
-            onDismiss = { showEditor = false },
-        )
     }
 
     if (showCameraPrompt) {

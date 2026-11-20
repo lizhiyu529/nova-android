@@ -1,7 +1,11 @@
 package com.nova.app.ui.components
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,50 +39,55 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.theme.NovaTheme
 
 @Composable
-fun TextEditorDialog(
+fun EditorOverlay(
     text: String,
     onTextChange: (String) -> Unit,
     onSend: () -> Unit,
     onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val strings = NovaStrings.strings
     val focusRequester = remember { FocusRequester() }
+    val interactionSource = remember { MutableInteractionSource() }
     var field by remember {
         mutableStateOf(TextFieldValue(text, TextRange(text.length.coerceAtLeast(0))))
     }
+
+    BackHandler { onDismiss() }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            dismissOnClickOutside = false,
-        ),
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(NovaTheme.colors.pageBackground)
+            .then(
+                Modifier.background(NovaTheme.colors.pageBackground),
+            ),
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = NovaTheme.colors.pageBackground,
+            interactionSource = interactionSource,
+            onClick = {},
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
                     .navigationBarsPadding()
-                    .imePadding()
                     .padding(horizontal = 16.dp, vertical = 12.dp),
             ) {
                 Row(
@@ -86,8 +95,12 @@ fun TextEditorDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    CloseActionButton(
+                    CircleAction(
+                        icon = NovaIcons.Close,
                         contentDescription = strings.cancel,
+                        background = NovaTheme.colors.containerHigh,
+                        foreground = NovaTheme.colors.textPrimary,
+                        enabled = true,
                         onClick = {
                             onTextChange(field.text)
                             onDismiss()
@@ -99,9 +112,11 @@ fun TextEditorDialog(
                         color = NovaTheme.colors.textPrimary,
                         textAlign = TextAlign.Center,
                     )
-                    IconActionButton(
+                    CircleAction(
                         icon = NovaIcons.Send,
                         contentDescription = strings.send,
+                        background = NovaTheme.colors.accent,
+                        foreground = NovaTheme.colors.onAccent,
                         enabled = field.text.isNotBlank(),
                         onClick = {
                             onTextChange(field.text)
@@ -113,7 +128,8 @@ fun TextEditorDialog(
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f),
+                        .weight(1f)
+                        .imePadding(),
                     shape = RoundedCornerShape(24.dp),
                     color = NovaTheme.colors.card,
                     border = BorderStroke(0.8.dp, NovaTheme.colors.border),
@@ -152,33 +168,11 @@ fun TextEditorDialog(
 }
 
 @Composable
-private fun CloseActionButton(contentDescription: String, onClick: () -> Unit) {
-    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-        Surface(
-            onClick = onClick,
-            shape = CircleShape,
-            color = NovaTheme.colors.containerHigh,
-        ) {
-            Row(
-                modifier = Modifier.size(38.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = NovaIcons.Close,
-                    contentDescription = contentDescription,
-                    modifier = Modifier.size(15.dp),
-                    tint = NovaTheme.colors.textPrimary,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun IconActionButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+private fun CircleAction(
+    icon: ImageVector,
     contentDescription: String,
+    background: androidx.compose.ui.graphics.Color,
+    foreground: androidx.compose.ui.graphics.Color,
     enabled: Boolean,
     onClick: () -> Unit,
 ) {
@@ -187,18 +181,17 @@ private fun IconActionButton(
             onClick = { if (enabled) onClick() },
             enabled = enabled,
             shape = CircleShape,
-            color = if (enabled) NovaTheme.colors.accent else NovaTheme.colors.containerHigh,
+            color = if (enabled) background else NovaTheme.colors.containerHigh,
         ) {
-            Row(
-                modifier = Modifier.size(38.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
+            Box(
+                modifier = Modifier.size(40.dp),
+                contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = contentDescription,
-                    modifier = Modifier.size(17.dp),
-                    tint = if (enabled) NovaTheme.colors.onAccent else NovaTheme.colors.textDisabled,
+                    modifier = Modifier.size(16.dp),
+                    tint = if (enabled) foreground else NovaTheme.colors.textDisabled,
                 )
             }
         }
