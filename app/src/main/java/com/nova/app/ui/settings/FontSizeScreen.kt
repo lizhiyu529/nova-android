@@ -24,9 +24,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nova.app.ui.theme.Palette
 
 /** 字号档位：0.85 到 1.30，步进 0.05，共 10 档。 */
 val FontScaleSteps: List<Float> = listOf(
@@ -50,6 +52,7 @@ fun FontSizeScreen(
     onFollowSystemChange: (Boolean) -> Unit,
 ) {
     val scale = FontScaleSteps[scaleIndex.coerceIn(FontScaleSteps.indices)]
+    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
 
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -94,7 +97,7 @@ fun FontSizeScreen(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            color = MaterialTheme.colorScheme.secondaryContainer,
+            color = MaterialTheme.colorScheme.surface,
         ) {
             Column(
                 modifier = Modifier
@@ -116,7 +119,7 @@ fun FontSizeScreen(
                         onCheckedChange = onFollowSystemChange,
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
-                            checkedTrackColor = Color(0xFF34C759),
+                            checkedTrackColor = Palette.green(isDark),
                             checkedBorderColor = Color.Transparent,
                         ),
                     )

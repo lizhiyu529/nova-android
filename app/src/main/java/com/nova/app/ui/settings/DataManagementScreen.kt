@@ -37,7 +37,7 @@ fun DataManagementScreen(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.secondaryContainer,
+            color = MaterialTheme.colorScheme.surface,
         ) {
             Row(
                 modifier = Modifier
@@ -66,7 +66,7 @@ fun DataManagementScreen(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.secondaryContainer,
+            color = MaterialTheme.colorScheme.surface,
         ) {
             Text(
                 text = "删除所有历史对话",

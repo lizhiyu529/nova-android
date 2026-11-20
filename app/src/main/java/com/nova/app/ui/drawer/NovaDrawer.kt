@@ -104,14 +104,14 @@ fun NovaDrawer(
     }
 
     val windowWidth = LocalConfiguration.current.screenWidthDp
-    val drawerWidth = minOf(320, (windowWidth * 0.82f).toInt()).dp
+    val drawerWidth = minOf(300, (windowWidth * 0.78f).toInt()).dp
 
     ModalDrawerSheet(
         modifier = Modifier
             .fillMaxHeight()
             .width(drawerWidth),
         drawerShape = RoundedCornerShape(topEnd = 28.dp, bottomEnd = 28.dp),
-        drawerContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+        drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         windowInsets = WindowInsets(0, 0, 0, 0),
     ) {
         Column(modifier = Modifier.fillMaxHeight()) {
@@ -444,7 +444,7 @@ private fun SelectionCircle(selected: Boolean, modifier: Modifier = Modifier) {
         Surface(
             modifier = Modifier.size(20.dp),
             shape = CircleShape,
-            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
+            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
             border = if (selected) {
                 null
             } else {
@@ -472,7 +472,7 @@ private fun SelectionActionBar(
     onDelete: () -> Unit,
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.secondaryContainer,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 0.dp,
         border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
     ) {
@@ -615,7 +615,7 @@ private fun ConversationMenu(
                 .fillMaxWidth()
                 .padding(horizontal = 68.dp),
             shape = RoundedCornerShape(18.dp),
-            color = MaterialTheme.colorScheme.secondaryContainer,
+            color = MaterialTheme.colorScheme.surface,
             tonalElevation = 0.dp,
         ) {
             Column {
@@ -716,7 +716,7 @@ private fun RenameDialog(
                 .fillMaxWidth()
                 .padding(horizontal = 44.dp),
             shape = RoundedCornerShape(26.dp),
-            color = MaterialTheme.colorScheme.secondaryContainer,
+            color = MaterialTheme.colorScheme.surface,
             tonalElevation = 0.dp,
         ) {
             Column {
@@ -821,7 +821,7 @@ private fun DeleteConfirmDialog(
                 .fillMaxWidth()
                 .padding(horizontal = 44.dp),
             shape = RoundedCornerShape(26.dp),
-            color = MaterialTheme.colorScheme.secondaryContainer,
+            color = MaterialTheme.colorScheme.surface,
             tonalElevation = 0.dp,
         ) {
             Column(

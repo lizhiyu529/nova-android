@@ -19,13 +19,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
+import com.nova.app.ui.theme.Palette
 
 @Composable
 fun PersonalizeScreen(
     autoCollapseThinking: Boolean,
     onAutoCollapseThinkingChange: (Boolean) -> Unit,
 ) {
+    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -35,7 +38,7 @@ fun PersonalizeScreen(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(18.dp),
-            color = MaterialTheme.colorScheme.secondaryContainer,
+            color = MaterialTheme.colorScheme.surface,
         ) {
             Row(
                 modifier = Modifier
@@ -54,7 +57,7 @@ fun PersonalizeScreen(
                     onCheckedChange = onAutoCollapseThinkingChange,
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.White,
-                        checkedTrackColor = Color(0xFF34C759),
+                        checkedTrackColor = Palette.green(isDark),
                         checkedBorderColor = Color.Transparent,
                     ),
                 )

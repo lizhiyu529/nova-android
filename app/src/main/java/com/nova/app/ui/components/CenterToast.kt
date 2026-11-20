@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nova.app.ui.theme.Palette
@@ -82,8 +81,7 @@ fun CenterToast(
 /** 浮层用独立色阶，比卡片再亮一档，两种主题下都能浮起来。 */
 @Composable
 private fun toastContainer(): Color {
-    val dark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-    return Palette.overlay(dark)
+    return Palette.overlay()
 }
 
 @Composable

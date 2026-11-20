@@ -75,9 +75,6 @@ import java.util.UUID
 
 private enum class Page { Search, Settings, Logs, FontSize, Personalize, DataManagement }
 
-/** 页面退场动画时长，抽屉需等它播完再打开。 */
-private const val PAGE_EXIT_MILLIS = 320L
-
 @Composable
 fun NovaApp(
     themeMode: AppThemeMode,
@@ -115,13 +112,6 @@ fun NovaApp(
         val leaving = stack.lastOrNull()
         stack = stack.dropLast(1)
         AppLogs.record(context, "close ${leaving?.name?.lowercase()}")
-        if (stack.isEmpty()) {
-            // 等页面退出动画播完再开抽屉，否则两段动画会叠在一起
-            scope.launch {
-                delay(PAGE_EXIT_MILLIS)
-                drawerState.open()
-            }
-        }
     }
 
     BackHandler(enabled = stack.isNotEmpty()) { pop() }
@@ -136,16 +126,11 @@ fun NovaApp(
                     accountEmail = "357******66@qq.com",
                     onOpenConversation = { scope.launch { drawerState.close() } },
                     onOpenSettings = {
-                        scope.launch {
-                            drawerState.close()
-                            push(Page.Settings)
-                        }
+                        // 抽屉不关闭，页面直接盖在抽屉上面；返回时抽屉原地不动，不会重播动画
+                        push(Page.Settings)
                     },
                     onOpenSearch = {
-                        scope.launch {
-                            drawerState.close()
-                            push(Page.Search)
-                        }
+                        push(Page.Search)
                     },
                     onRename = { id, title ->
                         conversations = conversations.renamed(id, title)
@@ -190,7 +175,7 @@ fun NovaApp(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background,
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
             ) {
                 SearchScreen(
                     conversations = conversations,
