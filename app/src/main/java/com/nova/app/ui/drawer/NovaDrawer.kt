@@ -111,7 +111,7 @@ fun NovaDrawer(
             .fillMaxHeight()
             .width(drawerWidth),
         drawerShape = RoundedCornerShape(topEnd = 28.dp, bottomEnd = 28.dp),
-        drawerContainerColor = MaterialTheme.colorScheme.surface,
+        drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         windowInsets = WindowInsets(0, 0, 0, 0),
     ) {
         Column(modifier = Modifier.fillMaxHeight()) {
@@ -258,7 +258,7 @@ private fun DrawerSearchField(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 15.dp, vertical = 11.dp),
@@ -300,7 +300,7 @@ private fun SelectionTopBar(onClose: () -> Unit) {
                 onClick = onClose,
                 modifier = Modifier.size(40.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.surface,
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -444,7 +444,7 @@ private fun SelectionCircle(selected: Boolean, modifier: Modifier = Modifier) {
         Surface(
             modifier = Modifier.size(20.dp),
             shape = CircleShape,
-            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerLow,
             border = if (selected) {
                 null
             } else {
@@ -472,7 +472,7 @@ private fun SelectionActionBar(
     onDelete: () -> Unit,
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
         shadowElevation = 0.dp,
         border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
     ) {
@@ -615,7 +615,7 @@ private fun ConversationMenu(
                 .fillMaxWidth()
                 .padding(horizontal = 68.dp),
             shape = RoundedCornerShape(18.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
             tonalElevation = 0.dp,
         ) {
             Column {
@@ -716,7 +716,7 @@ private fun RenameDialog(
                 .fillMaxWidth()
                 .padding(horizontal = 44.dp),
             shape = RoundedCornerShape(26.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
             tonalElevation = 0.dp,
         ) {
             Column {
@@ -821,7 +821,7 @@ private fun DeleteConfirmDialog(
                 .fillMaxWidth()
                 .padding(horizontal = 44.dp),
             shape = RoundedCornerShape(26.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
             tonalElevation = 0.dp,
         ) {
             Column(

@@ -167,7 +167,7 @@ fun HomeScreen(
     BackHandler(enabled = showAttachments) { showAttachments = false }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             HomeTopBar(onOpenDrawer = onOpenDrawer, onNewChat = onNewChat)
         },

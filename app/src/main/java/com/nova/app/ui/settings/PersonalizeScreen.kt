@@ -50,7 +50,7 @@ fun PersonalizeScreen(
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(18.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
         ) {
             Row(
                 modifier = Modifier
@@ -124,7 +124,7 @@ private fun PaletteCard(
         onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(18.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
         border = if (selected) {
             BorderStroke(1.6.dp, MaterialTheme.colorScheme.primary)
         } else {

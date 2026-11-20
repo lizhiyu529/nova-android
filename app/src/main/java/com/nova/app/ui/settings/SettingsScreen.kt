@@ -1,5 +1,6 @@
 package com.nova.app.ui.settings
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -310,6 +311,10 @@ private fun SettingsCard(content: @Composable () -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         color = settingsCardColor(),
+        border = BorderStroke(
+            0.7.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f),
+        ),
     ) {
         Column(modifier = Modifier.padding(vertical = 2.dp)) {
             content()

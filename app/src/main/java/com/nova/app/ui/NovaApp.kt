@@ -186,7 +186,7 @@ fun NovaApp(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.surface,
+                color = MaterialTheme.colorScheme.background,
             ) {
                 SearchScreen(
                     conversations = conversations,
