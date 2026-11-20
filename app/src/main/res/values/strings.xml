@@ -110,15 +110,6 @@
     <string name="greeting_night_title">It is late</string>
     <string name="greeting_night_hint">Get some sleep. The fix can wait until morning.</string>
 
-    <string name="sample_conversation_1">Kotlin coroutine dispatchers</string>
-    <string name="sample_conversation_2">Compose recomposition performance</string>
-    <string name="sample_conversation_3">Material 3 dynamic color</string>
-    <string name="sample_conversation_4">Speeding up Gradle builds</string>
-    <string name="sample_conversation_5">Retrofit interceptor patterns</string>
-    <string name="sample_conversation_6">Room database migrations</string>
-    <string name="sample_conversation_7">Coroutine exception handling</string>
-    <string name="sample_conversation_8">Navigation argument passing</string>
-    <string name="sample_conversation_9">Unit test mocking tips</string>
     <string name="chat_expand">Expand editor</string>
     <string name="chat_expand_title">Edit message</string>
     <string name="language_restart_confirm">Restart now</string>
@@ -142,4 +133,7 @@
     <string name="assistant_prompt_edit_title">Prompt injection</string>
     <string name="assistant_prompt_preview_empty">No prompt yet, tap to edit</string>
     <string name="assistant_prompt_tap_hint">Tap to edit</string>
+    <string name="empty_conversations">No conversations yet</string>
+    <string name="empty_conversations_hint">Tap the compose icon to start one</string>
+    <string name="empty_search">Nothing matches your search</string>
 </resources>

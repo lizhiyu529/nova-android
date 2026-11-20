@@ -69,6 +69,10 @@ class Strings(private val context: Context) {
     val promptPreviewEmpty: String get() = get(R.string.assistant_prompt_preview_empty)
     val promptEditTitle: String get() = get(R.string.assistant_prompt_edit_title)
     val memoryAddAction: String get() = get(R.string.assistant_memory_add_action)
+
+    val emptyConversations: String get() = get(R.string.empty_conversations)
+    val emptyConversationsHint: String get() = get(R.string.empty_conversations_hint)
+    val emptySearch: String get() = get(R.string.empty_search)
     val promptTapHint: String get() = get(R.string.assistant_prompt_tap_hint)
 
     val dataManagement: String get() = get(R.string.settings_data_management)
@@ -153,20 +157,6 @@ class Strings(private val context: Context) {
     val greetingNightTitle: String get() = get(R.string.greeting_night_title)
     val greetingNightHint: String get() = get(R.string.greeting_night_hint)
 
-    fun sampleConversation(index: Int): String {
-        val id = when (index) {
-            1 -> R.string.sample_conversation_1
-            2 -> R.string.sample_conversation_2
-            3 -> R.string.sample_conversation_3
-            4 -> R.string.sample_conversation_4
-            5 -> R.string.sample_conversation_5
-            6 -> R.string.sample_conversation_6
-            7 -> R.string.sample_conversation_7
-            8 -> R.string.sample_conversation_8
-            else -> R.string.sample_conversation_9
-        }
-        return get(id)
-    }
 }
 
 val LocalStrings = staticCompositionLocalOf<Strings> { error("LocalStrings not provided") }

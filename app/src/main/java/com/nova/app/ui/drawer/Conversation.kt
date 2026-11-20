@@ -51,19 +51,3 @@ fun groupConversations(
             if (items.isEmpty()) null else group to items
         }
 }
-
-fun List<Conversation>.renamed(id: String, newTitle: String): List<Conversation> {
-    return map { if (it.id == id) it.copy(title = newTitle, updatedAt = LocalDateTime.now()) else it }
-}
-
-fun List<Conversation>.toggledPin(id: String): List<Conversation> {
-    return map { if (it.id == id) it.copy(pinned = !it.pinned) else it }
-}
-
-fun List<Conversation>.pinnedAll(ids: Set<String>): List<Conversation> {
-    return map { if (it.id in ids) it.copy(pinned = true) else it }
-}
-
-fun List<Conversation>.removed(ids: Set<String>): List<Conversation> {
-    return filterNot { it.id in ids }
-}

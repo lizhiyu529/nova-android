@@ -178,6 +178,11 @@ fun NovaDrawer(
                         )
                     }
                 }
+                if (conversations.isEmpty()) {
+                    item(key = "empty-state") {
+                        EmptyDrawerState()
+                    }
+                }
             }
             if (selecting) {
                 SelectionActionBar(
@@ -901,6 +906,38 @@ private fun DialogTextAction(
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Medium,
             color = color,
+        )
+    }
+}
+
+@Composable
+private fun EmptyDrawerState() {
+    val strings = NovaStrings.strings
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 72.dp, start = 24.dp, end = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Icon(
+            imageVector = NovaIcons.NewChat,
+            contentDescription = null,
+            modifier = Modifier.size(30.dp),
+            tint = NovaTheme.colors.textDisabled,
+        )
+        Spacer(Modifier.height(14.dp))
+        Text(
+            text = strings.emptyConversations,
+            style = MaterialTheme.typography.bodyLarge,
+            color = NovaTheme.colors.textSecondary,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = strings.emptyConversationsHint,
+            style = MaterialTheme.typography.bodySmall,
+            color = NovaTheme.colors.textTertiary,
+            textAlign = TextAlign.Center,
         )
     }
 }

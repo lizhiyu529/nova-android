@@ -29,6 +29,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,17 +46,12 @@ import com.nova.app.BuildConfig
 import com.nova.app.data.AppLogs
 import com.nova.app.data.AssistantProfile
 import com.nova.app.data.AssistantStore
+import com.nova.app.data.ConversationRepository
 import com.nova.app.ui.NovaStrings
-import com.nova.app.ui.Strings
 import com.nova.app.ui.components.BackButton
 import com.nova.app.ui.components.CenterToast
 import com.nova.app.ui.components.NovaIcons
-import com.nova.app.ui.drawer.Conversation
 import com.nova.app.ui.drawer.NovaDrawer
-import com.nova.app.ui.drawer.pinnedAll
-import com.nova.app.ui.drawer.removed
-import com.nova.app.ui.drawer.renamed
-import com.nova.app.ui.drawer.toggledPin
 import com.nova.app.ui.home.HomeScreen
 import com.nova.app.ui.search.SearchScreen
 import com.nova.app.ui.settings.AppLanguage
@@ -69,7 +65,6 @@ import com.nova.app.ui.settings.SettingsScreen
 import com.nova.app.ui.theme.NovaTheme
 import com.nova.app.ui.theme.NovaTransitions
 import java.time.LocalDateTime
-import java.util.UUID
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -91,7 +86,8 @@ fun NovaApp(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val strings = NovaStrings.strings
-    var conversations by remember { mutableStateOf(sampleConversations(LocalDateTime.now(), strings)) }
+    val repository = remember(context) { ConversationRepository(context) }
+    val conversations by repository.observeConversations().collectAsState(initial = emptyList())
     val referenceTime = remember { LocalDateTime.now() }
     var stack by rememberSaveable { mutableStateOf(listOf<Page>()) }
     var autoCollapseThinking by rememberSaveable { mutableStateOf(true) }
@@ -141,20 +137,29 @@ fun NovaApp(
                         push(Page.Search)
                     },
                     onRename = { id, title ->
-                        conversations = conversations.renamed(id, title)
-                        AppLogs.record(context, "rename conversation $id")
+                        scope.launch {
+                            repository.rename(id, title)
+                            AppLogs.record(context, "rename conversation $id")
+                        }
                     },
                     onTogglePin = { id ->
-                        conversations = conversations.toggledPin(id)
-                        AppLogs.record(context, "toggle pin $id")
+                        val pinned = conversations.firstOrNull { it.id == id }?.pinned ?: false
+                        scope.launch {
+                            repository.togglePinned(id, pinned)
+                            AppLogs.record(context, "toggle pin $id")
+                        }
                     },
                     onDelete = { ids ->
-                        conversations = conversations.removed(ids)
-                        AppLogs.record(context, "delete ${ids.size} conversation(s)")
+                        scope.launch {
+                            repository.delete(ids)
+                            AppLogs.record(context, "delete ${ids.size} conversation(s)")
+                        }
                     },
                     onPinSelected = { ids ->
-                        conversations = conversations.pinnedAll(ids)
-                        AppLogs.record(context, "pin ${ids.size} conversation(s)")
+                        scope.launch {
+                            repository.pinAll(ids)
+                            AppLogs.record(context, "pin ${ids.size} conversation(s)")
+                        }
                     },
                 )
             },
@@ -162,14 +167,10 @@ fun NovaApp(
             HomeScreen(
                 onOpenDrawer = { scope.launch { drawerState.open() } },
                 onNewChat = {
-                    conversations = listOf(
-                        Conversation(
-                            id = UUID.randomUUID().toString(),
-                            title = "新对话",
-                            updatedAt = LocalDateTime.now(),
-                        ),
-                    ) + conversations
-                    AppLogs.record(context, "new chat")
+                    scope.launch {
+                        repository.createConversation(strings.newChat)
+                        AppLogs.record(context, "new chat")
+                    }
                 },
             )
         }
@@ -296,9 +297,11 @@ fun NovaApp(
                             toast = strings.exported(conversations.size)
                         },
                         onDeleteAll = {
-                            conversations = emptyList()
-                            AppLogs.record(context, "delete all conversations")
-                            toast = strings.cleared
+                            scope.launch {
+                                repository.clearAll()
+                                AppLogs.record(context, "delete all conversations")
+                                toast = strings.cleared
+                            }
                         },
                     )
                 }
@@ -543,15 +546,3 @@ private fun SettingsTopBar(title: String, onBack: () -> Unit) {
         )
     }
 }
-
-private fun sampleConversations(now: LocalDateTime, strings: Strings): List<Conversation> = listOf(
-    Conversation("p1", strings.sampleConversation(1), now.minusMinutes(4), pinned = true),
-    Conversation("p2", strings.sampleConversation(2), now.minusMinutes(12), pinned = true),
-    Conversation("p3", strings.sampleConversation(3), now.minusHours(2)),
-    Conversation("p4", strings.sampleConversation(4), now.minusHours(6)),
-    Conversation("p5", strings.sampleConversation(5), now.minusDays(1).minusHours(2)),
-    Conversation("p6", strings.sampleConversation(6), now.minusDays(1).minusHours(5)),
-    Conversation("p7", strings.sampleConversation(7), now.minusDays(3)),
-    Conversation("p8", strings.sampleConversation(8), now.minusDays(5)),
-    Conversation("p9", strings.sampleConversation(9), now.minusDays(9)),
-)

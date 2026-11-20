@@ -110,15 +110,6 @@
     <string name="greeting_night_title">夜深了</string>
     <string name="greeting_night_hint">早点睡，明天再修也不迟</string>
 
-    <string name="sample_conversation_1">Kotlin 协程调度器原理</string>
-    <string name="sample_conversation_2">Compose 重组性能优化</string>
-    <string name="sample_conversation_3">Material 3 动态配色方案</string>
-    <string name="sample_conversation_4">Gradle 构建速度排查</string>
-    <string name="sample_conversation_5">Retrofit 拦截器写法</string>
-    <string name="sample_conversation_6">Room 数据库迁移</string>
-    <string name="sample_conversation_7">协程异常处理最佳实践</string>
-    <string name="sample_conversation_8">Jetpack Navigation 参数传递</string>
-    <string name="sample_conversation_9">单元测试 Mock 技巧</string>
     <string name="chat_expand">放大编辑</string>
     <string name="chat_expand_title">编辑消息</string>
     <string name="language_restart_confirm">立即重启</string>
@@ -142,4 +133,7 @@
     <string name="assistant_prompt_edit_title">提示词注入</string>
     <string name="assistant_prompt_preview_empty">尚未设置提示词，点击编辑</string>
     <string name="assistant_prompt_tap_hint">点击编辑</string>
+    <string name="empty_conversations">还没有对话</string>
+    <string name="empty_conversations_hint">点右上角新建一个对话</string>
+    <string name="empty_search">没有匹配的对话</string>
 </resources>

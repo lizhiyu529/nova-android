@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
 
 val localProperties = Properties().apply {
@@ -25,8 +26,8 @@ android {
         applicationId = "com.nova.app"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 40
-        versionName = "1.6.2"
+        versionCode = 41
+        versionName = "1.7.0"
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -92,6 +93,10 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.coil.compose)
+
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
