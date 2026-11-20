@@ -9,11 +9,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,6 +46,7 @@ import com.nova.app.ui.components.ChatInputBar
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.components.PermissionDialog
 import com.nova.app.ui.theme.NovaTheme
+import com.nova.app.ui.theme.NovaTransitions
 
 @Composable
 fun HomeScreen(
@@ -189,10 +185,8 @@ fun HomeScreen(
                 }
                 AnimatedVisibility(
                     visible = showAttachments,
-                    enter = fadeIn(tween(200)) +
-                        slideInVertically(tween(280)) { it / 2 },
-                    exit = fadeOut(tween(160)) +
-                        slideOutVertically(tween(200)) { it / 2 },
+                    enter = NovaTransitions.panelEnter,
+                    exit = NovaTransitions.panelExit,
                 ) {
                     AttachmentPanel(
                         recentPhotos = recentPhotos,

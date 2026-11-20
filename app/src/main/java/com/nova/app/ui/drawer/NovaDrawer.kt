@@ -1,10 +1,6 @@
 package com.nova.app.ui.drawer
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -68,6 +64,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.theme.NovaTheme
+import com.nova.app.ui.theme.NovaTransitions
 import java.time.LocalDateTime
 import kotlinx.coroutines.delay
 
@@ -417,8 +414,8 @@ private fun ConversationRow(
     ) {
         AnimatedVisibility(
             visible = selecting,
-            enter = fadeIn() + slideInVertically(),
-            exit = fadeOut() + slideOutVertically(),
+            enter = NovaTransitions.inlineEnter,
+            exit = NovaTransitions.inlineExit,
         ) {
             SelectionCircle(
                 selected = selected,

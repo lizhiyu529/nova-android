@@ -1,12 +1,9 @@
 package com.nova.app.ui.components
 
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -43,6 +40,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.nova.app.ui.components.rememberPressScale
+import com.nova.app.ui.theme.NovaMotion
 import com.nova.app.ui.theme.NovaTheme
 
 @Composable
@@ -120,10 +119,10 @@ fun AttachmentPanel(
 private fun PhotoSkeleton() {
     val transition = rememberInfiniteTransition(label = "shimmer")
     val alpha by transition.animateFloat(
-        initialValue = 0.35f,
-        targetValue = 0.75f,
+        initialValue = NovaMotion.ShimmerMin,
+        targetValue = NovaMotion.ShimmerMax,
         animationSpec = infiniteRepeatable(
-            animation = tween(900, easing = LinearEasing),
+            animation = tween(NovaMotion.Shimmer, easing = NovaMotion.EasingLinear),
             repeatMode = RepeatMode.Reverse,
         ),
         label = "shimmerAlpha",
@@ -203,11 +202,7 @@ private fun AttachmentAction(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.94f else 1f,
-        animationSpec = spring(dampingRatio = 0.75f, stiffness = 320f),
-        label = "attachmentScale",
-    )
+    val scale by rememberPressScale(pressed)
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
         Surface(
             onClick = onClick,

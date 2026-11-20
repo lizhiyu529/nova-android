@@ -2,13 +2,6 @@ package com.nova.app.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -68,6 +61,7 @@ import com.nova.app.ui.settings.FontSizeScreen
 import com.nova.app.ui.settings.PersonalizeScreen
 import com.nova.app.ui.settings.SettingsScreen
 import com.nova.app.ui.theme.NovaTheme
+import com.nova.app.ui.theme.NovaTransitions
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlinx.coroutines.delay
@@ -167,10 +161,8 @@ fun NovaApp(
 
         AnimatedVisibility(
             visible = current == Page.Search,
-            enter = fadeIn(tween(320, delayMillis = 60)) +
-                slideInHorizontally(tween(420, easing = FastOutSlowInEasing)) { it },
-            exit = fadeOut(tween(260)) +
-                slideOutHorizontally(tween(320, easing = FastOutSlowInEasing)) { it },
+            enter = NovaTransitions.rootEnter,
+            exit = NovaTransitions.rootExit,
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -190,10 +182,8 @@ fun NovaApp(
 
         AnimatedVisibility(
             visible = stack.contains(Page.Settings),
-            enter = fadeIn(tween(260, delayMillis = 40)) +
-                slideInHorizontally(tween(460, easing = LinearOutSlowInEasing)) { it / 2 },
-            exit = fadeOut(tween(200)) +
-                slideOutHorizontally(tween(300, easing = FastOutSlowInEasing)) { it / 2 },
+            enter = NovaTransitions.pageEnter,
+            exit = NovaTransitions.pageExit,
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -219,10 +209,8 @@ fun NovaApp(
 
         AnimatedVisibility(
             visible = current == Page.Logs,
-            enter = fadeIn(tween(260, delayMillis = 40)) +
-                slideInHorizontally(tween(460, easing = LinearOutSlowInEasing)) { it / 2 },
-            exit = fadeOut(tween(200)) +
-                slideOutHorizontally(tween(300, easing = FastOutSlowInEasing)) { it / 2 },
+            enter = NovaTransitions.pageEnter,
+            exit = NovaTransitions.pageExit,
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -236,10 +224,8 @@ fun NovaApp(
 
         AnimatedVisibility(
             visible = current == Page.FontSize,
-            enter = fadeIn(tween(260, delayMillis = 40)) +
-                slideInHorizontally(tween(460, easing = LinearOutSlowInEasing)) { it / 2 },
-            exit = fadeOut(tween(200)) +
-                slideOutHorizontally(tween(300, easing = FastOutSlowInEasing)) { it / 2 },
+            enter = NovaTransitions.pageEnter,
+            exit = NovaTransitions.pageExit,
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -259,10 +245,8 @@ fun NovaApp(
 
         AnimatedVisibility(
             visible = current == Page.Personalize,
-            enter = fadeIn(tween(260, delayMillis = 40)) +
-                slideInHorizontally(tween(460, easing = LinearOutSlowInEasing)) { it / 2 },
-            exit = fadeOut(tween(200)) +
-                slideOutHorizontally(tween(300, easing = FastOutSlowInEasing)) { it / 2 },
+            enter = NovaTransitions.pageEnter,
+            exit = NovaTransitions.pageExit,
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -280,10 +264,8 @@ fun NovaApp(
 
         AnimatedVisibility(
             visible = current == Page.DataManagement,
-            enter = fadeIn(tween(260, delayMillis = 40)) +
-                slideInHorizontally(tween(460, easing = LinearOutSlowInEasing)) { it / 2 },
-            exit = fadeOut(tween(200)) +
-                slideOutHorizontally(tween(300, easing = FastOutSlowInEasing)) { it / 2 },
+            enter = NovaTransitions.pageEnter,
+            exit = NovaTransitions.pageExit,
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),

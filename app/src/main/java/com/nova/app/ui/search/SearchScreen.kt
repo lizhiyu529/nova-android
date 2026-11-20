@@ -3,9 +3,6 @@ package com.nova.app.ui.search
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.BorderStroke
@@ -60,6 +57,7 @@ import com.nova.app.ui.drawer.Conversation
 import com.nova.app.ui.drawer.ConversationGroup
 import com.nova.app.ui.drawer.groupConversations
 import com.nova.app.ui.theme.NovaTheme
+import com.nova.app.ui.theme.NovaTransitions
 import java.time.LocalDateTime
 import kotlinx.coroutines.delay
 
@@ -215,8 +213,8 @@ private fun SearchField(
             }
             AnimatedVisibility(
                 visible = query.isNotEmpty(),
-                enter = fadeIn(tween(120)),
-                exit = fadeOut(tween(120)),
+                enter = NovaTransitions.subtleEnter,
+                exit = NovaTransitions.subtleExit,
             ) {
                 CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                     IconButton(

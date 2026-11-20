@@ -1,8 +1,6 @@
 package com.nova.app.ui.components
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -37,6 +35,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.nova.app.ui.components.rememberPressScale
+import com.nova.app.ui.theme.NovaMotion
 import com.nova.app.ui.theme.NovaTheme
 
 private val ButtonTouchTarget = 34.dp
@@ -101,11 +101,7 @@ fun ChatInputBar(
 private fun AttachButton(onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.88f else 1f,
-        animationSpec = spring(dampingRatio = 0.55f, stiffness = 900f),
-        label = "attachScale",
-    )
+    val scale by rememberPressScale(pressed, NovaMotion.PressScaleTight)
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
         Surface(
             onClick = onClick,
@@ -133,17 +129,14 @@ private fun AttachButton(onClick: () -> Unit) {
 private fun SendButton(enabled: Boolean, onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.9f else 1f,
-        animationSpec = spring(dampingRatio = 0.5f, stiffness = 800f),
-        label = "sendScale",
-    )
+    val scale by rememberPressScale(pressed)
     val container by animateColorAsState(
         targetValue = if (enabled) {
             NovaTheme.colors.accent
         } else {
             NovaTheme.colors.containerHigh
         },
+        animationSpec = NovaMotion.fade(),
         label = "sendContainer",
     )
     val content by animateColorAsState(
@@ -152,6 +145,7 @@ private fun SendButton(enabled: Boolean, onClick: () -> Unit) {
         } else {
             NovaTheme.colors.textDisabled
         },
+        animationSpec = NovaMotion.fade(),
         label = "sendContent",
     )
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
