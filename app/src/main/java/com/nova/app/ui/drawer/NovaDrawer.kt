@@ -572,7 +572,7 @@ private fun DrawerAccountBar(
     nickname: String,
     avatarPath: String,
     onOpenSettings: () -> Unit,
-    onEditNickname: (String) -> Unit,
+    onEditNickname: () -> Unit,
     onChangeAvatar: () -> Unit,
 ) {
     val strings = NovaStrings.strings
