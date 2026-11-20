@@ -184,6 +184,7 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onLanguageChange: (AppLanguage) -> Unit,
     onLanguageNeedsRestart: () -> Unit,
+    onProviders: () -> Unit,
     onThemeChange: (AppThemeMode) -> Unit,
     onFontSize: () -> Unit,
     onPersonalize: () -> Unit,
@@ -218,6 +219,11 @@ fun SettingsScreen(
                 icon = NovaIcons.Database,
                 title = NovaStrings.strings.dataManagement,
                 onClick = onDataManagement,
+            )
+            SettingsRow(
+                icon = NovaIcons.Sparkle,
+                title = NovaStrings.strings.providersTitle,
+                onClick = onProviders,
             )
         }
 

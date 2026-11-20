@@ -38,6 +38,7 @@ data class NovaColors(
     val inverseAccent: Color,
     val surfaceBright: Color,
     val surfaceDim: Color,
+    val inputBackground: Color,
     val surfaceTint: Color,
 )
 
@@ -75,6 +76,7 @@ internal val NovaColorsLight = NovaColors(
     inverseAccent = GrayScale.N200,
     surfaceBright = GrayScale.White,
     surfaceDim = GrayScale.N150,
+    inputBackground = GrayScale.N150,
     surfaceTint = GrayScale.White,
 )
 
@@ -112,5 +114,6 @@ internal val NovaColorsDark = NovaColors(
     inverseAccent = GrayScale.N850,
     surfaceBright = GrayScale.N800,
     surfaceDim = GrayScale.Black,
+    inputBackground = GrayScale.N750,
     surfaceTint = GrayScale.Black,
 )

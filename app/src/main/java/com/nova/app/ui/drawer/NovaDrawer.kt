@@ -896,7 +896,7 @@ private fun NicknameDialog(
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp),
                     shape = RoundedCornerShape(14.dp),
-                    color = NovaTheme.colors.containerHigh,
+                    color = NovaTheme.colors.inputBackground,
                 ) {
                     BasicTextField(
                         value = text,

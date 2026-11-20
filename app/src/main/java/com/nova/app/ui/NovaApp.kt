@@ -52,6 +52,8 @@ import com.nova.app.data.AssistantProfile
 import com.nova.app.data.AssistantStore
 import com.nova.app.data.ConversationRepository
 import com.nova.app.data.ProfileStore
+import com.nova.app.data.provider.Provider
+import com.nova.app.data.provider.ProviderStore
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.components.BackButton
 import com.nova.app.ui.components.CenterToast
@@ -70,10 +72,11 @@ import com.nova.app.ui.settings.SettingsScreen
 import com.nova.app.ui.theme.NovaTheme
 import com.nova.app.ui.theme.NovaTransitions
 import java.time.LocalDateTime
+import java.util.UUID
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private enum class Page { Search, Settings, Logs, FontSize, Personalize, DataManagement, Assistant, PromptEditor }
+private enum class Page { Search, Settings, Logs, FontSize, Personalize, DataManagement, Assistant, PromptEditor, Providers, ProviderDetail }
 
 @Composable
 fun NovaApp(
@@ -99,6 +102,9 @@ fun NovaApp(
     var stack by rememberSaveable { mutableStateOf(listOf<Page>()) }
     var assistantProfile by remember { mutableStateOf(AssistantStore.load(context)) }
     var userProfile by remember { mutableStateOf(ProfileStore.load(context)) }
+    var providers by remember { mutableStateOf(ProviderStore.load(context)) }
+    var activeProviderId by remember { mutableStateOf(ProviderStore.activeId(context)) }
+    var editingProviderId by remember { mutableStateOf("") }
 
     val avatarPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -255,6 +261,7 @@ fun NovaApp(
                     onPersonalize = { push(Page.Personalize) },
                     onDataManagement = { push(Page.DataManagement) },
                     onAssistant = { push(Page.Assistant) },
+                    onProviders = { push(Page.Providers) },
                     onCheckUpdate = {
                         AppLogs.record(context, "check update")
                         toast = strings.upToDate
@@ -387,6 +394,71 @@ fun NovaApp(
             }
         }
 
+        AnimatedVisibility(
+            visible = current == Page.Providers,
+            enter = NovaTransitions.pageEnter,
+            exit = NovaTransitions.pageExit,
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = NovaTheme.colors.pageBackground,
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    SettingsTopBar(title = strings.providersTitle, onBack = { pop() })
+                    ProvidersScreen(
+                        providers = providers,
+                        activeId = activeProviderId,
+                        onOpenProvider = { id ->
+                            editingProviderId = id
+                            push(Page.ProviderDetail)
+                        },
+                        onAddProvider = {
+                            val created = Provider(
+                                id = UUID.randomUUID().toString(),
+                                name = "",
+                                createdAt = System.currentTimeMillis(),
+                            )
+                            providers = ProviderStore.upsert(context, created)
+                            editingProviderId = created.id
+                            push(Page.ProviderDetail)
+                        },
+                    )
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = current == Page.ProviderDetail,
+            enter = NovaTransitions.childEnter,
+            exit = NovaTransitions.childExit,
+        ) {
+            val editing = providers.firstOrNull { it.id == editingProviderId }
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = NovaTheme.colors.pageBackground,
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    SettingsTopBar(
+                        title = strings.providerEditTitle,
+                        onBack = { pop() },
+                    )
+                    if (editing != null) {
+                        ProviderDetailScreen(
+                            provider = editing,
+                            onProviderChange = { updated ->
+                                providers = ProviderStore.upsert(context, updated)
+                            },
+                            onDelete = {
+                                providers = ProviderStore.delete(context, editing.id)
+                                activeProviderId = ProviderStore.activeId(context)
+                                pop()
+                            },
+                        )
+                    }
+                }
+            }
+        }
+
         CenterToast(message = toast)
     }
 }
@@ -404,6 +476,7 @@ private fun SettingsPage(
     onPersonalize: () -> Unit,
     onDataManagement: () -> Unit,
     onAssistant: () -> Unit,
+    onProviders: () -> Unit,
     onCheckUpdate: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -426,6 +499,7 @@ private fun SettingsPage(
                 onFontSize = onFontSize,
                 onPersonalize = onPersonalize,
                 onAccount = onAssistant,
+                onProviders = onProviders,
                 onDataManagement = onDataManagement,
                 onCheckUpdate = onCheckUpdate,
                 onOpenLogs = onOpenLogs,

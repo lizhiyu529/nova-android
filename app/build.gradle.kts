@@ -26,8 +26,8 @@ android {
         applicationId = "com.nova.app"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 43
-        versionName = "1.8.0"
+        versionCode = 44
+        versionName = "1.9.0"
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -96,6 +96,8 @@ dependencies {
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
     ksp(libs.androidx.room.compiler)
 
     debugImplementation(libs.androidx.compose.ui.tooling)

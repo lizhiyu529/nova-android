@@ -154,7 +154,7 @@ fun PromptEditorScreen(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 168.dp, max = 260.dp),
+                .heightIn(min = 132.dp, max = 200.dp),
             shape = RoundedCornerShape(22.dp),
             color = NovaTheme.colors.card,
             border = BorderStroke(0.8.dp, NovaTheme.colors.border),
@@ -164,7 +164,7 @@ fun PromptEditorScreen(
                 onValueChange = onValueChange,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 168.dp, max = 260.dp)
+                    .heightIn(min = 132.dp, max = 200.dp)
                     .padding(horizontal = 18.dp, vertical = 16.dp),
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     color = NovaTheme.colors.textPrimary,
