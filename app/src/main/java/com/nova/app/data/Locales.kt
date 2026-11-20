@@ -2,6 +2,7 @@ package com.nova.app.data
 
 import android.content.Context
 import android.content.res.Configuration
+import android.os.LocaleList
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 
@@ -17,7 +18,7 @@ object Locales {
     fun wrap(context: Context): Context {
         val tag = AppSettings.languageTag(context)
         if (tag.isEmpty()) return context
-        val locales = LocaleListCompat.forLanguageTags(tag)
+        val locales = LocaleList.forLanguageTags(tag)
         val config = Configuration(context.resources.configuration)
         config.setLocales(locales)
         return context.createConfigurationContext(config)
