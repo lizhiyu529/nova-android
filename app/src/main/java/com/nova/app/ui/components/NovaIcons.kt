@@ -1166,4 +1166,58 @@ object NovaIcons {
             }
         }.build()
     }
+
+    val Atom: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "Atom",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(
+                fill = SolidColor(IconSource),
+            ) {
+                addOval(
+                    androidx.compose.ui.geometry.Rect(
+                        offset = androidx.compose.ui.geometry.Offset(11f, 11f),
+                        size = androidx.compose.ui.geometry.Size(2f, 2f),
+                    ),
+                )
+            }
+            path(
+                stroke = SolidColor(IconSource),
+                strokeLineWidth = 1.7f,
+            ) {
+                moveTo(12f, 7.6f)
+                curveTo(15.6f, 7.6f, 18.4f, 9.6f, 18.4f, 12f)
+                curveTo(18.4f, 14.4f, 15.6f, 16.4f, 12f, 16.4f)
+                curveTo(8.4f, 16.4f, 5.6f, 14.4f, 5.6f, 12f)
+                curveTo(5.6f, 9.6f, 8.4f, 7.6f, 12f, 7.6f)
+                close()
+            }
+            path(
+                stroke = SolidColor(IconSource),
+                strokeLineWidth = 1.7f,
+            ) {
+                moveTo(9.8f, 8.7f)
+                curveTo(12.9f, 6.9f, 16.4f, 7.2f, 17.6f, 9.3f)
+                curveTo(18.8f, 11.4f, 17.4f, 14.6f, 14.3f, 16.4f)
+                curveTo(11.2f, 18.2f, 7.7f, 17.9f, 6.5f, 15.8f)
+                curveTo(5.3f, 13.7f, 6.7f, 10.5f, 9.8f, 8.7f)
+                close()
+            }
+            path(
+                stroke = SolidColor(IconSource),
+                strokeLineWidth = 1.7f,
+            ) {
+                moveTo(14.2f, 8.7f)
+                curveTo(11.1f, 6.9f, 7.6f, 7.2f, 6.4f, 9.3f)
+                curveTo(5.2f, 11.4f, 6.6f, 14.6f, 9.7f, 16.4f)
+                curveTo(12.8f, 18.2f, 16.3f, 17.9f, 17.5f, 15.8f)
+                curveTo(18.7f, 13.7f, 17.3f, 10.5f, 14.2f, 8.7f)
+                close()
+            }
+        }.build()
+    }
 }

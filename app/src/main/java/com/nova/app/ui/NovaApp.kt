@@ -54,6 +54,7 @@ import com.nova.app.data.ConversationRepository
 import com.nova.app.data.ProfileStore
 import com.nova.app.data.chat.ChatController
 import com.nova.app.data.chat.ChatState
+import com.nova.app.data.provider.GenerationStore
 import com.nova.app.data.provider.Provider
 import com.nova.app.data.provider.ProviderStore
 import com.nova.app.ui.NovaStrings
@@ -110,6 +111,7 @@ fun NovaApp(
     var activeProviderId by remember { mutableStateOf(ProviderStore.activeId(context)) }
     var editingProviderId by remember { mutableStateOf("") }
     var chatState by remember { mutableStateOf(ChatState()) }
+    var generation by remember { mutableStateOf(GenerationStore.load(context)) }
 
     val chatController = remember(context) {
         ChatController(
@@ -117,6 +119,7 @@ fun NovaApp(
             repository = repository,
             scope = scope,
             onState = { chatState = it },
+            onTitleChanged = { _, _ -> }
         )
     }
 
@@ -242,6 +245,12 @@ fun NovaApp(
                 errorText = chatState.errorText,
                 onSendMessage = { text -> chatController.send(text) },
                 onRetry = { chatController.retry() },
+                reasoningLabel = strings.reasoningLabel(generation.reasoning.key),
+                reasoningKey = generation.reasoning.key,
+                onReasoningChange = { effort ->
+                    generation = generation.copy(reasoning = effort)
+                    GenerationStore.save(context, generation)
+                },
             )
         }
 

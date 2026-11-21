@@ -2,7 +2,6 @@ package com.nova.app.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -32,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.nova.app.ui.NovaStrings
@@ -49,6 +48,8 @@ fun ChatInputBar(
     onSend: () -> Unit,
     onAttach: () -> Unit,
     onExpand: () -> Unit,
+    reasoningLabel: String,
+    onReasoningClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -94,6 +95,11 @@ fun ChatInputBar(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     AttachButton(onClick = onAttach)
+                    Spacer(Modifier.size(8.dp))
+                    ReasoningButton(
+                        label = reasoningLabel,
+                        onClick = onReasoningClick,
+                    )
                     if (value.isNotBlank()) {
                         Spacer(Modifier.size(8.dp))
                         ExpandButton(onClick = onExpand)
@@ -128,6 +134,45 @@ private fun AttachButton(onClick: () -> Unit) {
                     modifier = Modifier.size(16.dp),
                     tint = NovaTheme.colors.textSecondary,
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReasoningButton(label: String, onClick: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val scale by rememberPressScale(pressed, NovaMotion.PressScaleTight)
+    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+        Surface(
+            onClick = onClick,
+            modifier = Modifier
+                .height(ButtonTouchTarget)
+                .scale(scale),
+            shape = CircleShape,
+            color = NovaTheme.colors.containerHigh,
+            border = BorderStroke(0.8.dp, NovaTheme.colors.divider),
+            interactionSource = interactionSource,
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = NovaIcons.Atom,
+                    contentDescription = NovaStrings.strings.reasoningTitle,
+                    modifier = Modifier.size(14.dp),
+                    tint = NovaTheme.colors.textSecondary,
+                )
+                if (label.isNotBlank()) {
+                    Spacer(Modifier.size(4.dp))
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = NovaTheme.colors.textSecondary,
+                    )
+                }
             }
         }
     }

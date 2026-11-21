@@ -201,4 +201,22 @@
     <string name="chat_temperature">Temperature</string>
     <string name="chat_thinking">Thinking</string>
     <string name="settings_chat_defaults">Chat defaults</string>
+    <string name="chat_title_generating">Naming chat</string>
+    <string name="reasoning_default">Default</string>
+    <string name="reasoning_high">High</string>
+    <string name="reasoning_hint">Higher effort thinks longer and costs more tokens</string>
+    <string name="reasoning_low">Low</string>
+    <string name="reasoning_max">Max</string>
+    <string name="reasoning_medium">Medium</string>
+    <string name="reasoning_minimal">Minimal</string>
+    <string name="reasoning_none">None</string>
+    <string name="reasoning_title">Reasoning effort</string>
+    <string name="reasoning_xhigh">Extra high</string>
+    <string name="settings_generation">Generation</string>
+    <string name="tool_calc">Calculator</string>
+    <string name="tool_time">Current time</string>
+    <string name="tools_enable">Enable tool calling</string>
+    <string name="tools_enable_hint">Let the model call built-in tools in a loop</string>
+    <string name="tools_max_rounds">Max rounds</string>
+    <string name="tools_title">Tools</string>
 </resources>

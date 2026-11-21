@@ -31,6 +31,7 @@ data class ChatRequest(
     val temperature: Double? = null,
     val maxTokens: Int? = null,
     val tools: List<ChatTool> = emptyList(),
+    val reasoning: String? = null,
     val stream: Boolean = true,
 )
 
@@ -38,6 +39,7 @@ data class ChatTurn(
     val role: String,
     val content: String,
     val name: String = "",
+    val toolCallId: String = "",
 )
 
 data class ChatTool(

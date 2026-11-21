@@ -98,30 +98,19 @@ private fun UserBubble(text: String) {
 
 @Composable
 private fun AssistantBubble(text: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start,
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp),
     ) {
-        Surface(
-            modifier = Modifier.widthIn(max = 330.dp),
-            shape = RoundedCornerShape(20.dp, 20.dp, 20.dp, 6.dp),
-            color = NovaTheme.colors.card,
-        ) {
-            Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = 11.dp)) {
-                MarkdownText(text = text)
-            }
-        }
+        MarkdownText(text = text)
     }
 }
 
 @Composable
 private fun AssistantLoading() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        TypingIndicator()
+    Box(modifier = Modifier.fillMaxWidth()) {
+        TypingDots(modifier = Modifier.padding(vertical = 8.dp))
     }
 }
 
@@ -134,8 +123,8 @@ private fun ErrorBubble(message: String) {
     ) {
         Surface(
             modifier = Modifier.widthIn(max = 330.dp),
-            shape = RoundedCornerShape(20.dp, 20.dp, 20.dp, 6.dp),
-            color = NovaTheme.colors.card,
+            shape = RoundedCornerShape(16.dp),
+            color = NovaTheme.colors.containerLow,
         ) {
             Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
                 Text(

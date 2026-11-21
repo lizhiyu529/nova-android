@@ -56,7 +56,8 @@ object ChatClient {
                 JSONObject().apply {
                     put("role", turn.role)
                     put("content", turn.content)
-                    if (turn.name.isNotBlank()) put("name", turn.name)
+                    if (turn.name.isNotBlank() && turn.role != "tool") put("name", turn.name)
+                    if (turn.toolCallId.isNotBlank()) put("tool_call_id", turn.toolCallId)
                 },
             )
         }
@@ -67,6 +68,7 @@ object ChatClient {
             put("stream", request.stream)
             request.temperature?.let { put("temperature", it) }
             request.maxTokens?.let { put("max_tokens", it) }
+            request.reasoning?.let { put("reasoning_effort", it) }
             if (request.stream) {
                 put("stream_options", JSONObject().put("include_usage", true))
             }

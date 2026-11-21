@@ -43,6 +43,7 @@ import com.nova.app.data.AppLogs
 import com.nova.app.data.CameraFiles
 import com.nova.app.data.chat.ChatTurn
 import com.nova.app.data.loadRecentPhotos
+import com.nova.app.data.provider.ReasoningEffort
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.Strings
 import com.nova.app.ui.components.AttachmentPanel
@@ -51,6 +52,7 @@ import com.nova.app.ui.components.ChatMessageList
 import com.nova.app.ui.components.EditorOverlay
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.components.PermissionDialog
+import com.nova.app.ui.components.ReasoningPickerDialog
 import com.nova.app.ui.theme.NovaTheme
 import com.nova.app.ui.theme.NovaTransitions
 
@@ -64,9 +66,13 @@ fun HomeScreen(
     errorText: String,
     onSendMessage: (String) -> Unit,
     onRetry: () -> Unit,
+    reasoningLabel: String,
+    reasoningKey: String,
+    onReasoningChange: (ReasoningEffort) -> Unit,
 ) {
     var draft by rememberSaveable { mutableStateOf("") }
     var showEditor by rememberSaveable { mutableStateOf(false) }
+    var showReasoning by rememberSaveable { mutableStateOf(false) }
     var showAttachments by rememberSaveable { mutableStateOf(false) }
     var selectedPhotos by remember { mutableStateOf(setOf<String>()) }
     var recentPhotos by remember { mutableStateOf(listOf<String>()) }
@@ -202,6 +208,8 @@ fun HomeScreen(
                         },
                             onAttach = { showAttachments = !showAttachments },
                             onExpand = { showEditor = true },
+                            reasoningLabel = reasoningLabel,
+                            onReasoningClick = { showReasoning = true },
                         )
                     }
                     AnimatedVisibility(
@@ -270,6 +278,17 @@ fun HomeScreen(
                 onDismiss = { showEditor = false },
             )
         }
+    }
+
+    if (showReasoning) {
+        ReasoningPickerDialog(
+            current = ReasoningEffort.fromKey(reasoningKey),
+            onSelect = {
+                onReasoningChange(it)
+                showReasoning = false
+            },
+            onDismiss = { showReasoning = false },
+        )
     }
 
     if (showCameraPrompt) {

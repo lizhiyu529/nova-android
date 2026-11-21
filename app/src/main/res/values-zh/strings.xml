@@ -201,4 +201,22 @@
     <string name="chat_temperature">温度</string>
     <string name="chat_thinking">思考中</string>
     <string name="settings_chat_defaults">对话默认值</string>
+    <string name="chat_title_generating">正在生成标题</string>
+    <string name="reasoning_default">默认</string>
+    <string name="reasoning_high">高</string>
+    <string name="reasoning_hint">等级越高思考越久，消耗更多 token</string>
+    <string name="reasoning_low">低</string>
+    <string name="reasoning_max">最高</string>
+    <string name="reasoning_medium">中</string>
+    <string name="reasoning_minimal">极低</string>
+    <string name="reasoning_none">无</string>
+    <string name="reasoning_title">推理等级</string>
+    <string name="reasoning_xhigh">极高</string>
+    <string name="settings_generation">生成</string>
+    <string name="tool_calc">计算器</string>
+    <string name="tool_time">当前时间</string>
+    <string name="tools_enable">启用工具调用</string>
+    <string name="tools_enable_hint">允许模型循环调用内置工具</string>
+    <string name="tools_max_rounds">最大轮数</string>
+    <string name="tools_title">工具</string>
 </resources>

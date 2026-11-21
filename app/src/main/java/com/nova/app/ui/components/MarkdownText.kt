@@ -31,8 +31,9 @@ private data class Block(
     val kind: Kind,
     val text: String,
     val level: Int = 0,
+    val table: TableData? = null,
 ) {
-    enum class Kind { Paragraph, Heading, Bullet, Ordered, Quote, Code, Divider, Spacer }
+    enum class Kind { Paragraph, Heading, Bullet, Ordered, Quote, Code, Divider, Spacer, Table }
 }
 
 private fun parseBlocks(source: String): List<Block> {
@@ -41,7 +42,6 @@ private fun parseBlocks(source: String): List<Block> {
     val paragraph = StringBuilder()
     val code = StringBuilder()
     var inCode = false
-    var fence = ""
 
     fun flushParagraph() {
         if (paragraph.isNotBlank()) {
@@ -50,25 +50,53 @@ private fun parseBlocks(source: String): List<Block> {
         paragraph.clear()
     }
 
-    for (line in lines) {
+    var index = 0
+    while (index < lines.size) {
+        val line = lines[index]
         val trimmed = line.trimStart()
+
         if (trimmed.startsWith("```")) {
             if (inCode) {
                 blocks.add(Block(Block.Kind.Code, code.toString().trimEnd()))
                 code.clear()
                 inCode = false
-                fence = ""
             } else {
                 flushParagraph()
                 inCode = true
-                fence = trimmed.removePrefix("```").trim()
             }
+            index++
             continue
         }
+
         if (inCode) {
             code.appendLine(line)
+            index++
             continue
         }
+
+        val next = lines.getOrNull(index + 1)
+        if (trimmed.contains('|') && next != null && isTableSeparator(next)) {
+            flushParagraph()
+            val header = parseTableRow(trimmed)
+            val rows = mutableListOf<List<String>>()
+            var scan = index + 2
+            while (scan < lines.size) {
+                val candidate = lines[scan].trim()
+                if (candidate.isEmpty() || !candidate.contains('|')) break
+                rows.add(parseTableRow(candidate))
+                scan++
+            }
+            blocks.add(
+                Block(
+                    kind = Block.Kind.Table,
+                    text = "",
+                    table = TableData(header = header, rows = rows),
+                ),
+            )
+            index = scan
+            continue
+        }
+
         when {
             line.isBlank() -> {
                 flushParagraph()
@@ -109,6 +137,7 @@ private fun parseBlocks(source: String): List<Block> {
                 paragraph.append(trimmed)
             }
         }
+        index++
     }
     if (inCode && code.isNotBlank()) {
         blocks.add(Block(Block.Kind.Code, code.toString().trimEnd()))
@@ -289,6 +318,10 @@ fun MarkdownText(
                             modifier = Modifier.padding(horizontal = 13.dp, vertical = 11.dp),
                         )
                     }
+                }
+
+                Block.Kind.Table -> {
+                    block.table?.let { MarkdownTable(it, codeBackground = codeBackground) }
                 }
 
                 Block.Kind.Divider -> {
