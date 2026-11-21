@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nova.app.data.chat.ChatPart
 import com.nova.app.data.chat.ChatTurn
+import com.nova.app.data.chat.visibleParts
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.theme.NovaTheme
 
@@ -41,7 +42,8 @@ fun ChatMessageList(
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
-    val hasLive = loading || errorText.isNotEmpty() || liveParts.isNotEmpty()
+    val visible = liveParts.visibleParts()
+    val hasLive = loading || errorText.isNotEmpty() || visible.isNotEmpty()
     val total = turns.size + if (hasLive) 1 else 0
 
     LaunchedEffect(total) {
@@ -74,9 +76,9 @@ fun ChatMessageList(
         if (hasLive) {
             item(key = "live") {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    if (liveParts.isNotEmpty()) {
+                    if (visible.isNotEmpty()) {
                         AssistantParts(
-                            parts = liveParts,
+                            parts = visible,
                             expanded = reasoningExpanded,
                             onToggle = onReasoningToggle,
                             streaming = true,
@@ -86,7 +88,7 @@ fun ChatMessageList(
                         Spacer(Modifier.height(6.dp))
                         ErrorBlock(errorText)
                     }
-                    if (loading && liveParts.isEmpty()) {
+                    if (loading && visible.isEmpty()) {
                         TypingDots(modifier = Modifier.padding(vertical = 8.dp))
                     }
                 }

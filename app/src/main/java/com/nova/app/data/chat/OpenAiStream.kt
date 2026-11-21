@@ -12,8 +12,8 @@ class OpenAiStream {
     companion object {
         private const val DONE = "[DONE]"
         private const val DATA = "data:"
-        private const val TEXT_ID = "text"
-        private const val REASONING_ID = "reasoning"
+        const val TEXT_ID = "text"
+        const val REASONING_ID = "reasoning"
     }
 
     fun read(reader: BufferedReader, onChunk: (ChatChunk) -> Unit) {

@@ -27,7 +27,12 @@ You need to summarize the conversation between user and assistant into a short t
     ): String? {
         if (turns.isEmpty()) return null
         val content = turns.takeLast(4)
-            .joinToString("\n") { "${it.role}: ${it.content.take(300)}" }
+            .mapNotNull { turn ->
+                val body = turn.content.ifBlank { turn.textOnly() }
+                if (body.isBlank()) null else "${turn.role}: ${body.take(300)}"
+            }
+            .joinToString("\n")
+        if (content.isBlank()) return null
         val prompt = TEMPLATE.replace("{content}", content)
 
         val result = withTimeoutOrNull(20_000L) {
