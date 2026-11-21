@@ -352,9 +352,9 @@ private fun FieldRow(
         Spacer(Modifier.height(6.dp))
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(14.dp),
             color = NovaTheme.colors.inputBackground,
-            border = BorderStroke(0.8.dp, NovaTheme.colors.divider),
+            border = BorderStroke(1.dp, NovaTheme.colors.divider),
         ) {
             BasicTextField(
                 value = value,

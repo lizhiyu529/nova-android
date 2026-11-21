@@ -159,16 +159,24 @@ private fun ProviderRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Surface(
-                modifier = Modifier.size(32.dp),
-                shape = RoundedCornerShape(10.dp),
-                color = NovaTheme.colors.containerHigh,
+                modifier = Modifier.size(36.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = if (active) {
+                    NovaTheme.colors.accent
+                } else {
+                    NovaTheme.colors.containerHigh
+                },
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
                         text = provider.name.take(1).uppercase().ifBlank { "?" },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = NovaTheme.colors.textSecondary,
+                        color = if (active) {
+                            NovaTheme.colors.onAccent
+                        } else {
+                            NovaTheme.colors.textSecondary
+                        },
                     )
                 }
             }

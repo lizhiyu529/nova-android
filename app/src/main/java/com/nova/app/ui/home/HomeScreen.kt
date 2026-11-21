@@ -71,11 +71,13 @@ fun HomeScreen(
     onRetry: () -> Unit,
     reasoningLabel: String,
     reasoningKey: String,
+    autoCollapseThinking: Boolean,
     onReasoningChange: (ReasoningEffort) -> Unit,
 ) {
     var draft by rememberSaveable { mutableStateOf("") }
     var showEditor by rememberSaveable { mutableStateOf(false) }
     var showReasoning by rememberSaveable { mutableStateOf(false) }
+    var reasoningExpanded by rememberSaveable { mutableStateOf(false) }
     var showAttachments by rememberSaveable { mutableStateOf(false) }
     var selectedPhotos by remember { mutableStateOf(setOf<String>()) }
     var recentPhotos by remember { mutableStateOf(listOf<String>()) }
@@ -267,6 +269,8 @@ fun HomeScreen(
                     toolRuns = toolRuns,
                     loading = loading,
                     errorText = errorText,
+                    reasoningExpanded = if (autoCollapseThinking) reasoningExpanded else true,
+                    onReasoningToggle = { reasoningExpanded = !reasoningExpanded },
                     modifier = Modifier.padding(innerPadding),
                 )
             }
@@ -394,6 +398,7 @@ private fun HomeScreenPreview() {
             onRetry = {},
             reasoningLabel = "",
             reasoningKey = "",
+            autoCollapseThinking = true,
             onReasoningChange = {},
         )
     }
@@ -416,6 +421,7 @@ private fun HomeScreenDarkPreview() {
             onRetry = {},
             reasoningLabel = "",
             reasoningKey = "",
+            autoCollapseThinking = true,
             onReasoningChange = {},
         )
     }

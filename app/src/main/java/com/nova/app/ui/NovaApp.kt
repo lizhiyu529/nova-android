@@ -249,6 +249,7 @@ fun NovaApp(
                 onRetry = { chatController.retry() },
                 reasoningLabel = strings.reasoningLabel(generation.reasoning.key),
                 reasoningKey = generation.reasoning.key,
+                autoCollapseThinking = autoCollapseThinking,
                 onReasoningChange = { effort ->
                     generation = generation.copy(reasoning = effort)
                     GenerationStore.save(context, generation)

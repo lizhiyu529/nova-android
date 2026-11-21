@@ -30,6 +30,8 @@ data class ChatState(
     val toolRuns: List<ToolRun> = emptyList(),
 )
 
+private const val STREAM_THROTTLE_MS = 40L
+
 class ChatController(
     private val context: Context,
     private val repository: ConversationRepository,
@@ -118,8 +120,7 @@ class ChatController(
             }
             repository.appendMessage(conversationId, MessageRole.User, text)
 
-            val isFirstUserMessage = current.turns.none { it.role == "user" }
-            runChat(conversationId, provider, model, nextTurns, isFirstUserMessage)
+            runChat(conversationId, provider, model, nextTurns)
         }
     }
 
@@ -140,7 +141,7 @@ class ChatController(
             ),
         )
         scope.launch {
-            runChat(current.conversationId, provider, model, trimmed, false)
+            runChat(current.conversationId, provider, model, trimmed)
         }
     }
 
@@ -149,7 +150,6 @@ class ChatController(
         provider: Provider,
         model: String,
         baseTurns: List<ChatTurn>,
-        generateTitle: Boolean,
     ) {
         val settings = GenerationStore.load(context)
         val systemPrompt = AssistantStore.buildSystemPrompt(AssistantStore.load(context))
@@ -161,7 +161,11 @@ class ChatController(
             try {
                 while (true) {
                     val accumulated = StringBuilder()
+                    val reasoningBuffer = StringBuilder()
                     val toolCalls = LinkedHashMap<Int, ToolAccumulator>()
+                    var lastPublishedAt = 0L
+                    var lastPublishedLength = 0
+                    var lastReasoningAt = 0L
 
                     ChatClient.send(
                         ChatRequest(
@@ -177,22 +181,33 @@ class ChatController(
                         when (chunk) {
                             is ChatChunk.Delta -> {
                                 accumulated.append(chunk.text)
-                                publish(
-                                    state.copy(
-                                        streamingText = accumulated.toString(),
-                                        loading = false,
-                                        toolLabel = "",
-                                    ),
-                                )
+                                val now = System.currentTimeMillis()
+                                val grew = accumulated.length - lastPublishedLength
+                                if (now - lastPublishedAt >= STREAM_THROTTLE_MS || grew >= 48) {
+                                    lastPublishedAt = now
+                                    lastPublishedLength = accumulated.length
+                                    publish(
+                                        state.copy(
+                                            streamingText = accumulated.toString(),
+                                            loading = false,
+                                            toolLabel = "",
+                                        ),
+                                    )
+                                }
                             }
 
                             is ChatChunk.ReasoningDelta -> {
-                                publish(
-                                    state.copy(
-                                        reasoningText = state.reasoningText + chunk.text,
-                                        loading = false,
-                                    ),
-                                )
+                                reasoningBuffer.append(chunk.text)
+                                val now = System.currentTimeMillis()
+                                if (now - lastReasoningAt >= STREAM_THROTTLE_MS) {
+                                    lastReasoningAt = now
+                                    publish(
+                                        state.copy(
+                                            reasoningText = reasoningBuffer.toString(),
+                                            loading = false,
+                                        ),
+                                    )
+                                }
                             }
 
                             is ChatChunk.ToolCallDelta -> {
@@ -208,6 +223,16 @@ class ChatController(
 
                             else -> Unit
                         }
+                    }
+
+                    if (accumulated.length > lastPublishedLength || reasoningBuffer.isNotEmpty()) {
+                        publish(
+                            state.copy(
+                                streamingText = accumulated.toString(),
+                                reasoningText = reasoningBuffer.toString(),
+                                loading = false,
+                            ),
+                        )
                     }
 
                     val text = accumulated.toString()
@@ -272,7 +297,7 @@ class ChatController(
                     publish(state.copy(streamingText = "", toolLabel = ""))
                 }
 
-                if (generateTitle && settings.autoTitle) {
+                if (settings.autoTitle && history.count { it.role == "user" } >= 1) {
                     publish(state.copy(toolLabel = ""))
                     val title = runCatching {
                         TitleGenerator.generate(context, provider, model, history)
