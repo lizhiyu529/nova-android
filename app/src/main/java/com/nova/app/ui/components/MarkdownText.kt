@@ -1,10 +1,12 @@
 package com.nova.app.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -115,7 +117,7 @@ private fun parseBlocks(source: String): List<Block> {
     return blocks.filterNot { it.kind == Block.Kind.Spacer }.ifEmpty { emptyList() }
 }
 
-private fun inline(source: String): AnnotatedString = buildAnnotatedString {
+private fun inline(source: String, codeBackground: androidx.compose.ui.graphics.Color): AnnotatedString = buildAnnotatedString {
     var index = 0
     val buffer = StringBuilder()
 
@@ -150,7 +152,7 @@ private fun inline(source: String): AnnotatedString = buildAnnotatedString {
                     withStyle(
                         SpanStyle(
                             fontFamily = FontFamily.Monospace,
-                            background = NovaTheme.colors.containerHigh,
+                            background = codeBackground,
                         ),
                     ) {
                         append(" " + source.substring(index + 1, end) + " ")
@@ -191,6 +193,7 @@ fun MarkdownText(
     text: String,
     modifier: Modifier = Modifier,
 ) {
+    val codeBackground = NovaTheme.colors.containerHigh
     val blocks = remember(text) { parseBlocks(text) }
     Column(modifier = modifier.fillMaxWidth()) {
         blocks.forEach { block ->
@@ -202,7 +205,7 @@ fun MarkdownText(
                         else -> MaterialTheme.typography.titleMedium
                     }
                     Text(
-                        text = inline(block.text),
+                        text = inline(block.text, codeBackground),
                         style = style.copy(fontWeight = FontWeight.SemiBold),
                         color = NovaTheme.colors.textPrimary,
                         modifier = Modifier.padding(top = 6.dp, bottom = 3.dp),
@@ -218,7 +221,7 @@ fun MarkdownText(
                             modifier = Modifier.width(16.dp),
                         )
                         Text(
-                            text = inline(block.text),
+                            text = inline(block.text, codeBackground),
                             style = MaterialTheme.typography.bodyLarge,
                             color = NovaTheme.colors.textPrimary,
                         )
@@ -234,7 +237,7 @@ fun MarkdownText(
                             modifier = Modifier.width(16.dp),
                         )
                         Text(
-                            text = inline(block.text),
+                            text = inline(block.text, codeBackground),
                             style = MaterialTheme.typography.bodyLarge,
                             color = NovaTheme.colors.textPrimary,
                         )
@@ -257,7 +260,7 @@ fun MarkdownText(
                                     .background(NovaTheme.colors.border),
                             )
                             Text(
-                                text = inline(block.text),
+                                text = inline(block.text, codeBackground),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = NovaTheme.colors.textSecondary,
                                 modifier = Modifier.padding(
@@ -300,7 +303,7 @@ fun MarkdownText(
 
                 else -> {
                     Text(
-                        text = inline(block.text),
+                        text = inline(block.text, codeBackground),
                         style = MaterialTheme.typography.bodyLarge,
                         color = NovaTheme.colors.textPrimary,
                         modifier = Modifier.padding(vertical = 2.dp),

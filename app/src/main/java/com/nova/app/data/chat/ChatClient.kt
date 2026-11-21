@@ -1,6 +1,5 @@
 package com.nova.app.data.chat
 
-import com.nova.app.data.provider.Provider
 import com.nova.app.data.provider.chatUrl
 import com.nova.app.data.provider.normalizeEndpoint
 import java.io.IOException
@@ -13,7 +12,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Callback
@@ -119,12 +117,10 @@ object ChatClient {
     fun send(request: ChatRequest): Flow<ChatChunk> = if (request.stream) {
         streamFlow(request)
     } else {
-        flow {
-            emitAll(nonStream(request))
-        }.flowOn(Dispatchers.IO)
+        nonStreamFlow(request)
     }
 
-    private suspend fun kotlinx.coroutines.flow.FlowCollector<ChatChunk>.emitAll(request: ChatRequest) {
+    private fun nonStreamFlow(request: ChatRequest): Flow<ChatChunk> = flow {
         val response = withContext(Dispatchers.IO) {
             runCatching { client.newCall(buildRequest(request, false)).execute() }
                 .getOrElse { throw ChatException(describe(it)) }
@@ -152,7 +148,7 @@ object ChatClient {
             emit(ChatChunk.Delta(content))
             emit(ChatChunk.Done)
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
     private fun streamFlow(request: ChatRequest): Flow<ChatChunk> = callbackFlow {
         val call = client.newCall(buildRequest(request, true))
