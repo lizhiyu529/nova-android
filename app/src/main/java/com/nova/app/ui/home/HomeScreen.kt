@@ -385,6 +385,9 @@ private fun HomeScreenPreview() {
             errorText = "",
             onSendMessage = {},
             onRetry = {},
+            reasoningLabel = "",
+            reasoningKey = "",
+            onReasoningChange = {},
         )
     }
 }
@@ -402,6 +405,9 @@ private fun HomeScreenDarkPreview() {
             errorText = "",
             onSendMessage = {},
             onRetry = {},
+            reasoningLabel = "",
+            reasoningKey = "",
+            onReasoningChange = {},
         )
     }
 }

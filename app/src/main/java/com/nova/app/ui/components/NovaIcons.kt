@@ -1178,12 +1178,10 @@ object NovaIcons {
             path(
                 fill = SolidColor(IconSource),
             ) {
-                addOval(
-                    androidx.compose.ui.geometry.Rect(
-                        offset = androidx.compose.ui.geometry.Offset(11f, 11f),
-                        size = androidx.compose.ui.geometry.Size(2f, 2f),
-                    ),
-                )
+                moveTo(12f, 11f)
+                arcTo(1f, 1f, 0f, true, true, 12f, 13f)
+                arcTo(1f, 1f, 0f, true, true, 12f, 11f)
+                close()
             }
             path(
                 stroke = SolidColor(IconSource),

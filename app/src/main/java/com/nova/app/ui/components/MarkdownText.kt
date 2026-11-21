@@ -321,7 +321,7 @@ fun MarkdownText(
                 }
 
                 Block.Kind.Table -> {
-                    block.table?.let { MarkdownTable(it, codeBackground = codeBackground) }
+                    block.table?.let { MarkdownTable(it) }
                 }
 
                 Block.Kind.Divider -> {
