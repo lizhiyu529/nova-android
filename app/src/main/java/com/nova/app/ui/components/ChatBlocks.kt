@@ -219,7 +219,7 @@ fun ToolRunPanel(
                 enter = NovaTransitions.sectionEnter,
                 exit = NovaTransitions.sectionExit,
             ) {
-                Column(modifier = Modifier.padding(horizontal = 13.dp, bottom = 11.dp)) {
+                Column(modifier = Modifier.padding(start = 13.dp, end = 13.dp, bottom = 11.dp)) {
                     JsonBlock(
                         label = strings.toolCallArguments,
                         content = run.arguments,
