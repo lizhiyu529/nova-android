@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nova.app.data.chat.ChatTurn
+import com.nova.app.data.chat.ToolRun
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.theme.NovaTheme
 
@@ -32,14 +33,18 @@ import com.nova.app.ui.theme.NovaTheme
 fun ChatMessageList(
     turns: List<ChatTurn>,
     streamingText: String,
+    reasoningText: String,
+    toolRuns: List<ToolRun>,
     loading: Boolean,
     errorText: String,
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
-    val itemCount = turns.size + if (loading || streamingText.isNotEmpty() || errorText.isNotEmpty()) 1 else 0
+    val hasLive = loading || streamingText.isNotEmpty() || errorText.isNotEmpty() ||
+        reasoningText.isNotEmpty() || toolRuns.isNotEmpty()
+    val itemCount = turns.size + if (hasLive) 1 else 0
 
-    LaunchedEffect(itemCount, streamingText.length) {
+    LaunchedEffect(itemCount, streamingText.length, reasoningText.length, toolRuns.size) {
         if (itemCount > 0) {
             listState.animateScrollToItem(itemCount - 1)
         }
@@ -49,22 +54,31 @@ fun ChatMessageList(
         state = listState,
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         itemsIndexed(turns) { _, turn ->
             if (turn.role == "user") {
                 UserBubble(turn.content)
-            } else {
-                AssistantBubble(turn.content)
+            } else if (turn.role == "assistant") {
+                AssistantBlock(turn.content)
             }
         }
 
-        if (loading || streamingText.isNotEmpty() || errorText.isNotEmpty()) {
+        if (hasLive) {
             item(key = "live") {
-                when {
-                    errorText.isNotEmpty() -> ErrorBubble(errorText)
-                    streamingText.isEmpty() -> AssistantLoading()
-                    else -> AssistantBubble(streamingText)
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    if (reasoningText.isNotEmpty() && streamingText.isEmpty() && errorText.isEmpty()) {
+                        ReasoningPanel(text = reasoningText)
+                    }
+                    toolRuns.forEach { run ->
+                        ToolRunPanel(run = run)
+                    }
+                    when {
+                        errorText.isNotEmpty() -> ErrorBlock(errorText)
+                        streamingText.isNotEmpty() -> AssistantBlock(streamingText)
+                        toolRuns.isNotEmpty() -> Unit
+                        loading -> AssistantLoading()
+                    }
                 }
             }
         }
@@ -83,7 +97,7 @@ private fun UserBubble(text: String) {
     ) {
         Surface(
             modifier = Modifier.widthIn(max = 300.dp),
-            shape = RoundedCornerShape(20.dp, 20.dp, 6.dp, 20.dp),
+            shape = RoundedCornerShape(20.dp, 20.dp, 7.dp, 20.dp),
             color = NovaTheme.colors.accent,
         ) {
             Text(
@@ -97,13 +111,13 @@ private fun UserBubble(text: String) {
 }
 
 @Composable
-private fun AssistantBubble(text: String) {
+private fun AssistantBlock(text: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 2.dp),
     ) {
-        MarkdownText(text = text)
+        MarkdownView(text = text)
     }
 }
 
@@ -115,7 +129,7 @@ private fun AssistantLoading() {
 }
 
 @Composable
-private fun ErrorBubble(message: String) {
+private fun ErrorBlock(message: String) {
     val strings = NovaStrings.strings
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -162,7 +176,7 @@ fun EmptyChatState(modifier: Modifier = Modifier) {
         Spacer(Modifier.height(6.dp))
         Text(
             text = strings.chatEmptyHint,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = NovaTheme.colors.textTertiary,
             textAlign = TextAlign.Center,
         )

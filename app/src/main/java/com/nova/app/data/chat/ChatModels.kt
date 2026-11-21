@@ -4,6 +4,7 @@ import com.nova.app.data.provider.Provider
 
 sealed interface ChatChunk {
     data class Delta(val text: String) : ChatChunk
+    data class ReasoningDelta(val text: String) : ChatChunk
     data class ToolCallDelta(
         val index: Int,
         val id: String,

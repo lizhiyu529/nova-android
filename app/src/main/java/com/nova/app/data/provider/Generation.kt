@@ -20,7 +20,7 @@ enum class ReasoningEffort(val key: String) {
 data class GenerationSettings(
     val reasoning: ReasoningEffort = ReasoningEffort.Default,
     val stream: Boolean = true,
-    val toolsEnabled: Boolean = false,
+    val toolsEnabled: Boolean = true,
     val maxToolRounds: Int = 3,
     val autoTitle: Boolean = true,
 )

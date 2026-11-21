@@ -44,6 +44,10 @@ object OpenAiStream {
             val delta = first.optJSONObject("delta")
 
             if (delta != null) {
+                val reasoning = delta.optString("reasoning_content", "")
+                    .ifBlank { delta.optString("reasoning", "") }
+                if (reasoning.isNotEmpty()) return ChatChunk.ReasoningDelta(reasoning)
+
                 val content = delta.optString("content", "")
                 if (content.isNotEmpty()) return ChatChunk.Delta(content)
 

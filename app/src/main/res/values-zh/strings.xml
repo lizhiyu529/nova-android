@@ -25,9 +25,9 @@
     <string name="action_export">导出</string>
 
     <string name="settings_title">设置</string>
-    <string name="settings_section_account">账户</string>
-    <string name="settings_section_app">应用</string>
-    <string name="settings_section_about">关于</string>
+    <string name="settings_section_account">助手</string>
+    <string name="settings_section_app">外观与语言</string>
+    <string name="settings_section_about">关于与支持</string>
     <string name="settings_data_management">数据管理</string>
     <string name="settings_language">语言</string>
     <string name="settings_appearance">外观</string>
@@ -219,4 +219,12 @@
     <string name="tools_enable_hint">允许模型循环调用内置工具</string>
     <string name="tools_max_rounds">最大轮数</string>
     <string name="tools_title">工具</string>
+    <string name="settings_section_generation">生成</string>
+    <string name="tools_section_hint">工具调用</string>
+    <string name="reasoning_show">显示思考过程</string>
+    <string name="tool_call_running">Running %1$s</string>
+    <string name="tool_call_result">Result</string>
+    <string name="tool_call_arguments">Arguments</string>
+    <string name="reasoning_panel_title">Reasoning</string>
+
 </resources>

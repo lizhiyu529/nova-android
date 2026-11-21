@@ -20,7 +20,7 @@ object GenerationStore {
         return GenerationSettings(
             reasoning = ReasoningEffort.fromKey(p.getString(KEY_REASONING, null)),
             stream = p.getBoolean(KEY_STREAM, true),
-            toolsEnabled = p.getBoolean(KEY_TOOLS, false),
+            toolsEnabled = p.getBoolean(KEY_TOOLS, true),
             maxToolRounds = p.getInt(KEY_ROUNDS, 3),
             autoTitle = p.getBoolean(KEY_AUTO_TITLE, true),
         )

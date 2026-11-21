@@ -42,6 +42,7 @@ import androidx.core.content.ContextCompat
 import com.nova.app.data.AppLogs
 import com.nova.app.data.CameraFiles
 import com.nova.app.data.chat.ChatTurn
+import com.nova.app.data.chat.ToolRun
 import com.nova.app.data.loadRecentPhotos
 import com.nova.app.data.provider.ReasoningEffort
 import com.nova.app.ui.NovaStrings
@@ -62,6 +63,8 @@ fun HomeScreen(
     onNewChat: () -> Unit,
     turns: List<ChatTurn>,
     streamingText: String,
+    reasoningText: String,
+    toolRuns: List<ToolRun>,
     loading: Boolean,
     errorText: String,
     onSendMessage: (String) -> Unit,
@@ -260,6 +263,8 @@ fun HomeScreen(
                 ChatMessageList(
                     turns = turns,
                     streamingText = streamingText,
+                    reasoningText = reasoningText,
+                    toolRuns = toolRuns,
                     loading = loading,
                     errorText = errorText,
                     modifier = Modifier.padding(innerPadding),
@@ -381,6 +386,8 @@ private fun HomeScreenPreview() {
             onNewChat = {},
             turns = emptyList(),
             streamingText = "",
+            reasoningText = "",
+            toolRuns = emptyList(),
             loading = false,
             errorText = "",
             onSendMessage = {},
@@ -401,6 +408,8 @@ private fun HomeScreenDarkPreview() {
             onNewChat = {},
             turns = emptyList(),
             streamingText = "",
+            reasoningText = "",
+            toolRuns = emptyList(),
             loading = false,
             errorText = "",
             onSendMessage = {},

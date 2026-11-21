@@ -44,6 +44,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.components.ConfirmDialog
 import com.nova.app.ui.components.NovaIcons
+import com.nova.app.ui.components.NovaSwitch
 import com.nova.app.ui.theme.NovaTheme
 
 @Composable
@@ -192,6 +193,8 @@ fun SettingsScreen(
     onDataManagement: () -> Unit,
     onCheckUpdate: () -> Unit,
     onOpenLogs: () -> Unit,
+    generation: com.nova.app.data.provider.GenerationSettings,
+    onGenerationChange: (com.nova.app.data.provider.GenerationSettings) -> Unit,
 ) {
     var languageDialog by remember { mutableStateOf(false) }
     var restartPrompt by remember { mutableStateOf(false) }
@@ -255,6 +258,29 @@ fun SettingsScreen(
                 icon = NovaIcons.Sparkle,
                 title = NovaStrings.strings.personalization,
                 onClick = onPersonalize,
+            )
+        }
+
+        Text(
+            text = NovaStrings.strings.sectionGeneration,
+            style = MaterialTheme.typography.labelLarge,
+            color = NovaTheme.colors.textSecondary,
+            modifier = Modifier.padding(start = 6.dp, top = 22.dp, bottom = 8.dp),
+        )
+        SettingsCard {
+            SettingsToggleRow(
+                icon = NovaIcons.Sparkle,
+                title = NovaStrings.strings.toolsEnable,
+                hint = NovaStrings.strings.toolsEnableHint,
+                checked = generation.toolsEnabled,
+                onCheckedChange = { onGenerationChange(generation.copy(toolsEnabled = it)) },
+            )
+            SettingsToggleRow(
+                icon = NovaIcons.Atom,
+                title = NovaStrings.strings.reasoningShow,
+                hint = NovaStrings.strings.reasoningHint,
+                checked = generation.stream,
+                onCheckedChange = { onGenerationChange(generation.copy(stream = it)) },
             )
         }
 
@@ -331,6 +357,49 @@ fun SettingsScreen(
             onDismiss = { themeDialog = false },
         )
     }
+}
+
+@Composable
+private fun SettingsToggleRow(
+    icon: ImageVector,
+    title: String,
+    hint: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 11.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        SettingsIconRow(icon)
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = NovaTheme.colors.textPrimary,
+            )
+            Text(
+                text = hint,
+                style = MaterialTheme.typography.labelSmall,
+                color = NovaTheme.colors.textTertiary,
+            )
+        }
+        Spacer(Modifier.width(8.dp))
+        NovaSwitch(checked = checked, onCheckedChange = onCheckedChange)
+    }
+}
+
+@Composable
+private fun SettingsIconRow(icon: ImageVector) {
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        modifier = Modifier.size(21.dp),
+        tint = NovaTheme.colors.textPrimary,
+    )
 }
 
 @Composable

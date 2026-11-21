@@ -25,9 +25,9 @@
     <string name="action_export">Export</string>
 
     <string name="settings_title">Settings</string>
-    <string name="settings_section_account">Account</string>
-    <string name="settings_section_app">App</string>
-    <string name="settings_section_about">About</string>
+    <string name="settings_section_account">Assistant</string>
+    <string name="settings_section_app">Appearance and language</string>
+    <string name="settings_section_about">About and support</string>
     <string name="settings_data_management">Data management</string>
     <string name="settings_language">Language</string>
     <string name="settings_appearance">Appearance</string>
@@ -219,4 +219,12 @@
     <string name="tools_enable_hint">Let the model call built-in tools in a loop</string>
     <string name="tools_max_rounds">Max rounds</string>
     <string name="tools_title">Tools</string>
+    <string name="settings_section_generation">Generation</string>
+    <string name="tools_section_hint">Tool calling</string>
+    <string name="reasoning_show">Show reasoning</string>
+    <string name="tool_call_running">Running %1$s</string>
+    <string name="tool_call_result">Result</string>
+    <string name="tool_call_arguments">Arguments</string>
+    <string name="reasoning_panel_title">Reasoning</string>
+
 </resources>

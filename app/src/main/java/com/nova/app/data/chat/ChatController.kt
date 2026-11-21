@@ -12,6 +12,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+data class ToolRun(
+    val name: String,
+    val arguments: String,
+    val result: String = "",
+    val running: Boolean = true,
+)
+
 data class ChatState(
     val turns: List<ChatTurn> = emptyList(),
     val streamingText: String = "",
@@ -19,6 +26,8 @@ data class ChatState(
     val errorText: String = "",
     val conversationId: String = "",
     val toolLabel: String = "",
+    val reasoningText: String = "",
+    val toolRuns: List<ToolRun> = emptyList(),
 )
 
 class ChatController(
@@ -177,6 +186,15 @@ class ChatController(
                                 )
                             }
 
+                            is ChatChunk.ReasoningDelta -> {
+                                publish(
+                                    state.copy(
+                                        reasoningText = state.reasoningText + chunk.text,
+                                        loading = false,
+                                    ),
+                                )
+                            }
+
                             is ChatChunk.ToolCallDelta -> {
                                 val acc = toolCalls.getOrPut(chunk.index) { ToolAccumulator() }
                                 if (chunk.id.isNotBlank()) acc.id = chunk.id
@@ -226,8 +244,22 @@ class ChatController(
                     }
 
                     readyCalls.forEach { call ->
-                        publish(state.copy(toolLabel = call.name))
-                        val output = NovaTools.execute(call.name, call.arguments.toString())
+                        val argsText = call.arguments.toString()
+                        publish(
+                            state.copy(
+                                toolLabel = call.name,
+                                toolRuns = state.toolRuns + ToolRun(call.name, argsText),
+                            ),
+                        )
+                        val output = NovaTools.execute(call.name, argsText)
+                        val updated = state.toolRuns.toMutableList()
+                        if (updated.isNotEmpty()) {
+                            updated[updated.lastIndex] = updated.last().copy(
+                                result = output,
+                                running = false,
+                            )
+                        }
+                        publish(state.copy(toolRuns = updated.toList()))
                         history.add(
                             ChatTurn(
                                 role = "tool",
@@ -241,8 +273,10 @@ class ChatController(
                 }
 
                 if (generateTitle && settings.autoTitle) {
-                    val title = TitleGenerator.generate(context, provider, model, history)
-                        ?: TitleGenerator.fallbackTitle(history)
+                    publish(state.copy(toolLabel = ""))
+                    val title = runCatching {
+                        TitleGenerator.generate(context, provider, model, history)
+                    }.getOrNull() ?: TitleGenerator.fallbackTitle(history)
                     if (title.isNotBlank()) {
                         repository.rename(conversationId, title)
                         onTitleChanged(conversationId, title)

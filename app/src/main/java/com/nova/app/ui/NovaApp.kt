@@ -241,6 +241,8 @@ fun NovaApp(
                 },
                 turns = chatState.turns,
                 streamingText = chatState.streamingText,
+                reasoningText = chatState.reasoningText,
+                toolRuns = chatState.toolRuns,
                 loading = chatState.loading,
                 errorText = chatState.errorText,
                 onSendMessage = { text -> chatController.send(text) },
@@ -297,6 +299,11 @@ fun NovaApp(
                     onDataManagement = { push(Page.DataManagement) },
                     onAssistant = { push(Page.Assistant) },
                     onProviders = { push(Page.Providers) },
+                    generation = generation,
+                    onGenerationChange = { updated ->
+                        generation = updated
+                        com.nova.app.data.provider.GenerationStore.save(context, updated)
+                    },
                     onCheckUpdate = {
                         AppLogs.record(context, "check update")
                         toast = strings.upToDate
@@ -512,6 +519,8 @@ private fun SettingsPage(
     onDataManagement: () -> Unit,
     onAssistant: () -> Unit,
     onProviders: () -> Unit,
+    generation: com.nova.app.data.provider.GenerationSettings,
+    onGenerationChange: (com.nova.app.data.provider.GenerationSettings) -> Unit,
     onCheckUpdate: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -535,6 +544,8 @@ private fun SettingsPage(
                 onPersonalize = onPersonalize,
                 onAccount = onAssistant,
                 onProviders = onProviders,
+                generation = generation,
+                onGenerationChange = onGenerationChange,
                 onDataManagement = onDataManagement,
                 onCheckUpdate = onCheckUpdate,
                 onOpenLogs = onOpenLogs,
