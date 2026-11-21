@@ -176,4 +176,7 @@
     <string name="providers_empty_hint">添加一个开始对话</string>
     <string name="providers_title">提供商</string>
     <string name="settings_providers">提供商</string>
+    <string name="error_close">关闭</string>
+    <string name="error_title">出错了</string>
+    <string name="provider_models_ok">已获取 %1$d 个模型</string>
 </resources>

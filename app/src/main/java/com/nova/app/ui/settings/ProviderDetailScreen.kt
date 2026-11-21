@@ -45,6 +45,7 @@ import com.nova.app.data.provider.ProviderClient
 import com.nova.app.data.provider.ProviderModel
 import com.nova.app.data.provider.normalizeEndpoint
 import com.nova.app.ui.NovaStrings
+import com.nova.app.ui.components.ErrorDialog
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.components.NovaSwitch
 import com.nova.app.ui.theme.NovaTheme
@@ -61,6 +62,7 @@ fun ProviderDetailScreen(
     var fetching by remember { mutableStateOf(false) }
     var fetchError by remember { mutableStateOf("") }
     var modelDraft by remember { mutableStateOf("") }
+    var speedError by remember { mutableStateOf("") }
     var testingModel by remember { mutableStateOf<String?>(null) }
 
     fun applyModels(ids: List<String>) {
@@ -167,7 +169,7 @@ fun ProviderDetailScreen(
                     scope.launch {
                         when (val result = ProviderClient.fetchModels(provider)) {
                             is FetchResult.Success -> applyModels(result.models)
-                            is FetchResult.Failure -> fetchError = strings.providerModelsFailed
+                            is FetchResult.Failure -> fetchError = result.message
                         }
                         fetching = false
                     }
@@ -220,6 +222,9 @@ fun ProviderDetailScreen(
                                 testingModel = model.id
                                 scope.launch {
                                     val result = ProviderClient.testModel(provider, model.id)
+                                    if (!result.reachable && result.message.isNotBlank()) {
+                                        speedError = model.id + "\n" + result.message
+                                    }
                                     onProviderChange(
                                         provider.copy(
                                             models = provider.models.map {
@@ -266,6 +271,22 @@ fun ProviderDetailScreen(
             )
         }
         Spacer(Modifier.height(28.dp))
+    }
+
+    if (fetchError.isNotBlank()) {
+        ErrorDialog(
+            title = strings.errorTitle,
+            message = fetchError,
+            onDismiss = { fetchError = "" },
+        )
+    }
+
+    if (speedError.isNotBlank()) {
+        ErrorDialog(
+            title = strings.errorTitle,
+            message = speedError,
+            onDismiss = { speedError = "" },
+        )
     }
 }
 

@@ -176,4 +176,7 @@
     <string name="providers_empty_hint">Add one to start chatting</string>
     <string name="providers_title">Providers</string>
     <string name="settings_providers">Providers</string>
+    <string name="error_close">Close</string>
+    <string name="error_title">Something went wrong</string>
+    <string name="provider_models_ok">Fetched %1$d models</string>
 </resources>

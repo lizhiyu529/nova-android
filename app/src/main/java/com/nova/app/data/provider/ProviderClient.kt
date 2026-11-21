@@ -1,5 +1,8 @@
 package com.nova.app.data.provider
 
+import java.io.IOException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -7,6 +10,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
 import org.json.JSONObject
 
 sealed interface FetchResult {
@@ -25,93 +29,130 @@ object ProviderClient {
 
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(45, TimeUnit.SECONDS)
+            .writeTimeout(45, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
             .build()
     }
 
-    private fun requestBuilder(url: String, provider: Provider): Request.Builder {
-        val builder = Request.Builder().url(url).get()
-        if (provider.apiKey.isNotBlank()) {
-            builder.header("Authorization", "Bearer ${provider.apiKey.trim()}")
-        }
-        return builder
+    private fun errorText(code: Int, body: String): String {
+        val detail = runCatching {
+            val json = JSONObject(body)
+            val error = json.optJSONObject("error")
+            error?.optString("message").orEmpty().ifBlank { json.optString("message") }
+        }.getOrDefault("")
+        val suffix = if (detail.isBlank()) "" else " · " + detail.take(120)
+        return "HTTP $code$suffix"
+    }
+
+    private fun describe(throwable: Throwable): String = when (throwable) {
+        is UnknownHostException -> "DNS 解析失败：找不到主机"
+        is SocketTimeoutException -> "连接超时，检查地址和端口"
+        is IOException -> throwable.message?.take(140) ?: "网络异常"
+        else -> throwable.message?.take(140) ?: throwable.javaClass.simpleName
+    }
+
+    fun authHeaders(provider: Provider): Map<String, String> {
+        if (provider.apiKey.isBlank()) return emptyMap()
+        return mapOf("Authorization" to "Bearer ${provider.apiKey.trim()}")
     }
 
     suspend fun fetchModels(provider: Provider): FetchResult = withContext(Dispatchers.IO) {
         val endpoint = normalizeEndpoint(provider.endpoint, provider.allowHttp)
-        if (endpoint.isEmpty()) return@withContext FetchResult.Failure("empty endpoint")
+        if (endpoint.isEmpty()) {
+            return@withContext FetchResult.Failure("端点为空，请先填写地址")
+        }
+        val url = modelsUrl(endpoint)
         runCatching {
-            val request = requestBuilder(modelsUrl(endpoint), provider).build()
+            val request = Request.Builder()
+                .url(url)
+                .get()
+                .apply { authHeaders(provider).forEach { (k, v) -> header(k, v) } }
+                .build()
             client.newCall(request).execute().use { response ->
                 val body = response.body?.string().orEmpty()
                 if (!response.isSuccessful) {
-                    return@withContext FetchResult.Failure("HTTP ${response.code}")
+                    return@withContext FetchResult.Failure(errorText(response.code, body))
                 }
                 val ids = parseModelIds(body)
-                if (ids.isEmpty()) FetchResult.Failure("empty list")
-                else FetchResult.Success(ids)
+                if (ids.isEmpty()) {
+                    FetchResult.Failure("接口返回成功但没有解析到模型：$url")
+                } else {
+                    FetchResult.Success(ids)
+                }
             }
-        }.getOrElse { FetchResult.Failure(it.message ?: "network error") }
+        }.getOrElse { FetchResult.Failure(describe(it)) }
     }
 
     private fun parseModelIds(body: String): List<String> {
         return runCatching {
-            val root = JSONObject(body)
-            val data = root.optJSONArray("data") ?: root.optJSONArray("models") ?: return emptyList()
-            buildList {
-                for (index in 0 until data.length()) {
-                    val item = data.optJSONObject(index)
-                    val raw = item?.optString("id") ?: data.optString(index)
-                    val id = raw?.trim().orEmpty()
-                    if (id.isNotEmpty() && id != "null") add(id)
-                }
-            }.distinct().sorted()
+            val trimmed = body.trim()
+            if (trimmed.startsWith("[")) {
+                return parseArray(JSONArray(trimmed))
+            }
+            val root = JSONObject(trimmed)
+            val data = root.optJSONArray("data")
+                ?: root.optJSONArray("models")
+                ?: root.optJSONArray("result")
+            if (data != null) parseArray(data) else emptyList()
         }.getOrDefault(emptyList())
     }
+
+    private fun parseArray(data: JSONArray): List<String> = buildList {
+        for (index in 0 until data.length()) {
+            val item = data.optJSONObject(index)
+            val raw = when {
+                item != null -> item.optString("id").ifBlank { item.optString("name") }
+                else -> data.optString(index)
+            }
+            val id = raw.trim()
+            if (id.isNotEmpty() && id != "null") add(id)
+        }
+    }.distinct().sorted()
 
     suspend fun testModel(provider: Provider, modelId: String): SpeedResult =
         withContext(Dispatchers.IO) {
             val endpoint = normalizeEndpoint(provider.endpoint, provider.allowHttp)
             if (endpoint.isEmpty()) {
-                return@withContext SpeedResult(modelId, -1L, false, "empty endpoint")
+                return@withContext SpeedResult(modelId, -1L, false, "端点为空")
             }
-            runCatching {
-                val payload = JSONObject().apply {
-                    put("model", modelId)
-                    put("max_tokens", 1)
-                    put("messages", org.json.JSONArray().put(
+            val payload = JSONObject().apply {
+                put("model", modelId)
+                put("max_tokens", 1)
+                put("stream", false)
+                put(
+                    "messages",
+                    JSONArray().put(
                         JSONObject().apply {
                             put("role", "user")
                             put("content", "hi")
                         },
-                    ))
-                }
+                    ),
+                )
+            }
+            runCatching {
                 val request = Request.Builder()
                     .url(chatUrl(endpoint))
                     .post(payload.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull()))
-                    .also { builder ->
-                        if (provider.apiKey.isNotBlank()) {
-                            builder.header("Authorization", "Bearer ${provider.apiKey.trim()}")
-                        }
-                    }
+                    .apply { authHeaders(provider).forEach { (k, v) -> header(k, v) } }
                     .build()
 
                 val start = System.currentTimeMillis()
                 client.newCall(request).execute().use { response ->
                     val elapsed = System.currentTimeMillis() - start
                     val body = response.body?.string().orEmpty()
-                    val ok = response.isSuccessful || response.code == 400 ||
-                        response.code == 422 || body.contains("model")
-                    if (response.code == 401 || response.code == 403) {
-                        SpeedResult(modelId, elapsed, false, "auth")
-                    } else if (ok) {
-                        SpeedResult(modelId, elapsed, true)
-                    } else {
-                        SpeedResult(modelId, elapsed, false, "HTTP ${response.code}")
+                    when {
+                        response.code == 401 || response.code == 403 ->
+                            SpeedResult(modelId, elapsed, false, errorText(response.code, body))
+                        response.isSuccessful ->
+                            SpeedResult(modelId, elapsed, true)
+                        response.code == 400 || response.code == 422 ->
+                            SpeedResult(modelId, elapsed, true, errorText(response.code, body))
+                        else ->
+                            SpeedResult(modelId, elapsed, false, errorText(response.code, body))
                     }
                 }
-            }.getOrElse { SpeedResult(modelId, -1L, false, it.message ?: "network error") }
+            }.getOrElse { SpeedResult(modelId, -1L, false, describe(it)) }
         }
 }

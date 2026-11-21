@@ -737,14 +737,20 @@ private fun RenameDialog(
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit,
 ) {
-    var text by remember { mutableStateOf(initial) }
-    var selection by remember { mutableStateOf(TextRange(initial.length)) }
+    var field by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = initial,
+                selection = TextRange(initial.length.coerceIn(0, initial.length)),
+            ),
+        )
+    }
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         delay(120)
-        selection = TextRange(text.length)
+        field = field.copy(selection = TextRange(field.text.length))
         focusRequester.requestFocus()
         keyboard?.show()
     }
@@ -783,11 +789,8 @@ private fun RenameDialog(
                     color = NovaTheme.colors.containerHigh,
                 ) {
                     BasicTextField(
-                        value = TextFieldValue(text = text, selection = selection),
-                        onValueChange = {
-                            text = it.text
-                            selection = it.selection
-                        },
+                        value = field,
+                        onValueChange = { field = it },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 14.dp, vertical = 12.dp)
@@ -855,12 +858,20 @@ private fun NicknameDialog(
     onConfirm: (String) -> Unit,
 ) {
     val strings = NovaStrings.strings
-    var text by remember { mutableStateOf(initial) }
+    var field by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = initial,
+                selection = TextRange(initial.length.coerceIn(0, initial.length)),
+            ),
+        )
+    }
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         delay(120)
+        field = field.copy(selection = TextRange(field.text.length))
         focusRequester.requestFocus()
         keyboard?.show()
     }
@@ -899,8 +910,10 @@ private fun NicknameDialog(
                     color = NovaTheme.colors.inputBackground,
                 ) {
                     BasicTextField(
-                        value = text,
-                        onValueChange = { text = it.take(24) },
+                        value = field,
+                        onValueChange = {
+                            field = it.copy(text = it.text.take(24))
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(focusRequester)
@@ -911,9 +924,9 @@ private fun NicknameDialog(
                         ),
                         cursorBrush = SolidColor(NovaTheme.colors.accent),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(onDone = { onConfirm(text) }),
+                        keyboardActions = KeyboardActions(onDone = { onConfirm(field.text) }),
                         decorationBox = { innerTextField ->
-                            if (text.isEmpty()) {
+                            if (field.text.isEmpty()) {
                                 Text(
                                     text = strings.nicknamePlaceholder,
                                     style = MaterialTheme.typography.bodyLarge,
@@ -945,7 +958,7 @@ private fun NicknameDialog(
                     NicknameAction(
                         text = strings.confirm,
                         color = NovaTheme.colors.accent,
-                        onClick = { onConfirm(text) },
+                        onClick = { onConfirm(field.text) },
                         modifier = Modifier.weight(1f),
                     )
                 }
