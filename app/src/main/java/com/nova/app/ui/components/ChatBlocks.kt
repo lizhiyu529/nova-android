@@ -276,6 +276,10 @@ private fun formatJson(raw: String): String {
         } else {
             org.json.JSONArray(trimmed)
         }
-        if (json is org.json.JSONObject) json.toString(2) else json.toString(2)
+        if (json is org.json.JSONObject) {
+            json.toString(2)
+        } else {
+            (json as org.json.JSONArray).toString(2)
+        }
     }.getOrDefault(trimmed)
 }

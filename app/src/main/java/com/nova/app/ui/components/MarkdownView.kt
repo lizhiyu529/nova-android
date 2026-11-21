@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.luminance
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
@@ -22,13 +23,11 @@ fun MarkdownView(
         modifier = modifier.fillMaxWidth(),
         colors = markdownColor(
             text = colors.textPrimary,
-            codeText = colors.textPrimary,
             codeBackground = colors.inputBackground,
-            inlineCodeText = colors.textPrimary,
             inlineCodeBackground = colors.containerHigh,
             dividerColor = colors.divider,
-            tableText = colors.textPrimary,
             tableBackground = colors.containerLow,
+            darkTheme = colors.pageBackground.luminance() < 0.5f,
         ),
         typography = markdownTypography(
             h1 = typography.headlineSmall,
@@ -46,16 +45,6 @@ fun MarkdownView(
             bullet = typography.bodyLarge,
             list = typography.bodyLarge,
             table = typography.bodyMedium,
-            textLink = typography.bodyLarge,
         ),
     )
-}
-
-@Composable
-fun StreamingMarkdownView(
-    text: String,
-    modifier: Modifier = Modifier,
-) {
-    if (text.isBlank()) return
-    MarkdownView(text = text, modifier = modifier)
 }
