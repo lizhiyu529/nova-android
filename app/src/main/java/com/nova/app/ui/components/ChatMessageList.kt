@@ -37,6 +37,8 @@ fun ChatMessageList(
     toolRuns: List<ToolRun>,
     loading: Boolean,
     errorText: String,
+    reasoningExpanded: Boolean,
+    onReasoningToggle: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
@@ -67,8 +69,13 @@ fun ChatMessageList(
         if (hasLive) {
             item(key = "live") {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    if (reasoningText.isNotEmpty() && streamingText.isEmpty() && errorText.isEmpty()) {
-                        ReasoningPanel(text = reasoningText)
+                    if (reasoningText.isNotEmpty()) {
+                        ReasoningPanel(
+                            text = reasoningText,
+                            expanded = reasoningExpanded,
+                            running = streamingText.isEmpty() && errorText.isEmpty(),
+                            onToggle = onReasoningToggle,
+                        )
                     }
                     toolRuns.forEach { run ->
                         ToolRunPanel(run = run)
