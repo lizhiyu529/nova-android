@@ -33,7 +33,7 @@ okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor", version.
 markdown-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown" }
 markdown-code = { module = "com.mikepenz:multiplatform-markdown-renderer-code", version.ref = "markdown" }
 compose-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
-tabler-icons = { module = "br.com.devsrsouza.compose.icons:tabler-icons", version.ref = "tablerIcons" }
+tabler-icons = { module = "br.com.devsrsouza.compose.icons:tabler-icons-android", version.ref = "tablerIcons" }
 
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-compose-ui = { module = "androidx.compose.ui:ui" }
