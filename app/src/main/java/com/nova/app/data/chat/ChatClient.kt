@@ -55,7 +55,31 @@ object ChatClient {
             messages.put(
                 JSONObject().apply {
                     put("role", turn.role)
-                    put("content", turn.content)
+                    if (turn.role == "assistant" && turn.toolCalls.isNotEmpty()) {
+                        if (turn.content.isNotBlank()) put("content", turn.content) else put("content", JSONObject.NULL)
+                        put(
+                            "tool_calls",
+                            JSONArray().apply {
+                                turn.toolCalls.forEach { call ->
+                                    put(
+                                        JSONObject().apply {
+                                            put("id", call.id)
+                                            put("type", "function")
+                                            put(
+                                                "function",
+                                                JSONObject().apply {
+                                                    put("name", call.name)
+                                                    put("arguments", call.arguments.ifBlank { "{}" })
+                                                },
+                                            )
+                                        },
+                                    )
+                                }
+                            },
+                        )
+                    } else {
+                        put("content", turn.content)
+                    }
                     if (turn.name.isNotBlank() && turn.role != "tool") put("name", turn.name)
                     if (turn.toolCallId.isNotBlank()) put("tool_call_id", turn.toolCallId)
                 },
@@ -136,7 +160,7 @@ object ChatClient {
             root.optJSONObject("usage")?.let { usage ->
                 val prompt = usage.optInt("prompt_tokens", 0)
                 val completion = usage.optInt("completion_tokens", 0)
-                if (prompt > 0 || completion > 0) emit(ChatChunk.Usage(prompt, completion))
+                if (prompt > 0 || completion > 0) emit(ChatChunk.Usage(prompt, completion, prompt + completion))
             }
             val choices = root.optJSONArray("choices")
                 ?: throw ChatException(ChatError.InvalidResponse("缺少 choices"))
@@ -147,9 +171,9 @@ object ChatClient {
             if (content.isEmpty()) {
                 throw ChatException(ChatError.InvalidResponse("返回内容为空"))
             }
-            emit(ChatChunk.TextStart("text"))
-            emit(ChatChunk.TextDelta("text", content))
-            emit(ChatChunk.TextEnd("text"))
+            emit(ChatChunk.TextStart("text-1"))
+            emit(ChatChunk.TextDelta("text-1", content))
+            emit(ChatChunk.TextEnd("text-1"))
             emit(ChatChunk.Done)
         }
     }.flowOn(Dispatchers.IO)

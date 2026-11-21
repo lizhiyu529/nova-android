@@ -19,8 +19,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -72,13 +72,16 @@ fun ChatMessageList(
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
-    val merged = mergeParts(liveParts)
+    val merged = remember(liveParts) { mergeParts(liveParts) }
     val hasLive = loading || errorText.isNotEmpty() || merged.isNotEmpty()
     val total = turns.size + if (hasLive) 1 else 0
+    val signature = merged.hashCode() * 31 + turns.size
 
-    LaunchedEffect(total) {
-        if (total > 0) listState.animateScrollToItem(total - 1)
-    }
+    AutoScrollToBottom(
+        listState = listState,
+        itemCount = total,
+        contentSignature = signature,
+    )
 
     LazyColumn(
         state = listState,
@@ -92,9 +95,7 @@ fun ChatMessageList(
                     UserBubble(turn.content)
                 } else if (turn.role == "assistant") {
                     AssistantParts(
-                        parts = mergeParts(
-                            turn.parts.ifEmpty { listOf(ChatPart.Text(turn.content)) },
-                        ),
+                        parts = turn.parts.ifEmpty { listOf(ChatPart.Text(turn.content)) },
                         expanded = reasoningExpanded,
                         onToggle = onReasoningToggle,
                         streaming = false,
@@ -139,8 +140,16 @@ private fun AssistantParts(
     streaming: Boolean,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        parts.forEachIndexed { index, part ->
-            key("part-$index-${part.javaClass.simpleName}") {
+        var reasoningSeen = 0
+        var textSeen = 0
+        var toolSeen = 0
+        parts.forEach { part ->
+            val stableKey = when (part) {
+                is ChatPart.Reasoning -> "r${reasoningSeen++}"
+                is ChatPart.Text -> "t${textSeen++}"
+                is ChatPart.Tool -> "x${toolSeen++}-${part.toolCallId}"
+            }
+            key(stableKey) {
                 when (part) {
                     is ChatPart.Reasoning -> {
                         if (part.text.isNotEmpty()) {

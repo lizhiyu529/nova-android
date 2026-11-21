@@ -12,7 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-private const val PUBLISH_INTERVAL_MS = 60L
+private const val PUBLISH_INTERVAL_MS = 80L
 
 data class ChatState(
     val turns: List<ChatTurn> = emptyList(),
@@ -77,7 +77,7 @@ class ChatController(
         }
         publish(
             state.copy(
-                turns = if (text.isBlank()) {
+                turns = if (text.isBlank() && parts.isEmpty()) {
                     state.turns
                 } else {
                     state.turns + ChatTurn(role = "assistant", content = text, parts = parts)
@@ -118,7 +118,7 @@ class ChatController(
                 publish(state.copy(conversationId = conversationId))
             }
             repository.appendMessage(conversationId, MessageRole.User, text)
-            runChat(conversationId, provider, model, nextTurns)
+            runAgent(conversationId, provider, model, nextTurns)
         }
     }
 
@@ -137,10 +137,10 @@ class ChatController(
                 loading = true,
             ),
         )
-        scope.launch { runChat(current.conversationId, provider, model, trimmed) }
+        scope.launch { runAgent(current.conversationId, provider, model, trimmed) }
     }
 
-    private suspend fun runChat(
+    private suspend fun runAgent(
         conversationId: String,
         provider: Provider,
         model: String,
@@ -153,53 +153,15 @@ class ChatController(
         job = scope.launch {
             val history = baseTurns.toMutableList()
             var rounds = 0
+
             try {
                 while (true) {
-                    var parts: List<ChatPart> = emptyList()
-                    val handler = StreamPartHandler()
-                    val toolRequests = LinkedHashMap<Int, ToolRequest>()
-                    var lastPublish = 0L
+                    val parts = streamOnce(provider, model, history, systemPrompt, settings)
 
-                    fun flush(force: Boolean) {
-                        val now = System.currentTimeMillis()
-                        if (!force && now - lastPublish < PUBLISH_INTERVAL_MS) return
-                        lastPublish = now
-                        publish(state.copy(liveParts = parts, loading = false))
-                    }
+                    val pendingTools = parts.filterIsInstance<ChatPart.Tool>()
+                        .filter { !it.isExecuted && it.toolName.isNotBlank() }
 
-                    ChatClient.send(
-                        ChatRequest(
-                            provider = provider,
-                            model = model,
-                            messages = history,
-                            systemPrompt = systemPrompt,
-                            reasoning = settings.reasoning.key.ifBlank { null },
-                            tools = if (settings.toolsEnabled) NovaTools.definitions else emptyList(),
-                            stream = settings.stream,
-                        ),
-                    ).collect { chunk ->
-                        when (chunk) {
-                            is ChatChunk.ToolCallDelta -> {
-                                val req = toolRequests.getOrPut(chunk.index) { ToolRequest() }
-                                if (chunk.id.isNotBlank()) req.id = chunk.id
-                                if (chunk.name.isNotBlank()) req.name = chunk.name
-                                req.arguments.append(chunk.arguments)
-                            }
-
-                            else -> {
-                                parts = handler.handle(parts, chunk)
-                                flush(false)
-                            }
-                        }
-                    }
-
-                    publish(state.copy(liveParts = parts, loading = false))
-
-                    val pending = toolRequests.values.filter {
-                        it.name.isNotBlank() && it.id.isNotBlank()
-                    }
-
-                    if (!settings.toolsEnabled || pending.isEmpty()) {
+                    if (pendingTools.isEmpty()) {
                         val text = parts.textContent()
                         val turn = ChatTurn(role = "assistant", content = text, parts = parts)
                         if (text.isNotBlank()) {
@@ -232,29 +194,34 @@ class ChatController(
                             role = "assistant",
                             content = parts.textContent(),
                             parts = parts,
+                            toolCalls = pendingTools.map {
+                                ToolCallRef(
+                                    id = it.toolCallId,
+                                    name = it.toolName,
+                                    arguments = it.input,
+                                )
+                            },
                         ),
                     )
 
-                    pending.forEach { req ->
-                        parts = parts + ChatPart.Tool(
-                            toolCallId = req.id,
-                            name = req.name,
-                            arguments = req.arguments.toString(),
-                        )
-                    }
-                    publish(state.copy(liveParts = parts, loading = false))
-
-                    pending.forEach { req ->
-                        val args = req.arguments.toString()
-                        val output = NovaTools.execute(req.name, args)
-                        parts = handler.markToolExecuted(parts, req.id, output)
-                        publish(state.copy(liveParts = parts))
+                    var current = parts
+                    pendingTools.forEach { tool ->
+                        publish(state.copy(liveParts = current))
+                        val output = NovaTools.execute(tool.toolName, tool.input)
+                        current = current.map { part ->
+                            if (part is ChatPart.Tool && part.toolCallId == tool.toolCallId) {
+                                part.copy(output = output, isExecuted = true)
+                            } else {
+                                part
+                            }
+                        }
+                        publish(state.copy(liveParts = current))
                         history.add(
                             ChatTurn(
                                 role = "tool",
                                 content = output,
-                                name = req.name,
-                                toolCallId = req.id,
+                                name = tool.toolName,
+                                toolCallId = tool.toolCallId,
                             ),
                         )
                     }
@@ -279,10 +246,40 @@ class ChatController(
         }
     }
 
-    private class ToolRequest {
-        var id: String = ""
-        var name: String = ""
-        val arguments = StringBuilder()
+    private suspend fun streamOnce(
+        provider: Provider,
+        model: String,
+        history: List<ChatTurn>,
+        systemPrompt: String,
+        settings: com.nova.app.data.provider.GenerationSettings,
+    ): List<ChatPart> {
+        val handler = StreamPartHandler()
+        var parts: List<ChatPart> = emptyList()
+        var lastPublish = 0L
+        var loadingCleared = false
+
+        ChatClient.send(
+            ChatRequest(
+                provider = provider,
+                model = model,
+                messages = history,
+                systemPrompt = systemPrompt,
+                reasoning = settings.reasoning.key.ifBlank { null },
+                tools = if (settings.toolsEnabled) NovaTools.definitions else emptyList(),
+                stream = settings.stream,
+            ),
+        ).collect { chunk ->
+            parts = handler.handle(parts, chunk)
+            val now = System.currentTimeMillis()
+            if (!loadingCleared || now - lastPublish >= PUBLISH_INTERVAL_MS) {
+                lastPublish = now
+                loadingCleared = true
+                publish(state.copy(liveParts = parts, loading = false))
+            }
+        }
+
+        publish(state.copy(liveParts = parts, loading = false))
+        return parts
     }
 
     private fun readable(error: ChatError): String = when (error) {

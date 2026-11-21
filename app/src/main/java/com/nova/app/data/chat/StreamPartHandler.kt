@@ -2,32 +2,24 @@ package com.nova.app.data.chat
 
 class StreamPartHandler {
 
-    private var textStarted = false
-    private var reasoningStarted = false
-
-    fun reset() {
-        textStarted = false
-        reasoningStarted = false
-    }
+    private val textIndexes = mutableMapOf<String, Int>()
+    private val reasoningIndexes = mutableMapOf<String, Int>()
 
     fun handle(parts: List<ChatPart>, chunk: ChatChunk): List<ChatPart> {
         return when (chunk) {
             is ChatChunk.TextStart -> {
-                if (textStarted) {
+                if (chunk.id in textIndexes) {
                     parts
                 } else {
-                    textStarted = true
+                    textIndexes[chunk.id] = parts.size
                     parts + ChatPart.Text("")
                 }
             }
 
             is ChatChunk.TextDelta -> {
-                if (!textStarted) {
-                    textStarted = true
-                    return parts + ChatPart.Text(chunk.text)
-                }
-                val index = parts.indexOfLast { it is ChatPart.Text && !it.finished }
-                if (index < 0) {
+                val index = textIndexes[chunk.id]
+                if (index == null || parts.getOrNull(index) !is ChatPart.Text) {
+                    textIndexes[chunk.id] = parts.size
                     parts + ChatPart.Text(chunk.text)
                 } else {
                     parts.toMutableList().apply {
@@ -38,34 +30,24 @@ class StreamPartHandler {
             }
 
             is ChatChunk.TextEnd -> {
-                val index = parts.indexOfLast { it is ChatPart.Text && !it.finished }
-                if (index < 0) {
-                    parts
-                } else {
-                    parts.toMutableList().apply {
-                        val target = this[index] as ChatPart.Text
-                        this[index] = target.copy(finished = true)
-                    }
-                }
+                textIndexes.remove(chunk.id)
+                parts
             }
 
             is ChatChunk.ReasoningStart -> {
-                if (reasoningStarted) {
+                if (chunk.id in reasoningIndexes) {
                     parts
                 } else {
-                    reasoningStarted = true
-                    parts + ChatPart.Reasoning("")
+                    reasoningIndexes[chunk.id] = parts.size
+                    parts + ChatPart.Reasoning("", finished = false)
                 }
             }
 
             is ChatChunk.ReasoningDelta -> {
-                if (!reasoningStarted) {
-                    reasoningStarted = true
-                    return parts + ChatPart.Reasoning(chunk.text)
-                }
-                val index = parts.indexOfLast { it is ChatPart.Reasoning && !it.finished }
-                if (index < 0) {
-                    parts + ChatPart.Reasoning(chunk.text)
+                val index = reasoningIndexes[chunk.id]
+                if (index == null || parts.getOrNull(index) !is ChatPart.Reasoning) {
+                    reasoningIndexes[chunk.id] = parts.size
+                    parts + ChatPart.Reasoning(chunk.text, finished = false)
                 } else {
                     parts.toMutableList().apply {
                         val target = this[index] as ChatPart.Reasoning
@@ -75,8 +57,8 @@ class StreamPartHandler {
             }
 
             is ChatChunk.ReasoningEnd -> {
-                val index = parts.indexOfLast { it is ChatPart.Reasoning && !it.finished }
-                if (index < 0) {
+                val index = reasoningIndexes.remove(chunk.id)
+                if (index == null || parts.getOrNull(index) !is ChatPart.Reasoning) {
                     parts
                 } else {
                     parts.toMutableList().apply {
@@ -86,26 +68,32 @@ class StreamPartHandler {
                 }
             }
 
-            else -> parts
-        }
-    }
+            is ChatChunk.ToolCallStart -> {
+                if (parts.any { it is ChatPart.Tool && it.toolCallId == chunk.id }) {
+                    parts
+                } else {
+                    parts + ChatPart.Tool(
+                        toolCallId = chunk.id,
+                        toolName = chunk.toolName,
+                        input = "",
+                    )
+                }
+            }
 
-    fun upsertTool(parts: List<ChatPart>, chunk: ChatChunk.ToolCallDelta): List<ChatPart> {
-        if (chunk.id.isBlank()) return parts
-        val existing = parts.indexOfFirst { it is ChatPart.Tool && it.toolCallId == chunk.id }
-        if (existing < 0) {
-            return parts + ChatPart.Tool(
-                toolCallId = chunk.id,
-                name = chunk.name,
-                arguments = chunk.arguments,
-            )
-        }
-        return parts.toMutableList().apply {
-            val target = this[existing] as ChatPart.Tool
-            this[existing] = target.copy(
-                name = if (chunk.name.isNotBlank()) target.name + chunk.name else target.name,
-                arguments = target.arguments + chunk.arguments,
-            )
+            is ChatChunk.ToolCallDelta -> parts.map { part ->
+                if (part is ChatPart.Tool && part.toolCallId == chunk.id) {
+                    part.copy(
+                        toolName = part.toolName + chunk.toolNameDelta,
+                        input = part.input + chunk.inputDelta,
+                    )
+                } else {
+                    part
+                }
+            }
+
+            is ChatChunk.ToolCallEnd -> parts
+
+            else -> parts
         }
     }
 
@@ -118,29 +106,4 @@ class StreamPartHandler {
             }
         }
     }
-}
-
-fun List<ChatPart>.isEmptyContent(): Boolean {
-    if (isEmpty()) return true
-    return all { part ->
-        when (part) {
-            is ChatPart.Text -> part.text.isBlank()
-            is ChatPart.Reasoning -> part.text.isBlank()
-            is ChatPart.Tool -> false
-        }
-    }
-}
-
-fun List<ChatPart>.visibleParts(): List<ChatPart> {
-    return filter { part ->
-        when (part) {
-            is ChatPart.Text -> part.text.isNotBlank()
-            is ChatPart.Reasoning -> part.text.isNotBlank()
-            is ChatPart.Tool -> true
-        }
-    }
-}
-
-fun List<ChatPart>.textContent(): String {
-    return filterIsInstance<ChatPart.Text>().joinToString("") { it.text }
 }

@@ -197,7 +197,7 @@ fun ToolRunPanel(
                 }
                 Spacer(Modifier.width(9.dp))
                 Text(
-                    text = part.name,
+                    text = part.toolName,
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontFamily = FontFamily.Monospace,
                     ),
@@ -223,7 +223,7 @@ fun ToolRunPanel(
                 exit = NovaTransitions.sectionExit,
             ) {
                 Column(modifier = Modifier.padding(start = 13.dp, end = 13.dp, bottom = 10.dp)) {
-                    JsonBlock(label = strings.toolCallArguments, content = part.arguments)
+                    JsonBlock(label = strings.toolCallArguments, content = part.input)
                     Spacer(Modifier.size(6.dp))
                     JsonBlock(label = strings.toolCallResult, content = part.output)
                 }

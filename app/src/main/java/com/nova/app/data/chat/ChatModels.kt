@@ -9,15 +9,16 @@ sealed interface ChatChunk {
     data class ReasoningStart(val id: String) : ChatChunk
     data class ReasoningDelta(val id: String, val text: String) : ChatChunk
     data class ReasoningEnd(val id: String) : ChatChunk
+    data class ToolCallStart(val id: String, val toolName: String = "") : ChatChunk
     data class ToolCallDelta(
-        val index: Int,
         val id: String,
-        val name: String,
-        val arguments: String,
+        val toolNameDelta: String = "",
+        val inputDelta: String = "",
     ) : ChatChunk
 
-    data class Finish(val reason: String) : ChatChunk
-    data class Usage(val promptTokens: Int, val completionTokens: Int) : ChatChunk
+    data class ToolCallEnd(val id: String) : ChatChunk
+    data class Usage(val promptTokens: Int, val completionTokens: Int, val totalTokens: Int) : ChatChunk
+    data class Finish(val finishReason: String?) : ChatChunk
     data object Done : ChatChunk
 }
 
@@ -41,10 +42,7 @@ data class ChatRequest(
 )
 
 sealed interface ChatPart {
-    data class Text(
-        val text: String,
-        val finished: Boolean = false,
-    ) : ChatPart
+    data class Text(val text: String) : ChatPart
     data class Reasoning(
         val text: String,
         val finished: Boolean = false,
@@ -52,8 +50,8 @@ sealed interface ChatPart {
 
     data class Tool(
         val toolCallId: String,
-        val name: String,
-        val arguments: String,
+        val toolName: String,
+        val input: String,
         val output: String = "",
         val isExecuted: Boolean = false,
     ) : ChatPart
@@ -65,12 +63,29 @@ data class ChatTurn(
     val name: String = "",
     val toolCallId: String = "",
     val parts: List<ChatPart> = emptyList(),
+    val toolCalls: List<ToolCallRef> = emptyList(),
 ) {
     fun textOnly(): String = when {
         content.isNotBlank() -> content
         else -> parts.filterIsInstance<ChatPart.Text>().joinToString("") { it.text }
     }
+
+    fun getTools(): List<ChatPart.Tool> = parts.filterIsInstance<ChatPart.Tool>()
+
+    fun isValidToUpload(): Boolean = parts.any { part ->
+        when (part) {
+            is ChatPart.Text -> part.text.isNotBlank()
+            is ChatPart.Reasoning -> part.text.isNotBlank()
+            else -> true
+        }
+    }
 }
+
+data class ToolCallRef(
+    val id: String,
+    val name: String,
+    val arguments: String,
+)
 
 data class ChatTool(
     val name: String,
@@ -86,3 +101,28 @@ class ChatException(val error: ChatError) : Exception(
         is ChatError.Cancelled -> error.message
     },
 )
+
+fun List<ChatPart>.isEmptyContent(): Boolean {
+    if (isEmpty()) return true
+    return all { part ->
+        when (part) {
+            is ChatPart.Text -> part.text.isBlank()
+            is ChatPart.Reasoning -> part.text.isBlank()
+            is ChatPart.Tool -> false
+        }
+    }
+}
+
+fun List<ChatPart>.visibleParts(): List<ChatPart> {
+    return filter { part ->
+        when (part) {
+            is ChatPart.Text -> part.text.isNotBlank()
+            is ChatPart.Reasoning -> part.text.isNotBlank()
+            is ChatPart.Tool -> true
+        }
+    }
+}
+
+fun List<ChatPart>.textContent(): String {
+    return filterIsInstance<ChatPart.Text>().joinToString("") { it.text }
+}
