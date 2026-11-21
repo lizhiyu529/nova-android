@@ -186,4 +186,19 @@
     <string name="provider_models_none">清空</string>
     <string name="provider_models_pick">选择模型</string>
     <string name="provider_models_selected">已选 %1$d 个</string>
+    <string name="chat_active_model">当前模型</string>
+    <string name="chat_empty_hint">请先在设置里选好提供商和模型</string>
+    <string name="chat_empty_title">开始一段对话</string>
+    <string name="chat_max_tokens">最大 token</string>
+    <string name="chat_model_label">模型</string>
+    <string name="chat_no_model">还没有选择模型</string>
+    <string name="chat_no_provider">还没有配置提供商</string>
+    <string name="chat_retry">重试</string>
+    <string name="chat_select_model">选择模型</string>
+    <string name="chat_send_failed">请求失败</string>
+    <string name="chat_stop">停止</string>
+    <string name="chat_stream">流式输出</string>
+    <string name="chat_temperature">温度</string>
+    <string name="chat_thinking">思考中</string>
+    <string name="settings_chat_defaults">对话默认值</string>
 </resources>

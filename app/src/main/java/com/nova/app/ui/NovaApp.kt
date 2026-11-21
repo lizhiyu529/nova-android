@@ -52,6 +52,8 @@ import com.nova.app.data.AssistantProfile
 import com.nova.app.data.AssistantStore
 import com.nova.app.data.ConversationRepository
 import com.nova.app.data.ProfileStore
+import com.nova.app.data.chat.ChatController
+import com.nova.app.data.chat.ChatState
 import com.nova.app.data.provider.Provider
 import com.nova.app.data.provider.ProviderStore
 import com.nova.app.ui.NovaStrings
@@ -107,6 +109,20 @@ fun NovaApp(
     var providers by remember { mutableStateOf(ProviderStore.load(context)) }
     var activeProviderId by remember { mutableStateOf(ProviderStore.activeId(context)) }
     var editingProviderId by remember { mutableStateOf("") }
+    var chatState by remember { mutableStateOf(ChatState()) }
+
+    val chatController = remember(context) {
+        ChatController(
+            context = context,
+            repository = repository,
+            scope = scope,
+            onState = { chatState = it },
+        )
+    }
+
+    LaunchedEffect(Unit) {
+        chatController.reset()
+    }
 
     val avatarPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -175,7 +191,10 @@ fun NovaApp(
                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
                         )
                     },
-                    onOpenConversation = { scope.launch { drawerState.close() } },
+                    onOpenConversation = { conversation ->
+                        chatController.load(conversation.id)
+                        scope.launch { drawerState.close() }
+                    },
                     onOpenSettings = {
                         push(Page.Settings)
                     },
@@ -213,11 +232,16 @@ fun NovaApp(
             HomeScreen(
                 onOpenDrawer = { scope.launch { drawerState.open() } },
                 onNewChat = {
-                    scope.launch {
-                        repository.createConversation(strings.newChat)
-                        AppLogs.record(context, "new chat")
-                    }
+                    chatController.reset()
+                    scope.launch { drawerState.close() }
+                    AppLogs.record(context, "new chat")
                 },
+                turns = chatState.turns,
+                streamingText = chatState.streamingText,
+                loading = chatState.loading,
+                errorText = chatState.errorText,
+                onSendMessage = { text -> chatController.send(text) },
+                onRetry = { chatController.retry() },
             )
         }
 

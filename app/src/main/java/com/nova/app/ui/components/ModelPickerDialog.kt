@@ -2,7 +2,6 @@ package com.nova.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -55,7 +54,7 @@ fun ModelPickerDialog(
     val horizontalPadding = (windowWidth * 0.09f).dp.coerceIn(18.dp, 36.dp)
 
     var selected by remember(models) {
-        mutableStateOf(models.filterNot { it in alreadyAdded }.toSet())
+        mutableStateOf(emptySet<String>())
     }
 
     Dialog(
@@ -99,25 +98,6 @@ fun ModelPickerDialog(
                         style = MaterialTheme.typography.labelSmall,
                         color = NovaTheme.colors.textTertiary,
                     )
-                }
-
-                if (!loading && models.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 18.dp, vertical = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        TinyChip(
-                            text = strings.modelsAll,
-                            onClick = { selected = models.toSet() },
-                        )
-                        TinyChip(
-                            text = strings.modelsNone,
-                            onClick = { selected = emptySet() },
-                        )
-                    }
-                    Spacer(Modifier.height(6.dp))
                 }
 
                 HorizontalDivider(thickness = 0.7.dp, color = NovaTheme.colors.divider)
@@ -262,22 +242,6 @@ private fun PickerRow(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun TinyChip(text: String, onClick: () -> Unit) {
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(9.dp),
-        color = NovaTheme.colors.containerHigh,
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelSmall,
-            color = NovaTheme.colors.textSecondary,
-            modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
-        )
     }
 }
 

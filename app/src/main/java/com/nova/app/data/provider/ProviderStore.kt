@@ -10,6 +10,7 @@ object ProviderStore {
     private const val PREFS = "nova.providers"
     private const val KEY_PROVIDERS = "list"
     private const val KEY_ACTIVE = "active_id"
+    private const val KEY_ACTIVE_MODEL = "active_model"
 
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -39,6 +40,13 @@ object ProviderStore {
 
     fun setActiveId(context: Context, id: String) {
         prefs(context).edit { putString(KEY_ACTIVE, id) }
+    }
+
+    fun activeModel(context: Context, providerId: String): String =
+        prefs(context).getString(KEY_ACTIVE_MODEL + ":" + providerId, "") ?: ""
+
+    fun setActiveModel(context: Context, providerId: String, modelId: String) {
+        prefs(context).edit { putString(KEY_ACTIVE_MODEL + ":" + providerId, modelId) }
     }
 
     fun upsert(context: Context, provider: Provider): List<Provider> {

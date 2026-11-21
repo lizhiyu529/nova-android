@@ -41,11 +41,13 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.nova.app.data.AppLogs
 import com.nova.app.data.CameraFiles
+import com.nova.app.data.chat.ChatTurn
 import com.nova.app.data.loadRecentPhotos
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.Strings
 import com.nova.app.ui.components.AttachmentPanel
 import com.nova.app.ui.components.ChatInputBar
+import com.nova.app.ui.components.ChatMessageList
 import com.nova.app.ui.components.EditorOverlay
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.components.PermissionDialog
@@ -56,6 +58,12 @@ import com.nova.app.ui.theme.NovaTransitions
 fun HomeScreen(
     onOpenDrawer: () -> Unit,
     onNewChat: () -> Unit,
+    turns: List<ChatTurn>,
+    streamingText: String,
+    loading: Boolean,
+    errorText: String,
+    onSendMessage: (String) -> Unit,
+    onRetry: () -> Unit,
 ) {
     var draft by rememberSaveable { mutableStateOf("") }
     var showEditor by rememberSaveable { mutableStateOf(false) }
@@ -185,7 +193,13 @@ fun HomeScreen(
                         ChatInputBar(
                             value = draft,
                             onValueChange = { draft = it },
-                            onSend = { draft = "" },
+                            onSend = {
+                            val text = draft.trim()
+                            if (text.isNotEmpty()) {
+                                onSendMessage(text)
+                                draft = ""
+                            }
+                        },
                             onAttach = { showAttachments = !showAttachments },
                             onExpand = { showEditor = true },
                         )
@@ -221,16 +235,26 @@ fun HomeScreen(
                 }
             },
         ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 24.dp),
-                verticalArrangement = Arrangement.Center,
-            ) {
-                GreetingBlock(
-                    greeting = greeting,
-                    modifier = Modifier.padding(bottom = 120.dp),
+            if (turns.isEmpty() && streamingText.isEmpty() && !loading && errorText.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(horizontal = 24.dp),
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    GreetingBlock(
+                        greeting = greeting,
+                        modifier = Modifier.padding(bottom = 120.dp),
+                    )
+                }
+            } else {
+                ChatMessageList(
+                    turns = turns,
+                    streamingText = streamingText,
+                    loading = loading,
+                    errorText = errorText,
+                    modifier = Modifier.padding(innerPadding),
                 )
             }
         }
@@ -336,6 +360,12 @@ private fun HomeScreenPreview() {
         HomeScreen(
             onOpenDrawer = {},
             onNewChat = {},
+            turns = emptyList(),
+            streamingText = "",
+            loading = false,
+            errorText = "",
+            onSendMessage = {},
+            onRetry = {},
         )
     }
 }
@@ -347,6 +377,12 @@ private fun HomeScreenDarkPreview() {
         HomeScreen(
             onOpenDrawer = {},
             onNewChat = {},
+            turns = emptyList(),
+            streamingText = "",
+            loading = false,
+            errorText = "",
+            onSendMessage = {},
+            onRetry = {},
         )
     }
 }

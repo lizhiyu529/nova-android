@@ -186,4 +186,19 @@
     <string name="provider_models_none">Clear</string>
     <string name="provider_models_pick">Pick models</string>
     <string name="provider_models_selected">%1$d selected</string>
+    <string name="chat_active_model">Active model</string>
+    <string name="chat_empty_hint">Pick a provider and model in settings first</string>
+    <string name="chat_empty_title">Start a conversation</string>
+    <string name="chat_max_tokens">Max tokens</string>
+    <string name="chat_model_label">Model</string>
+    <string name="chat_no_model">No model selected</string>
+    <string name="chat_no_provider">No provider configured</string>
+    <string name="chat_retry">Retry</string>
+    <string name="chat_select_model">Select model</string>
+    <string name="chat_send_failed">Request failed</string>
+    <string name="chat_stop">Stop</string>
+    <string name="chat_stream">Stream response</string>
+    <string name="chat_temperature">Temperature</string>
+    <string name="chat_thinking">Thinking</string>
+    <string name="settings_chat_defaults">Chat defaults</string>
 </resources>
