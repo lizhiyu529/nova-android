@@ -174,7 +174,7 @@ object ChatClient {
                     }
                     try {
                         val reader = source.charStream().buffered()
-                        OpenAiStream.read(reader) { chunk ->
+                        OpenAiStream().read(reader) { chunk ->
                             trySend(chunk)
                         }
                         close()

@@ -41,7 +41,10 @@ data class ChatRequest(
 )
 
 sealed interface ChatPart {
-    data class Text(val text: String) : ChatPart
+    data class Text(
+        val text: String,
+        val finished: Boolean = false,
+    ) : ChatPart
     data class Reasoning(
         val text: String,
         val finished: Boolean = false,

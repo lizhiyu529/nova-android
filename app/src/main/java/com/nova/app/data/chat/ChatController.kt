@@ -182,31 +182,48 @@ class ChatController(
                     ).collect { chunk ->
                         when (chunk) {
                             is ChatChunk.TextStart -> {
-                                parts = parts + ChatPart.Text("")
+                                if (parts.lastOrNull() !is ChatPart.Text ||
+                                    (parts.lastOrNull() as? ChatPart.Text)?.finished == true
+                                ) {
+                                    parts = parts + ChatPart.Text("")
+                                }
                                 dirty = true
                             }
 
                             is ChatChunk.TextDelta -> {
-                                parts = parts.updateLastOf<ChatPart.Text> {
-                                    it.copy(text = it.text + chunk.text)
+                                if (parts.lastOrNull() is ChatPart.Text) {
+                                    parts = parts.updateLastOf<ChatPart.Text> {
+                                        it.copy(text = it.text + chunk.text, finished = false)
+                                    }
+                                } else {
+                                    parts = parts + ChatPart.Text(chunk.text)
                                 }
                                 dirty = true
                                 flush(false)
                             }
 
                             is ChatChunk.TextEnd -> {
+                                parts = parts.updateLastOf<ChatPart.Text> { it.copy(finished = true) }
                                 dirty = true
                             }
 
                             is ChatChunk.ReasoningStart -> {
-                                parts = parts + ChatPart.Reasoning("")
+                                if (parts.lastOrNull() !is ChatPart.Reasoning ||
+                                    (parts.lastOrNull() as? ChatPart.Reasoning)?.finished == true
+                                ) {
+                                    parts = parts + ChatPart.Reasoning("")
+                                }
                                 dirty = true
                                 flush(true)
                             }
 
                             is ChatChunk.ReasoningDelta -> {
-                                parts = parts.updateLastOf<ChatPart.Reasoning> {
-                                    it.copy(text = it.text + chunk.text)
+                                if (parts.lastOrNull() is ChatPart.Reasoning) {
+                                    parts = parts.updateLastOf<ChatPart.Reasoning> {
+                                        it.copy(text = it.text + chunk.text)
+                                    }
+                                } else {
+                                    parts = parts + ChatPart.Reasoning(chunk.text)
                                 }
                                 dirty = true
                                 flush(false)

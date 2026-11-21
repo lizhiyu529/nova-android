@@ -1,6 +1,7 @@
 package com.nova.app.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -126,7 +127,12 @@ private fun AssistantParts(
 
                     is ChatPart.Text -> {
                         if (part.text.isNotEmpty()) {
-                            MarkdownView(text = part.text)
+                            Box(modifier = Modifier.fillMaxWidth()) {
+                                MarkdownView(
+                                    text = part.text,
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                            }
                         }
                     }
                 }

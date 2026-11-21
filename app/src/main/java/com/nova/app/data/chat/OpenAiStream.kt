@@ -4,15 +4,17 @@ import java.io.BufferedReader
 import org.json.JSONArray
 import org.json.JSONObject
 
-object OpenAiStream {
-
-    private const val DONE = "[DONE]"
-    private const val DATA = "data:"
-    private const val TEXT_ID = "text"
-    private const val REASONING_ID = "reasoning"
+class OpenAiStream {
 
     private var textOpen = false
     private var reasoningOpen = false
+
+    companion object {
+        private const val DONE = "[DONE]"
+        private const val DATA = "data:"
+        private const val TEXT_ID = "text"
+        private const val REASONING_ID = "reasoning"
+    }
 
     fun read(reader: BufferedReader, onChunk: (ChatChunk) -> Unit) {
         textOpen = false
@@ -23,18 +25,23 @@ object OpenAiStream {
             if (!line.startsWith(DATA)) continue
             val payload = line.removePrefix(DATA).trim()
             if (payload == DONE) {
-                if (reasoningOpen) {
-                    onChunk(ChatChunk.ReasoningEnd(REASONING_ID))
-                    reasoningOpen = false
-                }
-                if (textOpen) {
-                    onChunk(ChatChunk.TextEnd(TEXT_ID))
-                    textOpen = false
-                }
+                closeOpenParts(onChunk)
                 onChunk(ChatChunk.Done)
                 break
             }
             parse(payload, onChunk)
+        }
+        closeOpenParts(onChunk)
+    }
+
+    private fun closeOpenParts(onChunk: (ChatChunk) -> Unit) {
+        if (reasoningOpen) {
+            onChunk(ChatChunk.ReasoningEnd(REASONING_ID))
+            reasoningOpen = false
+        }
+        if (textOpen) {
+            onChunk(ChatChunk.TextEnd(TEXT_ID))
+            textOpen = false
         }
     }
 
@@ -99,14 +106,7 @@ object OpenAiStream {
 
             val finish = first.optString("finish_reason", "")
             if (finish.isNotEmpty()) {
-                if (reasoningOpen) {
-                    onChunk(ChatChunk.ReasoningEnd(REASONING_ID))
-                    reasoningOpen = false
-                }
-                if (textOpen) {
-                    onChunk(ChatChunk.TextEnd(TEXT_ID))
-                    textOpen = false
-                }
+                closeOpenParts(onChunk)
                 onChunk(ChatChunk.Finish(finish))
             }
         }.getOrNull()
