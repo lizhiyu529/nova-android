@@ -397,9 +397,9 @@ fun NovaApp(
         }
 
         AnimatedVisibility(
-            visible = current == Page.Providers,
-            enter = NovaTransitions.pageEnter,
-            exit = NovaTransitions.pageExit,
+            visible = stack.contains(Page.Providers),
+            enter = NovaTransitions.coveredEnter,
+            exit = NovaTransitions.coveredExit,
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),

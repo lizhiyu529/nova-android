@@ -46,6 +46,7 @@ import com.nova.app.data.provider.ProviderModel
 import com.nova.app.data.provider.normalizeEndpoint
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.components.ErrorDialog
+import com.nova.app.ui.components.ModelPickerDialog
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.components.NovaSwitch
 import com.nova.app.ui.theme.NovaTheme
@@ -63,6 +64,9 @@ fun ProviderDetailScreen(
     var fetchError by remember { mutableStateOf("") }
     var modelDraft by remember { mutableStateOf("") }
     var speedError by remember { mutableStateOf("") }
+    var pickerOpen by remember { mutableStateOf(false) }
+    var pickerModels by remember { mutableStateOf<List<String>>(emptyList()) }
+    var pickerLoading by remember { mutableStateOf(false) }
     var testingModel by remember { mutableStateOf<String?>(null) }
 
     fun applyModels(ids: List<String>) {
@@ -166,11 +170,18 @@ fun ProviderDetailScreen(
                 onClick = {
                     fetching = true
                     fetchError = ""
+                    pickerModels = emptyList()
+                    pickerLoading = true
+                    pickerOpen = true
                     scope.launch {
                         when (val result = ProviderClient.fetchModels(provider)) {
-                            is FetchResult.Success -> applyModels(result.models)
-                            is FetchResult.Failure -> fetchError = result.message
+                            is FetchResult.Success -> pickerModels = result.models
+                            is FetchResult.Failure -> {
+                                pickerOpen = false
+                                fetchError = result.message
+                            }
                         }
+                        pickerLoading = false
                         fetching = false
                     }
                 },
@@ -273,6 +284,19 @@ fun ProviderDetailScreen(
         Spacer(Modifier.height(28.dp))
     }
 
+    if (pickerOpen) {
+        ModelPickerDialog(
+            models = pickerModels,
+            alreadyAdded = provider.models.map { it.id }.toSet(),
+            loading = pickerLoading,
+            onImport = { picked ->
+                applyModels(picked)
+                pickerOpen = false
+            },
+            onDismiss = { pickerOpen = false },
+        )
+    }
+
     if (fetchError.isNotBlank()) {
         ErrorDialog(
             title = strings.errorTitle,
@@ -319,40 +343,49 @@ private fun FieldRow(
     keyboardType: KeyboardType = KeyboardType.Text,
     onValueChange: (String) -> Unit,
 ) {
-    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 11.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
             color = NovaTheme.colors.textTertiary,
         )
-        Spacer(Modifier.height(3.dp))
-        BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
+        Spacer(Modifier.height(6.dp))
+        Surface(
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = NovaTheme.colors.textPrimary,
-            ),
-            cursorBrush = SolidColor(NovaTheme.colors.accent),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = if (secret) KeyboardType.Password else keyboardType,
-                imeAction = ImeAction.Done,
-            ),
-            keyboardActions = KeyboardActions(),
-            decorationBox = { innerTextField ->
-                Box {
-                    if (value.isEmpty()) {
-                        Text(
-                            text = placeholder,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = NovaTheme.colors.textTertiary,
-                        )
+            shape = RoundedCornerShape(12.dp),
+            color = NovaTheme.colors.inputBackground,
+            border = BorderStroke(0.8.dp, NovaTheme.colors.divider),
+        ) {
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 11.dp),
+                singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    color = NovaTheme.colors.textPrimary,
+                ),
+                cursorBrush = SolidColor(NovaTheme.colors.accent),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = if (secret) KeyboardType.Password else keyboardType,
+                    imeAction = ImeAction.Done,
+                ),
+                keyboardActions = KeyboardActions(),
+                decorationBox = { innerTextField ->
+                    Box {
+                        if (value.isEmpty()) {
+                            Text(
+                                text = placeholder,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = NovaTheme.colors.textTertiary,
+                            )
+                        }
+                        innerTextField()
                     }
-                    innerTextField()
-                }
-            },
-        )
+                },
+            )
+        }
     }
 }
 
@@ -366,14 +399,15 @@ private fun SmallAction(
         Surface(
             onClick = { if (enabled) onClick() },
             enabled = enabled,
-            shape = RoundedCornerShape(10.dp),
-            color = if (enabled) NovaTheme.colors.accentSubtle else NovaTheme.colors.containerHigh,
+            shape = RoundedCornerShape(11.dp),
+            color = if (enabled) NovaTheme.colors.accent else NovaTheme.colors.containerHigh,
+            border = if (enabled) null else BorderStroke(0.8.dp, NovaTheme.colors.divider),
         ) {
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelSmall,
-                color = if (enabled) NovaTheme.colors.onAccentSubtle else NovaTheme.colors.textDisabled,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                color = if (enabled) NovaTheme.colors.onAccent else NovaTheme.colors.textTertiary,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
             )
         }
     }

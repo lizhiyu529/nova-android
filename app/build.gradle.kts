@@ -26,8 +26,8 @@ android {
         applicationId = "com.nova.app"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 45
-        versionName = "1.9.1"
+        versionCode = 46
+        versionName = "1.9.2"
         vectorDrawables.useSupportLibrary = true
     }
 

@@ -179,4 +179,11 @@
     <string name="error_close">Close</string>
     <string name="error_title">Something went wrong</string>
     <string name="provider_models_ok">Fetched %1$d models</string>
+    <string name="provider_models_all">Select all</string>
+    <string name="provider_models_count">%1$d models available</string>
+    <string name="provider_models_import">Import</string>
+    <string name="provider_models_loading">Loading models...</string>
+    <string name="provider_models_none">Clear</string>
+    <string name="provider_models_pick">Pick models</string>
+    <string name="provider_models_selected">%1$d selected</string>
 </resources>

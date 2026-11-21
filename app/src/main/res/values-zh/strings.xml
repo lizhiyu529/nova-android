@@ -179,4 +179,11 @@
     <string name="error_close">关闭</string>
     <string name="error_title">出错了</string>
     <string name="provider_models_ok">已获取 %1$d 个模型</string>
+    <string name="provider_models_all">全选</string>
+    <string name="provider_models_count">共 %1$d 个模型</string>
+    <string name="provider_models_import">导入</string>
+    <string name="provider_models_loading">正在加载模型...</string>
+    <string name="provider_models_none">清空</string>
+    <string name="provider_models_pick">选择模型</string>
+    <string name="provider_models_selected">已选 %1$d 个</string>
 </resources>
