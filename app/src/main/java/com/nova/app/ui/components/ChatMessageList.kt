@@ -51,12 +51,7 @@ private fun mergeParts(parts: List<ChatPart>): List<ChatPart> {
         )
     }
     if (text.isNotEmpty()) {
-        result.add(
-            ChatPart.Text(
-                text.joinToString("") { it.text },
-                finished = text.all { it.finished },
-            ),
-        )
+        result.add(ChatPart.Text(text.joinToString("") { it.text }))
     }
     return result
 }
