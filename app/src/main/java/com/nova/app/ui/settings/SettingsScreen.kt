@@ -43,6 +43,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.components.ConfirmDialog
+import com.nova.app.ui.components.AppIcons
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.components.NovaSwitch
 import com.nova.app.ui.theme.NovaTheme
