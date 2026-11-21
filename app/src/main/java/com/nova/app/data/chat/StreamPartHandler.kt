@@ -2,32 +2,33 @@ package com.nova.app.data.chat
 
 class StreamPartHandler {
 
-    private val textIndexes = mutableMapOf<String, Int>()
-    private val reasoningIndexes = mutableMapOf<String, Int>()
+    private var textStarted = false
+    private var reasoningStarted = false
 
     fun reset() {
-        textIndexes.clear()
-        reasoningIndexes.clear()
+        textStarted = false
+        reasoningStarted = false
     }
 
     fun handle(parts: List<ChatPart>, chunk: ChatChunk): List<ChatPart> {
         return when (chunk) {
             is ChatChunk.TextStart -> {
-                if (chunk.id in textIndexes) {
+                if (textStarted) {
                     parts
                 } else {
-                    val next = parts + ChatPart.Text("")
-                    textIndexes[chunk.id] = parts.size
-                    next
+                    textStarted = true
+                    parts + ChatPart.Text("")
                 }
             }
 
             is ChatChunk.TextDelta -> {
-                val index = textIndexes[chunk.id]
-                if (index == null || parts.getOrNull(index) !is ChatPart.Text) {
-                    val next = parts + ChatPart.Text(chunk.text)
-                    textIndexes[chunk.id] = parts.size
-                    next
+                if (!textStarted) {
+                    textStarted = true
+                    return parts + ChatPart.Text(chunk.text)
+                }
+                val index = parts.indexOfLast { it is ChatPart.Text && !it.finished }
+                if (index < 0) {
+                    parts + ChatPart.Text(chunk.text)
                 } else {
                     parts.toMutableList().apply {
                         val target = this[index] as ChatPart.Text
@@ -37,8 +38,8 @@ class StreamPartHandler {
             }
 
             is ChatChunk.TextEnd -> {
-                val index = textIndexes.remove(chunk.id)
-                if (index == null || parts.getOrNull(index) !is ChatPart.Text) {
+                val index = parts.indexOfLast { it is ChatPart.Text && !it.finished }
+                if (index < 0) {
                     parts
                 } else {
                     parts.toMutableList().apply {
@@ -49,21 +50,22 @@ class StreamPartHandler {
             }
 
             is ChatChunk.ReasoningStart -> {
-                if (chunk.id in reasoningIndexes) {
+                if (reasoningStarted) {
                     parts
                 } else {
-                    val next = parts + ChatPart.Reasoning("")
-                    reasoningIndexes[chunk.id] = parts.size
-                    next
+                    reasoningStarted = true
+                    parts + ChatPart.Reasoning("")
                 }
             }
 
             is ChatChunk.ReasoningDelta -> {
-                val index = reasoningIndexes[chunk.id]
-                if (index == null || parts.getOrNull(index) !is ChatPart.Reasoning) {
-                    val next = parts + ChatPart.Reasoning(chunk.text)
-                    reasoningIndexes[chunk.id] = parts.size
-                    next
+                if (!reasoningStarted) {
+                    reasoningStarted = true
+                    return parts + ChatPart.Reasoning(chunk.text)
+                }
+                val index = parts.indexOfLast { it is ChatPart.Reasoning && !it.finished }
+                if (index < 0) {
+                    parts + ChatPart.Reasoning(chunk.text)
                 } else {
                     parts.toMutableList().apply {
                         val target = this[index] as ChatPart.Reasoning
@@ -73,8 +75,8 @@ class StreamPartHandler {
             }
 
             is ChatChunk.ReasoningEnd -> {
-                val index = reasoningIndexes.remove(chunk.id)
-                if (index == null || parts.getOrNull(index) !is ChatPart.Reasoning) {
+                val index = parts.indexOfLast { it is ChatPart.Reasoning && !it.finished }
+                if (index < 0) {
                     parts
                 } else {
                     parts.toMutableList().apply {

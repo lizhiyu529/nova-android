@@ -6,9 +6,6 @@ import org.json.JSONObject
 
 class OpenAiStream {
 
-    private var textOpen = false
-    private var reasoningOpen = false
-
     companion object {
         private const val DONE = "[DONE]"
         private const val DATA = "data:"
@@ -17,32 +14,21 @@ class OpenAiStream {
     }
 
     fun read(reader: BufferedReader, onChunk: (ChatChunk) -> Unit) {
-        textOpen = false
-        reasoningOpen = false
         while (true) {
             val line = reader.readLine() ?: break
             if (line.isBlank()) continue
             if (!line.startsWith(DATA)) continue
             val payload = line.removePrefix(DATA).trim()
             if (payload == DONE) {
-                closeOpenParts(onChunk)
+                onChunk(ChatChunk.ReasoningEnd(REASONING_ID))
+                onChunk(ChatChunk.TextEnd(TEXT_ID))
                 onChunk(ChatChunk.Done)
                 break
             }
             parse(payload, onChunk)
         }
-        closeOpenParts(onChunk)
-    }
-
-    private fun closeOpenParts(onChunk: (ChatChunk) -> Unit) {
-        if (reasoningOpen) {
-            onChunk(ChatChunk.ReasoningEnd(REASONING_ID))
-            reasoningOpen = false
-        }
-        if (textOpen) {
-            onChunk(ChatChunk.TextEnd(TEXT_ID))
-            textOpen = false
-        }
+        onChunk(ChatChunk.ReasoningEnd(REASONING_ID))
+        onChunk(ChatChunk.TextEnd(TEXT_ID))
     }
 
     private fun parse(raw: String, onChunk: (ChatChunk) -> Unit) {
@@ -66,27 +52,13 @@ class OpenAiStream {
                 val reasoning = delta.optString("reasoning_content", "")
                     .ifBlank { delta.optString("reasoning", "") }
                 if (reasoning.isNotEmpty()) {
-                    if (textOpen) {
-                        onChunk(ChatChunk.TextEnd(TEXT_ID))
-                        textOpen = false
-                    }
-                    if (!reasoningOpen) {
-                        onChunk(ChatChunk.ReasoningStart(REASONING_ID))
-                        reasoningOpen = true
-                    }
+                    onChunk(ChatChunk.ReasoningStart(REASONING_ID))
                     onChunk(ChatChunk.ReasoningDelta(REASONING_ID, reasoning))
                 }
 
                 val content = delta.optString("content", "")
                 if (content.isNotEmpty()) {
-                    if (reasoningOpen) {
-                        onChunk(ChatChunk.ReasoningEnd(REASONING_ID))
-                        reasoningOpen = false
-                    }
-                    if (!textOpen) {
-                        onChunk(ChatChunk.TextStart(TEXT_ID))
-                        textOpen = true
-                    }
+                    onChunk(ChatChunk.TextStart(TEXT_ID))
                     onChunk(ChatChunk.TextDelta(TEXT_ID, content))
                 }
 
@@ -106,7 +78,6 @@ class OpenAiStream {
 
             val finish = first.optString("finish_reason", "")
             if (finish.isNotEmpty()) {
-                closeOpenParts(onChunk)
                 onChunk(ChatChunk.Finish(finish))
             }
         }.getOrNull()

@@ -31,6 +31,51 @@ import com.nova.app.data.chat.visibleParts
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.theme.NovaTheme
 
+private fun mergeParts(parts: List<ChatPart>): List<ChatPart> {
+    val visible = parts.visibleParts()
+    if (visible.size <= 1) return visible
+    val result = mutableListOf<ChatPart>()
+    var reasoning = StringBuilder()
+    var text = StringBuilder()
+
+    fun flushReasoning() {
+        if (reasoning.isNotEmpty()) {
+            result.add(ChatPart.Reasoning(reasoning.toString(), finished = true))
+            reasoning = StringBuilder()
+        }
+    }
+
+    fun flushText() {
+        if (text.isNotEmpty()) {
+            result.add(ChatPart.Text(text.toString(), finished = true))
+            text = StringBuilder()
+        }
+    }
+
+    visible.forEach { part ->
+        when (part) {
+            is ChatPart.Reasoning -> {
+                flushText()
+                reasoning.append(part.text)
+            }
+
+            is ChatPart.Text -> {
+                flushReasoning()
+                text.append(part.text)
+            }
+
+            is ChatPart.Tool -> {
+                flushReasoning()
+                flushText()
+                result.add(part)
+            }
+        }
+    }
+    flushReasoning()
+    flushText()
+    return result
+}
+
 @Composable
 fun ChatMessageList(
     turns: List<ChatTurn>,
@@ -42,8 +87,8 @@ fun ChatMessageList(
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
-    val visible = liveParts.visibleParts()
-    val hasLive = loading || errorText.isNotEmpty() || visible.isNotEmpty()
+    val merged = mergeParts(liveParts)
+    val hasLive = loading || errorText.isNotEmpty() || merged.isNotEmpty()
     val total = turns.size + if (hasLive) 1 else 0
 
     LaunchedEffect(total) {
@@ -62,9 +107,9 @@ fun ChatMessageList(
                     UserBubble(turn.content)
                 } else if (turn.role == "assistant") {
                     AssistantParts(
-                        parts = turn.parts.ifEmpty {
-                            listOf(ChatPart.Text(turn.content))
-                        },
+                        parts = mergeParts(
+                            turn.parts.ifEmpty { listOf(ChatPart.Text(turn.content)) },
+                        ),
                         expanded = reasoningExpanded,
                         onToggle = onReasoningToggle,
                         streaming = false,
@@ -76,9 +121,9 @@ fun ChatMessageList(
         if (hasLive) {
             item(key = "live") {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    if (visible.isNotEmpty()) {
+                    if (merged.isNotEmpty()) {
                         AssistantParts(
-                            parts = visible,
+                            parts = merged,
                             expanded = reasoningExpanded,
                             onToggle = onReasoningToggle,
                             streaming = true,
@@ -88,7 +133,7 @@ fun ChatMessageList(
                         Spacer(Modifier.height(6.dp))
                         ErrorBlock(errorText)
                     }
-                    if (loading && visible.isEmpty()) {
+                    if (loading && merged.isEmpty()) {
                         TypingDots(modifier = Modifier.padding(vertical = 8.dp))
                     }
                 }
