@@ -160,7 +160,7 @@ private fun ReasoningButton(label: String, onClick: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    imageVector = NovaIcons.Atom,
+                    imageVector = AppIcons.Atom,
                     contentDescription = NovaStrings.strings.reasoningTitle,
                     modifier = Modifier.size(14.dp),
                     tint = NovaTheme.colors.textSecondary,

@@ -276,7 +276,7 @@ fun SettingsScreen(
                 onCheckedChange = { onGenerationChange(generation.copy(toolsEnabled = it)) },
             )
             SettingsToggleRow(
-                icon = NovaIcons.Atom,
+                icon = AppIcons.Atom,
                 title = NovaStrings.strings.reasoningShow,
                 hint = NovaStrings.strings.reasoningHint,
                 checked = generation.stream,

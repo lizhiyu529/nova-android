@@ -44,10 +44,12 @@ import com.nova.app.ui.theme.NovaTransitions
 @Composable
 fun ReasoningPanel(
     text: String,
+    expanded: Boolean,
+    running: Boolean,
+    onToggle: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (text.isBlank()) return
-    var expanded by remember { mutableStateOf(false) }
     val rotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         animationSpec = NovaMotion.press(),
@@ -67,21 +69,21 @@ fun ReasoningPanel(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { expanded = !expanded }
+                    .clickable(onClick = onToggle)
                     .padding(horizontal = 14.dp, vertical = 11.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Surface(
                     modifier = Modifier.size(18.dp),
                     shape = CircleShape,
-                    color = NovaTheme.colors.containerHigh,
+                    color = NovaTheme.colors.accentSubtle,
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            imageVector = NovaIcons.Atom,
+                            imageVector = AppIcons.Atom,
                             contentDescription = null,
-                            modifier = Modifier.size(10.dp),
-                            tint = NovaTheme.colors.textSecondary,
+                            modifier = Modifier.size(11.dp),
+                            tint = NovaTheme.colors.onAccentSubtle,
                         )
                     }
                 }
@@ -92,11 +94,19 @@ fun ReasoningPanel(
                     color = NovaTheme.colors.textSecondary,
                     modifier = Modifier.weight(1f),
                 )
-                Text(
-                    text = "${text.length}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = NovaTheme.colors.textTertiary,
-                )
+                if (running) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(12.dp),
+                        strokeWidth = 1.6.dp,
+                        color = NovaTheme.colors.textTertiary,
+                    )
+                } else {
+                    Text(
+                        text = "${text.length}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = NovaTheme.colors.textTertiary,
+                    )
+                }
                 Spacer(Modifier.width(6.dp))
                 Icon(
                     imageVector = NovaIcons.ChevronDown,

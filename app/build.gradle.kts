@@ -26,8 +26,8 @@ android {
         applicationId = "com.nova.app"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 49
-        versionName = "2.1.0"
+        versionCode = 50
+        versionName = "2.1.1"
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -93,6 +93,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.compose.icons.extended)
+    implementation(libs.tabler.icons)
     implementation(libs.markdown.m3)
     implementation(libs.markdown.code)
     implementation(libs.coil.compose)
