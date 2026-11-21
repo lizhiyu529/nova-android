@@ -241,7 +241,7 @@ private fun PickerRow(
             border = if (added || checked) {
                 null
             } else {
-                androidx.compose.foundation.BorderStroke(1.5.dp, NovaTheme.colors.borderStrong)
+                androidx.compose.foundation.BorderStroke(1.5.dp, NovaTheme.colors.border)
             },
         ) {
             Box(contentAlignment = Alignment.Center) {
