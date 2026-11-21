@@ -41,6 +41,15 @@ data class ChatTurn(
     val content: String,
     val name: String = "",
     val toolCallId: String = "",
+    val reasoning: String = "",
+    val toolCalls: List<ToolCallRecord> = emptyList(),
+)
+
+data class ToolCallRecord(
+    val name: String,
+    val arguments: String,
+    val result: String = "",
+    val running: Boolean = false,
 )
 
 data class ChatTool(

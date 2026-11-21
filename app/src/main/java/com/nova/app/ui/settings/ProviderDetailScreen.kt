@@ -84,6 +84,7 @@ fun ProviderDetailScreen(
     ) {
         FieldCard {
             FieldRow(
+                icon = NovaIcons.User,
                 label = strings.providerName,
                 value = provider.name,
                 placeholder = strings.providerNamePlaceholder,
@@ -91,6 +92,7 @@ fun ProviderDetailScreen(
             )
             FieldDivider()
             FieldRow(
+                icon = NovaIcons.Database,
                 label = strings.providerApiKey,
                 value = provider.apiKey,
                 placeholder = strings.providerApiKeyPlaceholder,
@@ -99,6 +101,7 @@ fun ProviderDetailScreen(
             )
             FieldDivider()
             FieldRow(
+                icon = NovaIcons.Globe,
                 label = strings.providerEndpoint,
                 value = provider.endpoint,
                 placeholder = strings.providerEndpointPlaceholder,
@@ -336,6 +339,7 @@ private fun FieldDivider() {
 
 @Composable
 private fun FieldRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     value: String,
     placeholder: String,
@@ -343,14 +347,22 @@ private fun FieldRow(
     keyboardType: KeyboardType = KeyboardType.Text,
     onValueChange: (String) -> Unit,
 ) {
-    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-        Text(
+    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp),
+            tint = NovaTheme.colors.textTertiary,
+        )
+        Spacer(Modifier.width(11.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
             color = NovaTheme.colors.textTertiary,
-        )
-        Spacer(Modifier.height(6.dp))
-        Surface(
+            )
+            Spacer(Modifier.height(6.dp))
+            Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp),
             color = NovaTheme.colors.inputBackground,
@@ -385,6 +397,7 @@ private fun FieldRow(
                     }
                 },
             )
+        }
         }
     }
 }

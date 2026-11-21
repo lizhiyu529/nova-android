@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,7 +34,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.nova.app.data.chat.ToolRun
+import com.nova.app.data.chat.ToolCallRecord
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.theme.NovaMotion
 import com.nova.app.ui.theme.NovaTheme
@@ -50,17 +49,17 @@ fun ReasoningPanel(
     modifier: Modifier = Modifier,
 ) {
     if (text.isBlank()) return
+    val strings = NovaStrings.strings
     val rotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         animationSpec = NovaMotion.press(),
-        label = "reasoningArrow",
+        label = "reasoningAngle",
     )
-    val strings = NovaStrings.strings
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 3.dp),
         shape = RoundedCornerShape(16.dp),
         color = NovaTheme.colors.containerLow,
         border = BorderStroke(0.8.dp, NovaTheme.colors.divider),
@@ -70,7 +69,7 @@ fun ReasoningPanel(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = onToggle)
-                    .padding(horizontal = 14.dp, vertical = 11.dp),
+                    .padding(horizontal = 13.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Surface(
@@ -100,19 +99,13 @@ fun ReasoningPanel(
                         strokeWidth = 1.6.dp,
                         color = NovaTheme.colors.textTertiary,
                     )
-                } else {
-                    Text(
-                        text = "${text.length}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = NovaTheme.colors.textTertiary,
-                    )
+                    Spacer(Modifier.width(6.dp))
                 }
-                Spacer(Modifier.width(6.dp))
                 Icon(
                     imageVector = NovaIcons.ChevronDown,
                     contentDescription = null,
                     modifier = Modifier
-                        .size(15.dp)
+                        .size(14.dp)
                         .rotate(rotation),
                     tint = NovaTheme.colors.textTertiary,
                 )
@@ -126,8 +119,8 @@ fun ReasoningPanel(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 14.dp)
-                            .height(0.7.dp)
+                            .padding(horizontal = 13.dp)
+                            .heightIn(min = 0.7.dp)
                             .background(NovaTheme.colors.divider),
                     )
                     Text(
@@ -138,9 +131,9 @@ fun ReasoningPanel(
                         color = NovaTheme.colors.textTertiary,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(max = 260.dp)
+                            .heightIn(max = 240.dp)
                             .verticalScroll(rememberScrollState())
-                            .padding(horizontal = 14.dp, vertical = 11.dp),
+                            .padding(horizontal = 13.dp, vertical = 10.dp),
                     )
                 }
             }
@@ -150,7 +143,7 @@ fun ReasoningPanel(
 
 @Composable
 fun ToolRunPanel(
-    run: ToolRun,
+    record: ToolCallRecord,
     modifier: Modifier = Modifier,
 ) {
     val strings = NovaStrings.strings
@@ -158,7 +151,7 @@ fun ToolRunPanel(
     val rotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         animationSpec = NovaMotion.press(),
-        label = "toolArrow",
+        label = "toolAngle",
     )
 
     Surface(
@@ -169,18 +162,18 @@ fun ToolRunPanel(
         color = NovaTheme.colors.containerLow,
         border = BorderStroke(
             0.8.dp,
-            if (run.running) NovaTheme.colors.accent else NovaTheme.colors.divider,
+            if (record.running) NovaTheme.colors.accent else NovaTheme.colors.divider,
         ),
     ) {
         Column {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable(enabled = !run.running) { expanded = !expanded }
+                    .clickable(enabled = !record.running) { expanded = !expanded }
                     .padding(horizontal = 13.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (run.running) {
+                if (record.running) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(15.dp),
                         strokeWidth = 1.8.dp,
@@ -204,7 +197,7 @@ fun ToolRunPanel(
                 }
                 Spacer(Modifier.width(9.dp))
                 Text(
-                    text = run.name,
+                    text = record.name,
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontFamily = FontFamily.Monospace,
                     ),
@@ -213,32 +206,26 @@ fun ToolRunPanel(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
                 )
-                if (!run.running) {
+                if (!record.running) {
                     Icon(
                         imageVector = NovaIcons.ChevronDown,
                         contentDescription = null,
                         modifier = Modifier
-                            .size(15.dp)
+                            .size(14.dp)
                             .rotate(rotation),
                         tint = NovaTheme.colors.textTertiary,
                     )
                 }
             }
             AnimatedVisibility(
-                visible = expanded && !run.running,
+                visible = expanded && !record.running,
                 enter = NovaTransitions.sectionEnter,
                 exit = NovaTransitions.sectionExit,
             ) {
-                Column(modifier = Modifier.padding(start = 13.dp, end = 13.dp, bottom = 11.dp)) {
-                    JsonBlock(
-                        label = strings.toolCallArguments,
-                        content = run.arguments,
-                    )
-                    Spacer(Modifier.height(6.dp))
-                    JsonBlock(
-                        label = strings.toolCallResult,
-                        content = run.result,
-                    )
+                Column(modifier = Modifier.padding(start = 13.dp, end = 13.dp, bottom = 10.dp)) {
+                    JsonBlock(label = strings.toolCallArguments, content = record.arguments)
+                    Spacer(Modifier.size(6.dp))
+                    JsonBlock(label = strings.toolCallResult, content = record.result)
                 }
             }
         }
@@ -253,7 +240,7 @@ private fun JsonBlock(label: String, content: String) {
             style = MaterialTheme.typography.labelSmall,
             color = NovaTheme.colors.textTertiary,
         )
-        Spacer(Modifier.height(3.dp))
+        Spacer(Modifier.size(3.dp))
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(11.dp),
@@ -261,14 +248,14 @@ private fun JsonBlock(label: String, content: String) {
             border = BorderStroke(0.7.dp, NovaTheme.colors.divider),
         ) {
             Text(
-                text = formatJson(content),
+                text = prettyJson(content),
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontFamily = FontFamily.Monospace,
                 ),
                 color = NovaTheme.colors.textSecondary,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 180.dp)
+                    .heightIn(max = 160.dp)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 11.dp, vertical = 9.dp),
             )
@@ -276,20 +263,14 @@ private fun JsonBlock(label: String, content: String) {
     }
 }
 
-private fun formatJson(raw: String): String {
+private fun prettyJson(raw: String): String {
     val trimmed = raw.trim()
     if (trimmed.isEmpty()) return "{}"
-    if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) return trimmed
+    val looksObject = trimmed.startsWith("{")
+    val looksArray = trimmed.startsWith("[")
+    if (!looksObject && !looksArray) return trimmed
     return runCatching {
-        val json = if (trimmed.startsWith("{")) {
-            org.json.JSONObject(trimmed)
-        } else {
-            org.json.JSONArray(trimmed)
-        }
-        if (json is org.json.JSONObject) {
-            json.toString(2)
-        } else {
-            (json as org.json.JSONArray).toString(2)
-        }
+        if (looksObject) org.json.JSONObject(trimmed).toString(2)
+        else org.json.JSONArray(trimmed).toString(2)
     }.getOrDefault(trimmed)
 }

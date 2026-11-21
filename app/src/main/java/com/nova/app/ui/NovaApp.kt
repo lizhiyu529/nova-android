@@ -240,9 +240,9 @@ fun NovaApp(
                     AppLogs.record(context, "new chat")
                 },
                 turns = chatState.turns,
-                streamingText = chatState.streamingText,
-                reasoningText = chatState.reasoningText,
-                toolRuns = chatState.toolRuns,
+                liveReasoning = chatState.liveReasoning,
+                liveText = chatState.liveText,
+                liveTools = chatState.liveTools,
                 loading = chatState.loading,
                 errorText = chatState.errorText,
                 onSendMessage = { text -> chatController.send(text) },

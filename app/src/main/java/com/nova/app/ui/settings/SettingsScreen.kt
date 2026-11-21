@@ -42,8 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.nova.app.ui.NovaStrings
-import com.nova.app.ui.components.ConfirmDialog
 import com.nova.app.ui.components.AppIcons
+import com.nova.app.ui.components.ConfirmDialog
 import com.nova.app.ui.components.NovaIcons
 import com.nova.app.ui.components.NovaSwitch
 import com.nova.app.ui.theme.NovaTheme
@@ -277,11 +277,28 @@ fun SettingsScreen(
                 onCheckedChange = { onGenerationChange(generation.copy(toolsEnabled = it)) },
             )
             SettingsToggleRow(
-                icon = AppIcons.Atom,
-                title = NovaStrings.strings.reasoningShow,
+                icon = NovaIcons.Sort,
+                title = NovaStrings.strings.chatStream,
                 hint = NovaStrings.strings.reasoningHint,
                 checked = generation.stream,
                 onCheckedChange = { onGenerationChange(generation.copy(stream = it)) },
+            )
+            SettingsToggleRow(
+                icon = AppIcons.Atom,
+                title = NovaStrings.strings.reasoningShow,
+                hint = NovaStrings.strings.reasoningHint,
+                checked = generation.reasoning != com.nova.app.data.provider.ReasoningEffort.Default,
+                onCheckedChange = { on ->
+                    onGenerationChange(
+                        generation.copy(
+                            reasoning = if (on) {
+                                com.nova.app.data.provider.ReasoningEffort.Medium
+                            } else {
+                                com.nova.app.data.provider.ReasoningEffort.Default
+                            },
+                        ),
+                    )
+                },
             )
         }
 

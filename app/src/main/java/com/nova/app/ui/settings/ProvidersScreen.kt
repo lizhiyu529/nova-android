@@ -50,8 +50,8 @@ fun ProvidersScreen(
         Surface(
             onClick = onAddProvider,
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
-            color = NovaTheme.colors.card,
+            shape = RoundedCornerShape(20.dp),
+            color = NovaTheme.colors.accent,
         ) {
             Row(
                 modifier = Modifier.padding(horizontal = 18.dp, vertical = 15.dp),
@@ -60,7 +60,7 @@ fun ProvidersScreen(
                 Surface(
                     modifier = Modifier.size(30.dp),
                     shape = CircleShape,
-                    color = NovaTheme.colors.accent,
+                    color = NovaTheme.colors.onAccent.copy(alpha = 0.18f),
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
@@ -76,7 +76,7 @@ fun ProvidersScreen(
                     text = strings.providersAdd,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
-                    color = NovaTheme.colors.textPrimary,
+                    color = NovaTheme.colors.onAccent,
                 )
             }
         }
