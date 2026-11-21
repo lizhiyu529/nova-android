@@ -12,17 +12,22 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-private const val STREAM_THROTTLE_MS = 40L
+private const val PUBLISH_INTERVAL_MS = 60L
 
 data class ChatState(
     val turns: List<ChatTurn> = emptyList(),
-    val liveReasoning: String = "",
-    val liveText: String = "",
-    val liveTools: List<ToolCallRecord> = emptyList(),
+    val liveParts: List<ChatPart> = emptyList(),
     val loading: Boolean = false,
     val errorText: String = "",
     val conversationId: String = "",
-)
+) {
+    val hasLive: Boolean
+        get() = loading || errorText.isNotEmpty() || liveParts.any {
+            it is ChatPart.Text && it.text.isNotEmpty() ||
+                it is ChatPart.Reasoning && it.text.isNotEmpty() ||
+                it is ChatPart.Tool
+        }
+}
 
 class ChatController(
     private val context: Context,
@@ -39,13 +44,6 @@ class ChatController(
         state = next
         onState(next)
     }
-
-    private fun clearLive() = state.copy(
-        liveReasoning = "",
-        liveText = "",
-        liveTools = emptyList(),
-        loading = false,
-    )
 
     fun reset() {
         job?.cancel()
@@ -71,28 +69,21 @@ class ChatController(
     fun stop() {
         job?.cancel()
         job = null
-        val current = state
-        val leftText = current.liveText
-        if (leftText.isNotBlank()) {
+        val parts = state.liveParts
+        val text = parts.filterIsInstance<ChatPart.Text>().joinToString("") { it.text }
+        if (text.isNotBlank()) {
             scope.launch {
-                repository.appendMessage(current.conversationId, MessageRole.Assistant, leftText)
+                repository.appendMessage(state.conversationId, MessageRole.Assistant, text)
             }
         }
         publish(
-            current.copy(
-                turns = if (leftText.isBlank()) {
-                    current.turns
+            state.copy(
+                turns = if (text.isBlank()) {
+                    state.turns
                 } else {
-                    current.turns + ChatTurn(
-                        role = "assistant",
-                        content = leftText,
-                        reasoning = current.liveReasoning,
-                        toolCalls = current.liveTools,
-                    )
+                    state.turns + ChatTurn(role = "assistant", content = text, parts = parts)
                 },
-                liveReasoning = "",
-                liveText = "",
-                liveTools = emptyList(),
+                liveParts = emptyList(),
                 loading = false,
             ),
         )
@@ -115,9 +106,7 @@ class ChatController(
         publish(
             current.copy(
                 turns = nextTurns,
-                liveReasoning = "",
-                liveText = "",
-                liveTools = emptyList(),
+                liveParts = emptyList(),
                 loading = true,
                 errorText = "",
             ),
@@ -144,9 +133,7 @@ class ChatController(
         publish(
             current.copy(
                 turns = trimmed,
-                liveReasoning = "",
-                liveText = "",
-                liveTools = emptyList(),
+                liveParts = emptyList(),
                 errorText = "",
                 loading = true,
             ),
@@ -169,12 +156,18 @@ class ChatController(
             var rounds = 0
             try {
                 while (true) {
-                    val text = StringBuilder()
-                    val reasoning = StringBuilder()
+                    var parts: List<ChatPart> = emptyList()
                     val toolAcc = LinkedHashMap<Int, ToolAccumulator>()
-                    var lastTextAt = 0L
-                    var lastReasonAt = 0L
-                    var publishedText = 0
+                    var lastPublish = 0L
+                    var dirty = false
+
+                    fun flush(force: Boolean) {
+                        val now = System.currentTimeMillis()
+                        if (!force && now - lastPublish < PUBLISH_INTERVAL_MS) return
+                        lastPublish = now
+                        dirty = false
+                        publish(state.copy(liveParts = parts, loading = false))
+                    }
 
                     ChatClient.send(
                         ChatRequest(
@@ -188,34 +181,43 @@ class ChatController(
                         ),
                     ).collect { chunk ->
                         when (chunk) {
-                            is ChatChunk.Delta -> {
-                                text.append(chunk.text)
-                                val now = System.currentTimeMillis()
-                                if (now - lastTextAt >= STREAM_THROTTLE_MS || text.length - publishedText >= 48) {
-                                    lastTextAt = now
-                                    publishedText = text.length
-                                    publish(
-                                        state.copy(
-                                            liveText = text.toString(),
-                                            liveReasoning = reasoning.toString(),
-                                            loading = false,
-                                        ),
-                                    )
+                            is ChatChunk.TextStart -> {
+                                parts = parts + ChatPart.Text("")
+                                dirty = true
+                            }
+
+                            is ChatChunk.TextDelta -> {
+                                parts = parts.updateLastOf<ChatPart.Text> {
+                                    it.copy(text = it.text + chunk.text)
                                 }
+                                dirty = true
+                                flush(false)
+                            }
+
+                            is ChatChunk.TextEnd -> {
+                                dirty = true
+                            }
+
+                            is ChatChunk.ReasoningStart -> {
+                                parts = parts + ChatPart.Reasoning("")
+                                dirty = true
+                                flush(true)
                             }
 
                             is ChatChunk.ReasoningDelta -> {
-                                reasoning.append(chunk.text)
-                                val now = System.currentTimeMillis()
-                                if (now - lastReasonAt >= STREAM_THROTTLE_MS) {
-                                    lastReasonAt = now
-                                    publish(
-                                        state.copy(
-                                            liveReasoning = reasoning.toString(),
-                                            loading = false,
-                                        ),
-                                    )
+                                parts = parts.updateLastOf<ChatPart.Reasoning> {
+                                    it.copy(text = it.text + chunk.text)
                                 }
+                                dirty = true
+                                flush(false)
+                            }
+
+                            is ChatChunk.ReasoningEnd -> {
+                                parts = parts.updateLastOf<ChatPart.Reasoning> {
+                                    it.copy(finished = true)
+                                }
+                                dirty = true
+                                flush(true)
                             }
 
                             is ChatChunk.ToolCallDelta -> {
@@ -229,30 +231,22 @@ class ChatController(
                         }
                     }
 
-                    val finalText = text.toString()
-                    val finalReasoning = reasoning.toString()
-                    publish(
-                        state.copy(
-                            liveText = finalText,
-                            liveReasoning = finalReasoning,
-                            loading = false,
-                        ),
-                    )
+                    val pending = toolAcc.values.filter { it.name.isNotBlank() && it.arguments.isNotEmpty() }
 
-                    val pendingCalls = toolAcc.values.filter { it.name.isNotBlank() && it.id.isNotBlank() }
-
-                    if (!settings.toolsEnabled || pendingCalls.isEmpty()) {
-                        val turn = ChatTurn(
-                            role = "assistant",
-                            content = finalText,
-                            reasoning = finalReasoning,
-                        )
-                        if (finalText.isNotBlank()) {
-                            repository.appendMessage(conversationId, MessageRole.Assistant, finalText)
+                    if (!settings.toolsEnabled || pending.isEmpty()) {
+                        if (dirty || parts.isNotEmpty()) {
+                            publish(state.copy(liveParts = parts, loading = false))
+                        }
+                        val text = parts.filterIsInstance<ChatPart.Text>().joinToString("") { it.text }
+                        val turn = ChatTurn(role = "assistant", content = text, parts = parts)
+                        if (text.isNotBlank()) {
+                            repository.appendMessage(conversationId, MessageRole.Assistant, text)
                         }
                         publish(
-                            clearLive().copy(
+                            state.copy(
                                 turns = state.turns + turn,
+                                liveParts = emptyList(),
+                                loading = false,
                             ),
                         )
                         break
@@ -260,47 +254,33 @@ class ChatController(
 
                     rounds++
                     if (rounds > settings.maxToolRounds) {
-                        publish(clearLive().copy(errorText = "工具调用超过 ${settings.maxToolRounds} 轮"))
+                        publish(state.copy(errorText = "工具调用超过 ${settings.maxToolRounds} 轮", liveParts = emptyList(), loading = false))
                         break
                     }
 
-                    history.add(
-                        ChatTurn(
-                            role = "assistant",
-                            content = finalText,
-                            reasoning = finalReasoning,
-                        ),
-                    )
+                    val assistantText = parts.filterIsInstance<ChatPart.Text>().joinToString("") { it.text }
+                    history.add(ChatTurn(role = "assistant", content = assistantText, parts = parts))
 
-                    val executed = mutableListOf<ToolCallRecord>()
-                    val runningList = pendingCalls.map {
-                        ToolCallRecord(name = it.name, arguments = it.arguments.toString(), running = true)
+                    for (call in pending) {
+                        parts = parts + ChatPart.Tool(
+                            toolCallId = call.id,
+                            name = call.name,
+                            arguments = call.arguments.toString(),
+                        )
                     }
-                    publish(
-                        state.copy(
-                            liveReasoning = finalReasoning,
-                            liveText = "",
-                            liveTools = runningList,
-                            loading = false,
-                        ),
-                    )
+                    publish(state.copy(liveParts = parts, loading = false))
 
-                    pendingCalls.forEachIndexed { index, call ->
+                    pending.forEach { call ->
                         val argsText = call.arguments.toString()
                         val output = NovaTools.execute(call.name, argsText)
-                        executed.add(
-                            ToolCallRecord(
-                                name = call.name,
-                                arguments = argsText,
-                                result = output,
-                                running = false,
-                            ),
-                        )
-                        val updated = runningList.toMutableList()
-                        if (index < updated.size) {
-                            updated[index] = executed.last()
+                        parts = parts.map { part ->
+                            if (part is ChatPart.Tool && part.toolCallId == call.id) {
+                                part.copy(output = output, isExecuted = true)
+                            } else {
+                                part
+                            }
                         }
-                        publish(state.copy(liveTools = updated.toList()))
+                        publish(state.copy(liveParts = parts))
                         history.add(
                             ChatTurn(
                                 role = "tool",
@@ -310,12 +290,6 @@ class ChatController(
                             ),
                         )
                     }
-
-                    state = state.copy(
-                        liveReasoning = finalReasoning,
-                        liveText = "",
-                        liveTools = executed,
-                    )
                 }
 
                 if (settings.autoTitle && history.count { it.role == "user" } >= 1) {
@@ -330,12 +304,20 @@ class ChatController(
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (e: ChatException) {
-                publish(
-                    clearLive().copy(errorText = readable(e.error)),
-                )
+                publish(state.copy(liveParts = emptyList(), loading = false, errorText = readable(e.error)))
             } catch (e: Exception) {
-                publish(clearLive().copy(errorText = e.message ?: "未知错误"))
+                publish(state.copy(liveParts = emptyList(), loading = false, errorText = e.message ?: "未知错误"))
             }
+        }
+    }
+
+    private inline fun <reified T : ChatPart> List<ChatPart>.updateLastOf(
+        transform: (T) -> ChatPart,
+    ): List<ChatPart> {
+        val index = indexOfLast { it is T }
+        if (index < 0) return this
+        return toMutableList().apply {
+            this[index] = transform(this[index] as T)
         }
     }
 

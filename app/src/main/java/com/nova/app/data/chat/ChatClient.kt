@@ -147,7 +147,9 @@ object ChatClient {
             if (content.isEmpty()) {
                 throw ChatException(ChatError.InvalidResponse("返回内容为空"))
             }
-            emit(ChatChunk.Delta(content))
+            emit(ChatChunk.TextStart("text"))
+            emit(ChatChunk.TextDelta("text", content))
+            emit(ChatChunk.TextEnd("text"))
             emit(ChatChunk.Done)
         }
     }.flowOn(Dispatchers.IO)

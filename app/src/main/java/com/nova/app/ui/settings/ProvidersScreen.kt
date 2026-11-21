@@ -1,6 +1,8 @@
 package com.nova.app.ui.settings
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,59 +52,71 @@ fun ProvidersScreen(
         Surface(
             onClick = onAddProvider,
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(18.dp),
             color = NovaTheme.colors.accent,
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 18.dp, vertical = 15.dp),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Surface(
-                    modifier = Modifier.size(30.dp),
-                    shape = CircleShape,
-                    color = NovaTheme.colors.onAccent.copy(alpha = 0.18f),
+                Box(
+                    modifier = Modifier.size(32.dp),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = NovaIcons.Plus,
-                            contentDescription = null,
-                            modifier = Modifier.size(15.dp),
-                            tint = NovaTheme.colors.onAccent,
-                        )
-                    }
+                    Icon(
+                        imageVector = NovaIcons.Plus,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = NovaTheme.colors.onAccent,
+                    )
                 }
-                Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.width(10.dp))
                 Text(
                     text = strings.providersAdd,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
                     color = NovaTheme.colors.onAccent,
+                    modifier = Modifier.weight(1f),
+                )
+                Icon(
+                    imageVector = NovaIcons.ChevronRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = NovaTheme.colors.onAccent,
                 )
             }
         }
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(22.dp))
 
         if (providers.isEmpty()) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 60.dp),
+                    .padding(top = 56.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Icon(
-                    imageVector = NovaIcons.Database,
-                    contentDescription = null,
-                    modifier = Modifier.size(30.dp),
-                    tint = NovaTheme.colors.textDisabled,
-                )
+                Surface(
+                    modifier = Modifier.size(54.dp),
+                    shape = CircleShape,
+                    color = NovaTheme.colors.containerLow,
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = NovaIcons.Database,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = NovaTheme.colors.textDisabled,
+                        )
+                    }
+                }
                 Spacer(Modifier.height(14.dp))
                 Text(
                     text = strings.providersEmpty,
                     style = MaterialTheme.typography.bodyLarge,
                     color = NovaTheme.colors.textSecondary,
                 )
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(5.dp))
                 Text(
                     text = strings.providersEmptyHint,
                     style = MaterialTheme.typography.bodySmall,
@@ -110,32 +124,13 @@ fun ProvidersScreen(
                 )
             }
         } else {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                color = NovaTheme.colors.card,
-            ) {
-                Column {
-                    providers.forEachIndexed { index, provider ->
-                        if (index > 0) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 60.dp)
-                                    .height(0.7.dp),
-                            ) {
-                                Surface(
-                                    modifier = Modifier.fillMaxSize(),
-                                    color = NovaTheme.colors.divider,
-                                ) {}
-                            }
-                        }
-                        ProviderRow(
-                            provider = provider,
-                            active = provider.id == activeId,
-                            onClick = { onOpenProvider(provider.id) },
-                        )
-                    }
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                providers.forEach { provider ->
+                    ProviderCard(
+                        provider = provider,
+                        active = provider.id == activeId,
+                        onClick = { onOpenProvider(provider.id) },
+                    )
                 }
             }
         }
@@ -144,83 +139,121 @@ fun ProvidersScreen(
 }
 
 @Composable
-private fun ProviderRow(
+private fun ProviderCard(
     provider: Provider,
     active: Boolean,
     onClick: () -> Unit,
 ) {
+    val strings = NovaStrings.strings
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-        Row(
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(18.dp))
-                .clickable(onClick = onClick)
-                .padding(horizontal = 16.dp, vertical = 13.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                .clip(RoundedCornerShape(20.dp))
+                .clickable(onClick = onClick),
+            shape = RoundedCornerShape(20.dp),
+            color = NovaTheme.colors.card,
+            border = if (active) {
+                BorderStroke(1.4.dp, NovaTheme.colors.accent)
+            } else {
+                BorderStroke(0.8.dp, NovaTheme.colors.divider)
+            },
         ) {
-            Surface(
-                modifier = Modifier.size(36.dp),
-                shape = RoundedCornerShape(12.dp),
-                color = if (active) {
-                    NovaTheme.colors.accent
-                } else {
-                    NovaTheme.colors.containerHigh
-                },
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = provider.name.take(1).uppercase().ifBlank { "?" },
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
+            Column(modifier = Modifier.padding(15.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        modifier = Modifier.size(40.dp),
+                        shape = RoundedCornerShape(13.dp),
                         color = if (active) {
-                            NovaTheme.colors.onAccent
+                            NovaTheme.colors.accent
                         } else {
-                            NovaTheme.colors.textSecondary
+                            NovaTheme.colors.containerHigh
                         },
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = provider.name.take(1).uppercase().ifBlank { "?" },
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (active) {
+                                    NovaTheme.colors.onAccent
+                                } else {
+                                    NovaTheme.colors.textSecondary
+                                },
+                            )
+                        }
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = provider.name.ifBlank { "-" },
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium,
+                                color = NovaTheme.colors.textPrimary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false),
+                            )
+                            if (active) {
+                                Spacer(Modifier.width(7.dp))
+                                Surface(
+                                    shape = RoundedCornerShape(7.dp),
+                                    color = NovaTheme.colors.accentSubtle,
+                                ) {
+                                    Text(
+                                        text = strings.confirm,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = NovaTheme.colors.onAccentSubtle,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                    )
+                                }
+                            }
+                        }
+                        if (provider.endpoint.isNotBlank()) {
+                            Spacer(Modifier.height(3.dp))
+                            Text(
+                                text = provider.endpoint,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = NovaTheme.colors.textTertiary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
+                    Spacer(Modifier.width(6.dp))
+                    Icon(
+                        imageVector = NovaIcons.ChevronRight,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = NovaTheme.colors.textTertiary,
                     )
                 }
-            }
-            Spacer(Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = provider.name.ifBlank { "-" },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = NovaTheme.colors.textPrimary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                if (provider.endpoint.isNotBlank()) {
-                    Spacer(Modifier.height(2.dp))
-                    Text(
-                        text = provider.endpoint,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = NovaTheme.colors.textTertiary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                if (provider.models.isNotEmpty()) {
+                    Spacer(Modifier.height(11.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        ModelChip(provider.models.size.toString() + " models")
+                        if (provider.allowHttp) {
+                            ModelChip("HTTP")
+                        }
+                    }
                 }
             }
-            if (active) {
-                Spacer(Modifier.width(8.dp))
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = NovaTheme.colors.accentSubtle,
-                ) {
-                    Text(
-                        text = NovaStrings.strings.confirm,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = NovaTheme.colors.onAccentSubtle,
-                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
-                    )
-                }
-            }
-            Spacer(Modifier.width(6.dp))
-            Icon(
-                imageVector = NovaIcons.ChevronRight,
-                contentDescription = null,
-                modifier = Modifier.size(15.dp),
-                tint = NovaTheme.colors.textTertiary,
-            )
         }
+    }
+}
+
+@Composable
+private fun ModelChip(text: String) {
+    Surface(
+        shape = RoundedCornerShape(8.dp),
+        color = NovaTheme.colors.containerLow,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            color = NovaTheme.colors.textTertiary,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+        )
     }
 }

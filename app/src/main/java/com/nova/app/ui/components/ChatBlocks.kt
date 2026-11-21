@@ -34,7 +34,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.nova.app.data.chat.ToolCallRecord
+import com.nova.app.data.chat.ChatPart
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.theme.NovaMotion
 import com.nova.app.ui.theme.NovaTheme
@@ -143,7 +143,7 @@ fun ReasoningPanel(
 
 @Composable
 fun ToolRunPanel(
-    record: ToolCallRecord,
+    part: ChatPart.Tool,
     modifier: Modifier = Modifier,
 ) {
     val strings = NovaStrings.strings
@@ -162,18 +162,18 @@ fun ToolRunPanel(
         color = NovaTheme.colors.containerLow,
         border = BorderStroke(
             0.8.dp,
-            if (record.running) NovaTheme.colors.accent else NovaTheme.colors.divider,
+            if (!part.isExecuted) NovaTheme.colors.accent else NovaTheme.colors.divider,
         ),
     ) {
         Column {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable(enabled = !record.running) { expanded = !expanded }
+                    .clickable(enabled = part.isExecuted) { expanded = !expanded }
                     .padding(horizontal = 13.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (record.running) {
+                if (!part.isExecuted) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(15.dp),
                         strokeWidth = 1.8.dp,
@@ -197,7 +197,7 @@ fun ToolRunPanel(
                 }
                 Spacer(Modifier.width(9.dp))
                 Text(
-                    text = record.name,
+                    text = part.name,
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontFamily = FontFamily.Monospace,
                     ),
@@ -206,7 +206,7 @@ fun ToolRunPanel(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
                 )
-                if (!record.running) {
+                if (part.isExecuted) {
                     Icon(
                         imageVector = NovaIcons.ChevronDown,
                         contentDescription = null,
@@ -218,14 +218,14 @@ fun ToolRunPanel(
                 }
             }
             AnimatedVisibility(
-                visible = expanded && !record.running,
+                visible = expanded && part.isExecuted,
                 enter = NovaTransitions.sectionEnter,
                 exit = NovaTransitions.sectionExit,
             ) {
                 Column(modifier = Modifier.padding(start = 13.dp, end = 13.dp, bottom = 10.dp)) {
-                    JsonBlock(label = strings.toolCallArguments, content = record.arguments)
+                    JsonBlock(label = strings.toolCallArguments, content = part.arguments)
                     Spacer(Modifier.size(6.dp))
-                    JsonBlock(label = strings.toolCallResult, content = record.result)
+                    JsonBlock(label = strings.toolCallResult, content = part.output)
                 }
             }
         }

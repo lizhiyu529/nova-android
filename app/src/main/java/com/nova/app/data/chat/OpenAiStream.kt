@@ -8,67 +8,107 @@ object OpenAiStream {
 
     private const val DONE = "[DONE]"
     private const val DATA = "data:"
+    private const val TEXT_ID = "text"
+    private const val REASONING_ID = "reasoning"
+
+    private var textOpen = false
+    private var reasoningOpen = false
 
     fun read(reader: BufferedReader, onChunk: (ChatChunk) -> Unit) {
+        textOpen = false
+        reasoningOpen = false
         while (true) {
             val line = reader.readLine() ?: break
             if (line.isBlank()) continue
             if (!line.startsWith(DATA)) continue
             val payload = line.removePrefix(DATA).trim()
             if (payload == DONE) {
+                if (reasoningOpen) {
+                    onChunk(ChatChunk.ReasoningEnd(REASONING_ID))
+                    reasoningOpen = false
+                }
+                if (textOpen) {
+                    onChunk(ChatChunk.TextEnd(TEXT_ID))
+                    textOpen = false
+                }
                 onChunk(ChatChunk.Done)
                 break
             }
-            parseChunk(payload)?.let(onChunk)
+            parse(payload, onChunk)
         }
     }
 
-    fun parseChunk(raw: String): ChatChunk? {
-        return runCatching {
+    private fun parse(raw: String, onChunk: (ChatChunk) -> Unit) {
+        runCatching {
             val root = JSONObject(raw)
 
-            val usage = root.optJSONObject("usage")
-            if (usage != null) {
+            root.optJSONObject("usage")?.let { usage ->
                 val prompt = usage.optInt("prompt_tokens", 0)
                 val completion = usage.optInt("completion_tokens", 0)
                 if (prompt > 0 || completion > 0) {
-                    return ChatChunk.Usage(prompt, completion)
+                    onChunk(ChatChunk.Usage(prompt, completion))
                 }
             }
 
-            val choices: JSONArray = root.optJSONArray("choices") ?: return null
-            if (choices.length() == 0) return null
-            val first = choices.optJSONObject(0) ?: return null
+            val choices: JSONArray = root.optJSONArray("choices") ?: return
+            if (choices.length() == 0) return
+            val first = choices.optJSONObject(0) ?: return
 
-            val finish = first.optString("finish_reason", "")
             val delta = first.optJSONObject("delta")
-
             if (delta != null) {
                 val reasoning = delta.optString("reasoning_content", "")
                     .ifBlank { delta.optString("reasoning", "") }
-                if (reasoning.isNotEmpty()) return ChatChunk.ReasoningDelta(reasoning)
+                if (reasoning.isNotEmpty()) {
+                    if (textOpen) {
+                        onChunk(ChatChunk.TextEnd(TEXT_ID))
+                        textOpen = false
+                    }
+                    if (!reasoningOpen) {
+                        onChunk(ChatChunk.ReasoningStart(REASONING_ID))
+                        reasoningOpen = true
+                    }
+                    onChunk(ChatChunk.ReasoningDelta(REASONING_ID, reasoning))
+                }
 
                 val content = delta.optString("content", "")
-                if (content.isNotEmpty()) return ChatChunk.Delta(content)
+                if (content.isNotEmpty()) {
+                    if (reasoningOpen) {
+                        onChunk(ChatChunk.ReasoningEnd(REASONING_ID))
+                        reasoningOpen = false
+                    }
+                    if (!textOpen) {
+                        onChunk(ChatChunk.TextStart(TEXT_ID))
+                        textOpen = true
+                    }
+                    onChunk(ChatChunk.TextDelta(TEXT_ID, content))
+                }
 
                 val toolCalls = delta.optJSONArray("tool_calls")
                 if (toolCalls != null && toolCalls.length() > 0) {
-                    val call = toolCalls.optJSONObject(0)
-                    if (call != null) {
-                        val index = call.optInt("index", 0)
+                    for (i in 0 until toolCalls.length()) {
+                        val call = toolCalls.optJSONObject(i) ?: continue
+                        val index = call.optInt("index", i)
                         val id = call.optString("id", "")
                         val function = call.optJSONObject("function")
                         val name = function?.optString("name", "").orEmpty()
                         val args = function?.optString("arguments", "").orEmpty()
-                        return ChatChunk.ToolCallDelta(index, id, name, args)
+                        onChunk(ChatChunk.ToolCallDelta(index, id, name, args))
                     }
                 }
             }
 
+            val finish = first.optString("finish_reason", "")
             if (finish.isNotEmpty()) {
-                return ChatChunk.Finish(finish)
+                if (reasoningOpen) {
+                    onChunk(ChatChunk.ReasoningEnd(REASONING_ID))
+                    reasoningOpen = false
+                }
+                if (textOpen) {
+                    onChunk(ChatChunk.TextEnd(TEXT_ID))
+                    textOpen = false
+                }
+                onChunk(ChatChunk.Finish(finish))
             }
-            null
         }.getOrNull()
     }
 }

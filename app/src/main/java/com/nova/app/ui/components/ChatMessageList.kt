@@ -19,21 +19,20 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.nova.app.data.chat.ChatPart
 import com.nova.app.data.chat.ChatTurn
-import com.nova.app.data.chat.ToolCallRecord
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.theme.NovaTheme
 
 @Composable
 fun ChatMessageList(
     turns: List<ChatTurn>,
-    liveReasoning: String,
-    liveText: String,
-    liveTools: List<ToolCallRecord>,
+    liveParts: List<ChatPart>,
     loading: Boolean,
     errorText: String,
     reasoningExpanded: Boolean,
@@ -41,18 +40,11 @@ fun ChatMessageList(
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
-    val hasLive = loading ||
-        liveReasoning.isNotEmpty() ||
-        liveText.isNotEmpty() ||
-        liveTools.isNotEmpty() ||
-        errorText.isNotEmpty()
+    val hasLive = loading || errorText.isNotEmpty() || liveParts.isNotEmpty()
+    val total = turns.size + if (hasLive) 1 else 0
 
-    val totalItems = turns.size + if (hasLive) 1 else 0
-
-    LaunchedEffect(totalItems, liveText.length, liveReasoning.length, liveTools.size) {
-        if (totalItems > 0) {
-            listState.animateScrollToItem(totalItems - 1)
-        }
+    LaunchedEffect(total) {
+        if (total > 0) listState.animateScrollToItem(total - 1)
     }
 
     LazyColumn(
@@ -62,36 +54,39 @@ fun ChatMessageList(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         itemsIndexed(turns) { index, turn ->
-            if (turn.role == "user") {
-                UserBubble(turn.content)
-            } else if (turn.role == "assistant") {
-                AssistantTurn(
-                    turn = turn,
-                    expanded = reasoningExpanded,
-                    onToggle = onReasoningToggle,
-                )
+            key("turn-$index-${turn.role}") {
+                if (turn.role == "user") {
+                    UserBubble(turn.content)
+                } else if (turn.role == "assistant") {
+                    AssistantParts(
+                        parts = turn.parts.ifEmpty {
+                            listOf(ChatPart.Text(turn.content))
+                        },
+                        expanded = reasoningExpanded,
+                        onToggle = onReasoningToggle,
+                        streaming = false,
+                    )
+                }
             }
         }
 
         if (hasLive) {
             item(key = "live") {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    if (liveReasoning.isNotEmpty()) {
-                        ReasoningPanel(
-                            text = liveReasoning,
+                    if (liveParts.isNotEmpty()) {
+                        AssistantParts(
+                            parts = liveParts,
                             expanded = reasoningExpanded,
-                            running = liveText.isEmpty() && errorText.isEmpty(),
                             onToggle = onReasoningToggle,
+                            streaming = true,
                         )
                     }
-                    when {
-                        errorText.isNotEmpty() -> ErrorBlock(errorText)
-                        liveText.isNotEmpty() -> MarkdownView(text = liveText)
-                        liveTools.isNotEmpty() || liveReasoning.isNotEmpty() -> Unit
-                        loading -> TypingDots(modifier = Modifier.padding(vertical = 8.dp))
+                    if (errorText.isNotEmpty()) {
+                        Spacer(Modifier.height(6.dp))
+                        ErrorBlock(errorText)
                     }
-                    liveTools.forEach { record ->
-                        ToolRunPanel(record = record)
+                    if (loading && liveParts.isEmpty()) {
+                        TypingDots(modifier = Modifier.padding(vertical = 8.dp))
                     }
                 }
             }
@@ -104,26 +99,38 @@ fun ChatMessageList(
 }
 
 @Composable
-private fun AssistantTurn(
-    turn: ChatTurn,
+private fun AssistantParts(
+    parts: List<ChatPart>,
     expanded: Boolean,
     onToggle: () -> Unit,
+    streaming: Boolean,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        if (turn.reasoning.isNotBlank()) {
-            ReasoningPanel(
-                text = turn.reasoning,
-                expanded = expanded,
-                running = false,
-                onToggle = onToggle,
-            )
-        }
-        if (turn.content.isNotBlank()) {
-            Spacer(Modifier.height(6.dp))
-            MarkdownView(text = turn.content)
-        }
-        turn.toolCalls.forEach { record ->
-            ToolRunPanel(record = record)
+        parts.forEachIndexed { index, part ->
+            key("part-$index-${part.javaClass.simpleName}") {
+                when (part) {
+                    is ChatPart.Reasoning -> {
+                        if (part.text.isNotEmpty()) {
+                            ReasoningPanel(
+                                text = part.text,
+                                expanded = expanded,
+                                running = streaming && !part.finished,
+                                onToggle = onToggle,
+                            )
+                        }
+                    }
+
+                    is ChatPart.Tool -> {
+                        ToolRunPanel(part = part)
+                    }
+
+                    is ChatPart.Text -> {
+                        if (part.text.isNotEmpty()) {
+                            MarkdownView(text = part.text)
+                        }
+                    }
+                }
+            }
         }
     }
 }

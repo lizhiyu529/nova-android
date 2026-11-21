@@ -41,8 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.nova.app.data.AppLogs
 import com.nova.app.data.CameraFiles
+import com.nova.app.data.chat.ChatPart
 import com.nova.app.data.chat.ChatTurn
-import com.nova.app.data.chat.ToolCallRecord
 import com.nova.app.data.loadRecentPhotos
 import com.nova.app.data.provider.ReasoningEffort
 import com.nova.app.ui.NovaStrings
@@ -62,9 +62,7 @@ fun HomeScreen(
     onOpenDrawer: () -> Unit,
     onNewChat: () -> Unit,
     turns: List<ChatTurn>,
-    liveReasoning: String,
-    liveText: String,
-    liveTools: List<ToolCallRecord>,
+    liveParts: List<ChatPart>,
     loading: Boolean,
     errorText: String,
     onSendMessage: (String) -> Unit,
@@ -248,7 +246,7 @@ fun HomeScreen(
                 }
             },
         ) { innerPadding ->
-            if (turns.isEmpty() && liveText.isEmpty() && liveReasoning.isEmpty() && !loading && errorText.isEmpty()) {
+            if (turns.isEmpty() && liveParts.isEmpty() && !loading && errorText.isEmpty()) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -264,9 +262,7 @@ fun HomeScreen(
             } else {
                 ChatMessageList(
                     turns = turns,
-                    liveReasoning = liveReasoning,
-                    liveText = liveText,
-                    liveTools = liveTools,
+                    liveParts = liveParts,
                     loading = loading,
                     errorText = errorText,
                     reasoningExpanded = if (autoCollapseThinking) reasoningExpanded else true,
@@ -389,9 +385,7 @@ private fun HomeScreenPreview() {
             onOpenDrawer = {},
             onNewChat = {},
             turns = emptyList(),
-            liveReasoning = "",
-            liveText = "",
-            liveTools = emptyList(),
+            liveParts = emptyList(),
             loading = false,
             errorText = "",
             onSendMessage = {},
@@ -412,9 +406,7 @@ private fun HomeScreenDarkPreview() {
             onOpenDrawer = {},
             onNewChat = {},
             turns = emptyList(),
-            liveReasoning = "",
-            liveText = "",
-            liveTools = emptyList(),
+            liveParts = emptyList(),
             loading = false,
             errorText = "",
             onSendMessage = {},

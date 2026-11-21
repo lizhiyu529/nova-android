@@ -26,7 +26,7 @@ You need to summarize the conversation between user and assistant into a short t
         turns: List<ChatTurn>,
     ): String? {
         if (turns.isEmpty()) return null
-        val content = turns.takeLast(6)
+        val content = turns.takeLast(4)
             .joinToString("\n") { "${it.role}: ${it.content.take(300)}" }
         val prompt = TEMPLATE.replace("{content}", content)
 
@@ -43,7 +43,7 @@ You need to summarize the conversation between user and assistant into a short t
                         temperature = 0.3,
                     ),
                 ).collect { chunk ->
-                    if (chunk is ChatChunk.Delta) builder.append(chunk.text)
+                    if (chunk is ChatChunk.TextDelta) builder.append(chunk.text)
                 }
             }
             builder.toString()
