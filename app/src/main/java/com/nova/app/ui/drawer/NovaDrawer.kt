@@ -803,7 +803,7 @@ private fun RenameDialog(
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(
                             onDone = {
-                                val trimmed = text.trim()
+                                val trimmed = field.text.trim()
                                 if (trimmed.isNotEmpty()) {
                                     keyboard?.hide()
                                     onConfirm(trimmed)
@@ -837,7 +837,7 @@ private fun RenameDialog(
                         text = NovaStrings.strings.confirm,
                         color = NovaTheme.colors.accent,
                         onClick = {
-                            val trimmed = text.trim()
+                            val trimmed = field.text.trim()
                             if (trimmed.isNotEmpty()) {
                                 keyboard?.hide()
                                 onConfirm(trimmed)
