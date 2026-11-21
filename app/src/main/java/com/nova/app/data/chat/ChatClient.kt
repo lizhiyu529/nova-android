@@ -111,7 +111,7 @@ object ChatClient {
         val detail = runCatching {
             val json = JSONObject(body)
             val error = json.optJSONObject("error")
-            error?.optString("message").orEmpty().ifBlank { json.optString("message") }
+            error?.str("message").orEmpty().ifBlank { json.str("message") }
         }.getOrDefault("")
         return ChatError.Http(code, detail.ifBlank { body.take(200) })
     }
@@ -143,7 +143,7 @@ object ChatClient {
             val first = choices.optJSONObject(0)
                 ?: throw ChatException(ChatError.InvalidResponse("choices 为空"))
             val message = first.optJSONObject("message")
-            val content = message?.optString("content").orEmpty()
+            val content = message?.str("content").orEmpty()
             if (content.isEmpty()) {
                 throw ChatException(ChatError.InvalidResponse("返回内容为空"))
             }

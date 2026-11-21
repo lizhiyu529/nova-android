@@ -1,8 +1,8 @@
 package com.nova.app.data.chat
 
-import java.io.BufferedReader
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.BufferedReader
 
 class OpenAiStream {
 
@@ -35,7 +35,7 @@ class OpenAiStream {
         runCatching {
             val root = JSONObject(raw)
 
-            root.optJSONObject("usage")?.let { usage ->
+            root.obj("usage")?.let { usage ->
                 val prompt = usage.optInt("prompt_tokens", 0)
                 val completion = usage.optInt("completion_tokens", 0)
                 if (prompt > 0 || completion > 0) {
@@ -47,16 +47,15 @@ class OpenAiStream {
             if (choices.length() == 0) return
             val first = choices.optJSONObject(0) ?: return
 
-            val delta = first.optJSONObject("delta")
+            val delta = first.obj("delta")
             if (delta != null) {
-                val reasoning = delta.optString("reasoning_content", "")
-                    .ifBlank { delta.optString("reasoning", "") }
+                val reasoning = delta.str("reasoning_content").ifBlank { delta.str("reasoning") }
                 if (reasoning.isNotEmpty()) {
                     onChunk(ChatChunk.ReasoningStart(REASONING_ID))
                     onChunk(ChatChunk.ReasoningDelta(REASONING_ID, reasoning))
                 }
 
-                val content = delta.optString("content", "")
+                val content = delta.str("content")
                 if (content.isNotEmpty()) {
                     onChunk(ChatChunk.TextStart(TEXT_ID))
                     onChunk(ChatChunk.TextDelta(TEXT_ID, content))
@@ -67,16 +66,16 @@ class OpenAiStream {
                     for (i in 0 until toolCalls.length()) {
                         val call = toolCalls.optJSONObject(i) ?: continue
                         val index = call.optInt("index", i)
-                        val id = call.optString("id", "")
-                        val function = call.optJSONObject("function")
-                        val name = function?.optString("name", "").orEmpty()
-                        val args = function?.optString("arguments", "").orEmpty()
+                        val id = call.str("id")
+                        val function = call.obj("function")
+                        val name = function?.str("name").orEmpty()
+                        val args = function?.str("arguments").orEmpty()
                         onChunk(ChatChunk.ToolCallDelta(index, id, name, args))
                     }
                 }
             }
 
-            val finish = first.optString("finish_reason", "")
+            val finish = first.str("finish_reason")
             if (finish.isNotEmpty()) {
                 onChunk(ChatChunk.Finish(finish))
             }

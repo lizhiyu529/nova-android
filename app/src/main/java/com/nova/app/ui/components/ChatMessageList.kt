@@ -34,45 +34,30 @@ import com.nova.app.ui.theme.NovaTheme
 private fun mergeParts(parts: List<ChatPart>): List<ChatPart> {
     val visible = parts.visibleParts()
     if (visible.size <= 1) return visible
+
+    val hasTool = visible.any { it is ChatPart.Tool }
+    if (hasTool) return visible
+
+    val reasoning = visible.filterIsInstance<ChatPart.Reasoning>()
+    val text = visible.filterIsInstance<ChatPart.Text>()
+
     val result = mutableListOf<ChatPart>()
-    var reasoning = StringBuilder()
-    var text = StringBuilder()
-
-    fun flushReasoning() {
-        if (reasoning.isNotEmpty()) {
-            result.add(ChatPart.Reasoning(reasoning.toString(), finished = true))
-            reasoning = StringBuilder()
-        }
+    if (reasoning.isNotEmpty()) {
+        result.add(
+            ChatPart.Reasoning(
+                reasoning.joinToString("") { it.text },
+                finished = reasoning.all { it.finished },
+            ),
+        )
     }
-
-    fun flushText() {
-        if (text.isNotEmpty()) {
-            result.add(ChatPart.Text(text.toString(), finished = true))
-            text = StringBuilder()
-        }
+    if (text.isNotEmpty()) {
+        result.add(
+            ChatPart.Text(
+                text.joinToString("") { it.text },
+                finished = text.all { it.finished },
+            ),
+        )
     }
-
-    visible.forEach { part ->
-        when (part) {
-            is ChatPart.Reasoning -> {
-                flushText()
-                reasoning.append(part.text)
-            }
-
-            is ChatPart.Text -> {
-                flushReasoning()
-                text.append(part.text)
-            }
-
-            is ChatPart.Tool -> {
-                flushReasoning()
-                flushText()
-                result.add(part)
-            }
-        }
-    }
-    flushReasoning()
-    flushText()
     return result
 }
 

@@ -11,6 +11,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
+import com.nova.app.data.chat.str
 import org.json.JSONObject
 
 sealed interface FetchResult {
@@ -40,7 +41,7 @@ object ProviderClient {
         val detail = runCatching {
             val json = JSONObject(body)
             val error = json.optJSONObject("error")
-            error?.optString("message").orEmpty().ifBlank { json.optString("message") }
+            error?.str("message").orEmpty().ifBlank { json.str("message") }
         }.getOrDefault("")
         val suffix = if (detail.isBlank()) "" else " · " + detail.take(120)
         return "HTTP $code$suffix"
