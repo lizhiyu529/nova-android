@@ -34,7 +34,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.nova.app.data.chat.ChatPart
+import com.nova.app.data.chat.MessagePart
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.theme.NovaMotion
 import com.nova.app.ui.theme.NovaTheme
@@ -143,7 +143,7 @@ fun ReasoningPanel(
 
 @Composable
 fun ToolRunPanel(
-    part: ChatPart.Tool,
+    part: MessagePart.Tool,
     modifier: Modifier = Modifier,
 ) {
     val strings = NovaStrings.strings

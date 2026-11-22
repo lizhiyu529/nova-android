@@ -23,42 +23,45 @@ You need to summarize the conversation between user and assistant into a short t
         context: Context,
         provider: Provider,
         model: String,
-        turns: List<ChatTurn>,
+        messages: List<UIMessage>,
     ): String? {
-        if (turns.isEmpty()) return null
-        val content = turns.takeLast(4)
-            .mapNotNull { turn ->
-                val body = turn.content.ifBlank { turn.textOnly() }
-                if (body.isBlank()) null else "${turn.role}: ${body.take(300)}"
+        if (messages.isEmpty()) return null
+
+        val content = messages.takeLast(4)
+            .mapNotNull { message ->
+                val body = message.toText()
+                if (body.isBlank()) null else "${message.role.value}: ${body.take(300)}"
             }
             .joinToString("\n")
         if (content.isBlank()) return null
-        val prompt = TEMPLATE.replace("{content}", content)
 
+        val prompt = TEMPLATE.replace("{content}", content)
         val result = withTimeoutOrNull(20_000L) {
-            val builder = StringBuilder()
+            var text = ""
             runCatching {
-                ChatClient.send(
+                OpenAiClient.generate(
                     ChatRequest(
                         provider = provider,
                         model = model,
-                        messages = listOf(ChatTurn("user", prompt)),
+                        messages = listOf(
+                            UIMessage(
+                                role = MessageRole.USER,
+                                parts = listOf(MessagePart.Text(prompt)),
+                            ),
+                        ),
                         stream = false,
                         maxTokens = 32,
                         temperature = 0.3,
                     ),
-                ).collect { chunk ->
-                    if (chunk is ChatChunk.TextDelta) builder.append(chunk.text)
-                }
+                ).collect { message -> text = message.toText() }
             }
-            builder.toString()
+            text
         }
-
         return clean(result)
     }
 
-    fun fallbackTitle(turns: List<ChatTurn>): String {
-        val first = turns.firstOrNull { it.role == "user" }?.content.orEmpty()
+    fun fallbackTitle(messages: List<UIMessage>): String {
+        val first = messages.firstOrNull { it.role == MessageRole.USER }?.toText().orEmpty()
         return sanitize(first).take(10).ifBlank { "新对话" }
     }
 
@@ -73,10 +76,8 @@ You need to summarize the conversation between user and assistant into a short t
         return stripped.take(10)
     }
 
-    private fun sanitize(input: String): String {
-        val cleaned = input.replace(Regex("[\\p{P}\\p{S}\\s]"), "")
-        return cleaned.trim()
-    }
+    private fun sanitize(input: String): String =
+        input.replace(Regex("[\\p{P}\\p{S}\\s]"), "").trim()
 
     fun activeProvider(context: Context): Provider? {
         val providers = ProviderStore.load(context)
