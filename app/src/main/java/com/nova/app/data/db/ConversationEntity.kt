@@ -19,5 +19,8 @@ data class MessageEntity(
     @ColumnInfo(name = "conversation_id", index = true) val conversationId: String,
     val role: String,
     val content: String,
+    @ColumnInfo(name = "parts_json") val partsJson: String = "",
+    @ColumnInfo(name = "usage_json") val usageJson: String = "",
+    val finished: Boolean = true,
     @ColumnInfo(name = "created_at") val createdAt: Long,
 )

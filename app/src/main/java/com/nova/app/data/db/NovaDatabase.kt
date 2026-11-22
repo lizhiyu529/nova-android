@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [ConversationEntity::class, MessageEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 abstract class NovaDatabase : RoomDatabase() {
@@ -15,6 +17,14 @@ abstract class NovaDatabase : RoomDatabase() {
     abstract fun dao(): NovaDao
 
     companion object {
+
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE messages ADD COLUMN parts_json TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE messages ADD COLUMN usage_json TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE messages ADD COLUMN finished INTEGER NOT NULL DEFAULT 1")
+            }
+        }
 
         @Volatile
         private var instance: NovaDatabase? = null
@@ -25,7 +35,7 @@ abstract class NovaDatabase : RoomDatabase() {
                     context.applicationContext,
                     NovaDatabase::class.java,
                     "nova.db",
-                ).build().also { instance = it }
+                ).addMigrations(MIGRATION_1_2).build().also { instance = it }
             }
         }
     }
