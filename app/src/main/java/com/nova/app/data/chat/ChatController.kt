@@ -3,29 +3,33 @@ package com.nova.app.data.chat
 import android.content.Context
 import com.nova.app.data.AssistantStore
 import com.nova.app.data.ConversationRepository
-import com.nova.app.data.MessageRole
+import com.nova.app.data.provider.GenerationSettings
 import com.nova.app.data.provider.GenerationStore
 import com.nova.app.data.provider.Provider
 import com.nova.app.data.provider.ProviderStore
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-private const val PUBLISH_INTERVAL_MS = 80L
-
 data class ChatState(
-    val turns: List<ChatTurn> = emptyList(),
-    val liveParts: List<ChatPart> = emptyList(),
-    val loading: Boolean = false,
+    val messages: List<UIMessage> = emptyList(),
+    val streaming: UIMessage? = null,
+    val busy: Boolean = false,
     val errorText: String = "",
     val conversationId: String = "",
+    val retryAvailable: Boolean = false,
 ) {
-    val visibleParts: List<ChatPart>
-        get() = liveParts.visibleParts()
+    val loading: Boolean
+        get() = busy && (streaming == null || streaming.parts.isEmptyUIMessage())
 
-    val hasLive: Boolean
-        get() = loading || errorText.isNotEmpty() || visibleParts.isNotEmpty()
+    val displayMessages: List<UIMessage>
+        get() {
+            val live = streaming ?: return messages
+            if (live.parts.isEmptyUIMessage()) return messages
+            return messages + live
+        }
 }
 
 class ChatController(
@@ -53,251 +57,241 @@ class ChatController(
     fun load(conversationId: String) {
         job?.cancel()
         job = null
-        publish(ChatState(conversationId = conversationId, loading = true))
+        publish(ChatState(conversationId = conversationId, busy = true))
         scope.launch {
-            val messages = runCatching { repository.messagesOf(conversationId) }.getOrDefault(emptyList())
+            val stored = runCatching { repository.uiMessagesOf(conversationId) }.getOrDefault(emptyList())
             publish(
                 ChatState(
                     conversationId = conversationId,
-                    turns = messages.map { ChatTurn(it.role.value, it.content) },
+                    messages = stored,
+                    retryAvailable = stored.any { it.role == MessageRole.USER },
                 ),
             )
         }
     }
 
     fun stop() {
+        val current = state
+        val streaming = current.streaming
         job?.cancel()
         job = null
-        val parts = state.liveParts
-        val text = parts.textContent()
-        if (text.isNotBlank()) {
+        if (streaming != null && !streaming.parts.isEmptyUIMessage()) {
+            val settled = streaming.finishReasoning()
+                .copy(parts = streaming.parts.map { part ->
+                    if (part is MessagePart.Tool && !part.isExecuted && part.output.isBlank()) {
+                        part.copy(output = STOPPED_OUTPUT, isExecuted = true)
+                    } else {
+                        part
+                    }
+                })
+                .finishReasoning()
+            publish(
+                current.copy(
+                    messages = current.messages + settled,
+                    streaming = null,
+                    busy = false,
+                    retryAvailable = true,
+                ),
+            )
             scope.launch {
-                repository.appendMessage(state.conversationId, MessageRole.Assistant, text)
+                runCatching { repository.appendUIMessage(current.conversationId, settled) }
             }
+        } else {
+            publish(current.copy(streaming = null, busy = false))
         }
-        publish(
-            state.copy(
-                turns = if (text.isBlank() && parts.isEmpty()) {
-                    state.turns
-                } else {
-                    state.turns + ChatTurn(role = "assistant", content = text, parts = parts)
-                },
-                liveParts = emptyList(),
-                loading = false,
-            ),
-        )
     }
 
     fun send(text: String) {
+        if (text.isBlank()) return
         val provider = activeProvider()
         if (provider == null) {
-            publish(state.copy(errorText = "未配置提供商", loading = false))
+            publish(state.copy(errorText = "未配置提供商", busy = false))
             return
         }
         val model = activeModel(provider)
         if (model == null) {
-            publish(state.copy(errorText = "未选择模型", loading = false))
+            publish(state.copy(errorText = "未选择模型", busy = false))
             return
         }
 
-        val current = state
-        val nextTurns = current.turns + ChatTurn("user", text)
+        val userMessage = UIMessage(
+            role = MessageRole.USER,
+            parts = listOf(MessagePart.Text(text)),
+            finished = true,
+        )
+        val next = state.messages + userMessage
         publish(
-            current.copy(
-                turns = nextTurns,
-                liveParts = emptyList(),
-                loading = true,
+            state.copy(
+                messages = next,
+                streaming = null,
+                busy = true,
                 errorText = "",
+                retryAvailable = false,
             ),
         )
 
-        scope.launch {
-            var conversationId = current.conversationId
+        job?.cancel()
+        job = scope.launch {
+            var conversationId = state.conversationId
             if (conversationId.isBlank()) {
-                conversationId = repository.createConversation(text.trim().take(10).ifBlank { "新对话" })
+                conversationId = repository.createConversation(suggestTitle(text))
                 publish(state.copy(conversationId = conversationId))
             }
-            repository.appendMessage(conversationId, MessageRole.User, text)
-            runAgent(conversationId, provider, model, nextTurns)
+            runCatching { repository.appendUIMessage(conversationId, userMessage) }
+            runAgent(conversationId, provider, model, next)
         }
     }
 
     fun retry() {
         val current = state
-        val lastUserIndex = current.turns.indexOfLast { it.role == "user" }
+        val lastUserIndex = current.messages.indexOfLast { it.role == MessageRole.USER }
         if (lastUserIndex < 0) return
-        val trimmed = current.turns.take(lastUserIndex + 1)
+        val trimmed = current.messages.take(lastUserIndex + 1)
         val provider = activeProvider() ?: return
         val model = activeModel(provider) ?: return
         publish(
             current.copy(
-                turns = trimmed,
-                liveParts = emptyList(),
+                messages = trimmed,
+                streaming = null,
                 errorText = "",
-                loading = true,
+                busy = true,
+                retryAvailable = false,
             ),
         )
-        scope.launch { runAgent(current.conversationId, provider, model, trimmed) }
+        job?.cancel()
+        job = scope.launch { runAgent(current.conversationId, provider, model, trimmed) }
     }
 
     private suspend fun runAgent(
         conversationId: String,
         provider: Provider,
         model: String,
-        baseTurns: List<ChatTurn>,
+        baseMessages: List<UIMessage>,
     ) {
         val settings = GenerationStore.load(context)
         val systemPrompt = AssistantStore.buildSystemPrompt(AssistantStore.load(context))
+        val toolList = if (settings.toolsEnabled) NovaTools.definitions else emptyList()
 
-        job?.cancel()
-        job = scope.launch {
-            val history = baseTurns.toMutableList()
-            var rounds = 0
-            var carriedParts: List<ChatPart> = emptyList()
-
-            try {
-                while (true) {
-                    val rawParts = streamOnce(
-                        provider = provider,
-                        model = model,
-                        history = history,
-                        systemPrompt = systemPrompt,
-                        settings = settings,
-                        baseParts = carriedParts,
-                    )
-                    val parts = ChatTurn(role = "assistant", parts = rawParts)
-                        .finishReasoning()
-                        .parts
-                    carriedParts = parts
-
-                    val pendingTools = parts.filterIsInstance<ChatPart.Tool>()
-                        .filter { !it.isExecuted && it.toolName.isNotBlank() }
-
-                    if (pendingTools.isEmpty()) {
-                        val text = parts.textContent()
-                        val turn = ChatTurn(role = "assistant", content = text, parts = parts)
-                        if (text.isNotBlank()) {
-                            repository.appendMessage(conversationId, MessageRole.Assistant, text)
-                        }
-                        publish(
-                            state.copy(
-                                turns = state.turns + turn,
-                                liveParts = emptyList(),
-                                loading = false,
-                            ),
-                        )
-                        break
+        try {
+            val loop = AgentLoop(
+                maxSteps = settings.maxToolRounds + 1,
+                tools = toolList,
+                executor = object : ToolExecutor {
+                    override suspend fun execute(name: String, arguments: String): String =
+                        NovaTools.execute(name, arguments)
+                },
+                generate = { messages ->
+                    if (settings.stream) {
+                        streamGenerate(provider, model, messages, systemPrompt, settings, toolList)
+                    } else {
+                        generateOnce(provider, model, messages, systemPrompt, settings, toolList)
                     }
+                },
+                onMessage = { message ->
+                    publish(state.copy(streaming = message, busy = true))
+                },
+            )
 
-                    rounds++
-                    if (rounds > settings.maxToolRounds) {
-                        publish(
-                            state.copy(
-                                errorText = "工具调用超过 ${settings.maxToolRounds} 轮",
-                                liveParts = emptyList(),
-                                loading = false,
-                            ),
-                        )
-                        break
-                    }
+            val result = loop.run(baseMessages)
+            if (result != null) {
+                runCatching { repository.appendUIMessage(conversationId, result) }
+                publish(
+                    state.copy(
+                        messages = baseMessages + result,
+                        streaming = null,
+                        busy = false,
+                        retryAvailable = true,
+                    ),
+                )
 
-                    var current = parts
-                    pendingTools.forEach { tool ->
-                        publish(state.copy(liveParts = current))
-                        val output = NovaTools.execute(tool.toolName, tool.input)
-                        current = current.map { part ->
-                            if (part is ChatPart.Tool && part.toolCallId == tool.toolCallId) {
-                                part.copy(output = output, isExecuted = true)
-                            } else {
-                                part
-                            }
-                        }
-                        publish(state.copy(liveParts = current))
-                    }
-
-                    history.add(
-                        ChatTurn(
-                            role = "assistant",
-                            content = current.textContent(),
-                            parts = current,
-                            toolCalls = pendingTools.map {
-                                ToolCallRef(
-                                    id = it.toolCallId,
-                                    name = it.toolName,
-                                    arguments = it.input,
-                                )
-                            },
-                        ),
-                    )
-
-                    pendingTools.forEach { tool ->
-                        val executed = current.filterIsInstance<ChatPart.Tool>()
-                            .firstOrNull { it.toolCallId == tool.toolCallId }
-                        history.add(
-                            ChatTurn(
-                                role = "tool",
-                                content = executed?.output.orEmpty(),
-                                name = tool.toolName,
-                                toolCallId = tool.toolCallId,
-                            ),
-                        )
-                    }
-                }
-
-                if (settings.autoTitle && history.count { it.role == "user" } >= 1) {
+                if (settings.autoTitle) {
                     val title = runCatching {
-                        TitleGenerator.generate(context, provider, model, history)
-                    }.getOrNull() ?: TitleGenerator.fallbackTitle(history)
+                        TitleGenerator.generate(context, provider, model, baseMessages + result)
+                    }.getOrNull()
+                        ?: TitleGenerator.fallbackTitle(baseMessages)
                     if (title.isNotBlank()) {
-                        repository.rename(conversationId, title)
+                        runCatching { repository.rename(conversationId, title) }
                         onTitleChanged(conversationId, title)
                     }
                 }
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (e: ChatException) {
-                publish(state.copy(liveParts = emptyList(), loading = false, errorText = readable(e.error)))
-            } catch (e: Exception) {
-                publish(state.copy(liveParts = emptyList(), loading = false, errorText = e.message ?: "未知错误"))
+            } else {
+                publish(state.copy(busy = false, streaming = null))
             }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (e: ChatException) {
+            publish(state.copy(streaming = null, busy = false, errorText = readable(e.error), retryAvailable = true))
+        } catch (e: Exception) {
+            publish(
+                state.copy(
+                    streaming = null,
+                    busy = false,
+                    errorText = e.message ?: e.javaClass.simpleName,
+                    retryAvailable = true,
+                ),
+            )
         }
     }
 
-    private suspend fun streamOnce(
+    private suspend fun streamGenerate(
         provider: Provider,
         model: String,
-        history: List<ChatTurn>,
+        messages: List<UIMessage>,
         systemPrompt: String,
-        settings: com.nova.app.data.provider.GenerationSettings,
-        baseParts: List<ChatPart> = emptyList(),
-    ): List<ChatPart> {
-        val handler = StreamPartHandler()
-        var parts: List<ChatPart> = baseParts
+        settings: GenerationSettings,
+        tools: List<ChatTool>,
+    ): UIMessage {
+        val handler = StreamChunkHandler()
+        var current = UIMessage(role = MessageRole.ASSISTANT, parts = emptyList())
         var lastPublish = 0L
-        var loadingCleared = false
 
-        ChatClient.send(
+        OpenAiClient.stream(
             ChatRequest(
                 provider = provider,
                 model = model,
-                messages = history,
+                messages = messages,
                 systemPrompt = systemPrompt,
                 reasoning = settings.reasoning.key.ifBlank { null },
-                tools = if (settings.toolsEnabled) NovaTools.definitions else emptyList(),
-                stream = settings.stream,
+                tools = tools,
+                stream = true,
             ),
         ).collect { chunk ->
-            parts = handler.handle(parts, chunk)
+            current = handler.handle(listOf(current), chunk).single()
             val now = System.currentTimeMillis()
-            if (!loadingCleared || now - lastPublish >= PUBLISH_INTERVAL_MS) {
+            if (now - lastPublish >= PUBLISH_INTERVAL_MS) {
                 lastPublish = now
-                loadingCleared = true
-                publish(state.copy(liveParts = parts, loading = false))
+                publish(state.copy(streaming = current, busy = true))
             }
         }
+        return current.finishReasoning()
+    }
 
-        publish(state.copy(liveParts = parts, loading = false))
-        return parts
+    private suspend fun generateOnce(
+        provider: Provider,
+        model: String,
+        messages: List<UIMessage>,
+        systemPrompt: String,
+        settings: GenerationSettings,
+        tools: List<ChatTool>,
+    ): UIMessage {
+        var result: UIMessage? = null
+        OpenAiClient.generate(
+            ChatRequest(
+                provider = provider,
+                model = model,
+                messages = messages,
+                systemPrompt = systemPrompt,
+                reasoning = settings.reasoning.key.ifBlank { null },
+                tools = tools,
+                stream = false,
+            ),
+        ).collect { result = it }
+        return result ?: UIMessage(role = MessageRole.ASSISTANT, parts = emptyList(), finished = true)
+    }
+
+    private fun suggestTitle(text: String): String {
+        val firstLine = text.trim().lineSequence().firstOrNull().orEmpty()
+        return firstLine.take(20).ifBlank { "新对话" }
     }
 
     private fun readable(error: ChatError): String = when (error) {
@@ -317,5 +311,10 @@ class ChatController(
         val selected = ProviderStore.activeModel(context, provider.id)
         if (selected.isNotBlank() && provider.models.any { it.id == selected }) return selected
         return provider.models.firstOrNull()?.id
+    }
+
+    private companion object {
+        const val PUBLISH_INTERVAL_MS = 60L
+        const val STOPPED_OUTPUT = "{\"error\":\"stopped by user\"}"
     }
 }
