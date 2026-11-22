@@ -41,7 +41,7 @@ object ChatClient {
         else -> ChatError.Network(throwable.message?.take(160) ?: throwable.javaClass.simpleName)
     }
 
-    private fun buildBody(request: ChatRequest): String {
+    private fun buildMessages(request: ChatRequest): JSONArray {
         val messages = JSONArray()
         if (request.systemPrompt.isNotBlank()) {
             messages.put(
@@ -51,76 +51,135 @@ object ChatClient {
                 },
             )
         }
-        request.messages.forEach { turn ->
-            messages.put(
-                JSONObject().apply {
-                    put("role", turn.role)
-                    if (turn.role == "assistant" && turn.toolCalls.isNotEmpty()) {
-                        if (turn.content.isNotBlank()) put("content", turn.content) else put("content", JSONObject.NULL)
-                        put(
-                            "tool_calls",
-                            JSONArray().apply {
-                                turn.toolCalls.forEach { call ->
-                                    put(
-                                        JSONObject().apply {
-                                            put("id", call.id)
-                                            put("type", "function")
-                                            put(
-                                                "function",
-                                                JSONObject().apply {
-                                                    put("name", call.name)
-                                                    put("arguments", call.arguments.ifBlank { "{}" })
-                                                },
-                                            )
-                                        },
-                                    )
-                                }
+
+        request.messages.filter { it.isValidToUpload() }.forEach { turn ->
+            if (turn.role == "assistant") {
+                addAssistantMessages(messages, turn)
+            } else {
+                messages.put(
+                    JSONObject().apply {
+                        put("role", turn.role)
+                        put("content", turn.content)
+                        if (turn.name.isNotBlank() && turn.role != "tool") put("name", turn.name)
+                        if (turn.toolCallId.isNotBlank()) put("tool_call_id", turn.toolCallId)
+                    },
+                )
+            }
+        }
+        return messages
+    }
+
+    private fun addAssistantMessages(messages: JSONArray, turn: ChatTurn) {
+        val groups = groupPartsByToolBoundary(turn.parts)
+        val contentBuffer = mutableListOf<ChatPart>()
+        var reasoning: String = ""
+
+        groups.forEach { group ->
+            when (group) {
+                is PartGroup.Content -> {
+                    group.parts.filterIsInstance<ChatPart.Reasoning>().firstOrNull()?.let {
+                        reasoning = it.text
+                    }
+                    group.parts.filterIsInstance<ChatPart.Text>().forEach { contentBuffer.add(it) }
+                }
+
+                is PartGroup.Tools -> {
+                    messages.put(buildAssistantJson(contentBuffer, group.tools, reasoning))
+                    contentBuffer.clear()
+                    reasoning = ""
+                    group.tools.forEach { tool ->
+                        messages.put(
+                            JSONObject().apply {
+                                put("role", "tool")
+                                put("tool_call_id", tool.toolCallId)
+                                put("content", tool.output.ifBlank { "{}" })
                             },
                         )
-                    } else {
-                        put("content", turn.content)
                     }
-                    if (turn.name.isNotBlank() && turn.role != "tool") put("name", turn.name)
-                    if (turn.toolCallId.isNotBlank()) put("tool_call_id", turn.toolCallId)
-                },
-            )
+                }
+            }
         }
 
+        if (contentBuffer.isNotEmpty() || reasoning.isNotBlank() || turn.content.isNotBlank()) {
+            messages.put(buildAssistantJson(contentBuffer, emptyList(), reasoning))
+        }
+    }
+
+    private fun buildAssistantJson(
+        contentParts: List<ChatPart>,
+        tools: List<ChatPart.Tool>,
+        reasoning: String,
+    ): JSONObject {
+        val text = contentParts.filterIsInstance<ChatPart.Text>()
+            .joinToString("") { it.text }
+
         return JSONObject().apply {
-            put("model", request.model)
-            put("messages", messages)
-            put("stream", request.stream)
-            request.temperature?.let { put("temperature", it) }
-            request.maxTokens?.let { put("max_tokens", it) }
-            request.reasoning?.let { put("reasoning_effort", it) }
-            if (request.stream) {
-                put("stream_options", JSONObject().put("include_usage", true))
-            }
-            if (request.tools.isNotEmpty()) {
-                val tools = JSONArray()
-                request.tools.forEach { tool ->
-                    tools.put(
-                        JSONObject().apply {
-                            put("type", "function")
+            put("role", "assistant")
+            if (reasoning.isNotBlank()) put("reasoning_content", reasoning)
+            if (tools.isEmpty()) {
+                put("content", text)
+            } else {
+                if (text.isBlank()) put("content", JSONObject.NULL) else put("content", text)
+                put(
+                    "tool_calls",
+                    JSONArray().apply {
+                        tools.forEach { tool ->
                             put(
-                                "function",
                                 JSONObject().apply {
-                                    put("name", tool.name)
-                                    put("description", tool.description)
-                                    put("parameters", JSONObject(tool.parameters))
+                                    put("id", tool.toolCallId)
+                                    put("type", "function")
+                                    put(
+                                        "function",
+                                        JSONObject().apply {
+                                            put("name", tool.toolName)
+                                            put("arguments", tool.input.ifBlank { "{}" })
+                                        },
+                                    )
                                 },
                             )
-                        },
-                    )
-                }
-                put("tools", tools)
+                        }
+                    },
+                )
             }
-        }.toString()
+        }
     }
 
     private fun buildRequest(request: ChatRequest, stream: Boolean): Request {
         val endpoint = normalizeEndpoint(request.provider.endpoint, request.provider.allowHttp)
-        val body = buildBody(request.copy(stream = stream))
+        val body = JSONObject().apply {
+            put("model", request.model)
+            put("messages", buildMessages(request))
+            put("stream", stream)
+            request.temperature?.let { put("temperature", it) }
+            request.maxTokens?.let { put("max_tokens", it) }
+            request.reasoning?.let { put("reasoning_effort", it) }
+            if (stream) {
+                put("stream_options", JSONObject().put("include_usage", true))
+            }
+            if (request.tools.isNotEmpty()) {
+                put(
+                    "tools",
+                    JSONArray().apply {
+                        request.tools.forEach { tool ->
+                            put(
+                                JSONObject().apply {
+                                    put("type", "function")
+                                    put(
+                                        "function",
+                                        JSONObject().apply {
+                                            put("name", tool.name)
+                                            put("description", tool.description)
+                                            put("parameters", JSONObject(tool.parameters))
+                                        },
+                                    )
+                                },
+                            )
+                        }
+                    },
+                )
+            }
+        }.toString()
+
         val builder = Request.Builder()
             .url(chatUrl(endpoint))
             .post(body.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull()))
@@ -157,23 +216,31 @@ object ChatClient {
             val root = runCatching { JSONObject(body) }.getOrElse {
                 throw ChatException(ChatError.InvalidResponse(it.message ?: "解析失败"))
             }
-            root.optJSONObject("usage")?.let { usage ->
+            root.obj("usage")?.let { usage ->
                 val prompt = usage.optInt("prompt_tokens", 0)
                 val completion = usage.optInt("completion_tokens", 0)
-                if (prompt > 0 || completion > 0) emit(ChatChunk.Usage(prompt, completion, prompt + completion))
+                val total = usage.optInt("total_tokens", prompt + completion)
+                if (prompt > 0 || completion > 0) emit(ChatChunk.Usage(prompt, completion, total))
             }
             val choices = root.optJSONArray("choices")
                 ?: throw ChatException(ChatError.InvalidResponse("缺少 choices"))
             val first = choices.optJSONObject(0)
                 ?: throw ChatException(ChatError.InvalidResponse("choices 为空"))
-            val message = first.optJSONObject("message")
+            val message = first.obj("message")
             val content = message?.str("content").orEmpty()
-            if (content.isEmpty()) {
-                throw ChatException(ChatError.InvalidResponse("返回内容为空"))
+            val reasoning = message?.str("reasoning_content")
+                ?.ifBlank { message.str("reasoning") }
+                .orEmpty()
+            if (reasoning.isNotEmpty()) {
+                emit(ChatChunk.ReasoningStart("reasoning-1"))
+                emit(ChatChunk.ReasoningDelta("reasoning-1", reasoning))
+                emit(ChatChunk.ReasoningEnd("reasoning-1"))
             }
-            emit(ChatChunk.TextStart("text-1"))
-            emit(ChatChunk.TextDelta("text-1", content))
-            emit(ChatChunk.TextEnd("text-1"))
+            if (content.isNotEmpty()) {
+                emit(ChatChunk.TextStart("text-1"))
+                emit(ChatChunk.TextDelta("text-1", content))
+                emit(ChatChunk.TextEnd("text-1"))
+            }
             emit(ChatChunk.Done)
         }
     }.flowOn(Dispatchers.IO)
@@ -198,9 +265,7 @@ object ChatClient {
                     }
                     try {
                         val reader = source.charStream().buffered()
-                        OpenAiStream().read(reader) { chunk ->
-                            trySend(chunk)
-                        }
+                        OpenAiStream().read(reader) { chunk -> trySend(chunk) }
                         close()
                     } catch (e: Exception) {
                         close(ChatException(describe(e)))
@@ -208,7 +273,6 @@ object ChatClient {
                 }
             }
         })
-
         awaitClose { call.cancel() }
     }.flowOn(Dispatchers.IO)
 }

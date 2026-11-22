@@ -153,10 +153,22 @@ class ChatController(
         job = scope.launch {
             val history = baseTurns.toMutableList()
             var rounds = 0
+            var carriedParts: List<ChatPart> = emptyList()
 
             try {
                 while (true) {
-                    val parts = streamOnce(provider, model, history, systemPrompt, settings)
+                    val rawParts = streamOnce(
+                        provider = provider,
+                        model = model,
+                        history = history,
+                        systemPrompt = systemPrompt,
+                        settings = settings,
+                        baseParts = carriedParts,
+                    )
+                    val parts = ChatTurn(role = "assistant", parts = rawParts)
+                        .finishReasoning()
+                        .parts
+                    carriedParts = parts
 
                     val pendingTools = parts.filterIsInstance<ChatPart.Tool>()
                         .filter { !it.isExecuted && it.toolName.isNotBlank() }
@@ -189,21 +201,6 @@ class ChatController(
                         break
                     }
 
-                    history.add(
-                        ChatTurn(
-                            role = "assistant",
-                            content = parts.textContent(),
-                            parts = parts,
-                            toolCalls = pendingTools.map {
-                                ToolCallRef(
-                                    id = it.toolCallId,
-                                    name = it.toolName,
-                                    arguments = it.input,
-                                )
-                            },
-                        ),
-                    )
-
                     var current = parts
                     pendingTools.forEach { tool ->
                         publish(state.copy(liveParts = current))
@@ -216,10 +213,30 @@ class ChatController(
                             }
                         }
                         publish(state.copy(liveParts = current))
+                    }
+
+                    history.add(
+                        ChatTurn(
+                            role = "assistant",
+                            content = current.textContent(),
+                            parts = current,
+                            toolCalls = pendingTools.map {
+                                ToolCallRef(
+                                    id = it.toolCallId,
+                                    name = it.toolName,
+                                    arguments = it.input,
+                                )
+                            },
+                        ),
+                    )
+
+                    pendingTools.forEach { tool ->
+                        val executed = current.filterIsInstance<ChatPart.Tool>()
+                            .firstOrNull { it.toolCallId == tool.toolCallId }
                         history.add(
                             ChatTurn(
                                 role = "tool",
-                                content = output,
+                                content = executed?.output.orEmpty(),
                                 name = tool.toolName,
                                 toolCallId = tool.toolCallId,
                             ),
@@ -252,9 +269,10 @@ class ChatController(
         history: List<ChatTurn>,
         systemPrompt: String,
         settings: com.nova.app.data.provider.GenerationSettings,
+        baseParts: List<ChatPart> = emptyList(),
     ): List<ChatPart> {
         val handler = StreamPartHandler()
-        var parts: List<ChatPart> = emptyList()
+        var parts: List<ChatPart> = baseParts
         var lastPublish = 0L
         var loadingCleared = false
 
