@@ -70,7 +70,7 @@ object ChatClient {
     }
 
     private fun addAssistantMessages(messages: JSONArray, turn: ChatTurn) {
-        val groups = groupPartsByToolBoundary(turn.parts)
+        val groups = groupPartsByToolBoundary(turn.toParts())
         val contentBuffer = mutableListOf<ChatPart>()
         var reasoning: String = ""
 
@@ -100,7 +100,7 @@ object ChatClient {
             }
         }
 
-        if (contentBuffer.isNotEmpty() || reasoning.isNotBlank() || turn.content.isNotBlank()) {
+        if (contentBuffer.isNotEmpty() || reasoning.isNotBlank()) {
             messages.put(buildAssistantJson(contentBuffer, emptyList(), reasoning))
         }
     }

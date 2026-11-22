@@ -72,12 +72,23 @@ data class ChatTurn(
 
     fun getTools(): List<ChatPart.Tool> = parts.filterIsInstance<ChatPart.Tool>()
 
-    fun isValidToUpload(): Boolean = parts.any { part ->
-        when (part) {
-            is ChatPart.Text -> part.text.isNotBlank()
-            is ChatPart.Reasoning -> part.text.isNotBlank()
-            else -> true
+    fun isValidToUpload(): Boolean {
+        if (role == "tool") return true
+        if (parts.isNotEmpty()) {
+            return parts.any { part ->
+                when (part) {
+                    is ChatPart.Text -> part.text.isNotBlank()
+                    is ChatPart.Reasoning -> part.text.isNotBlank()
+                    else -> true
+                }
+            }
         }
+        return content.isNotBlank()
+    }
+
+    fun toParts(): List<ChatPart> {
+        if (parts.isNotEmpty()) return parts
+        return if (content.isNotBlank()) listOf(ChatPart.Text(content)) else emptyList()
     }
 }
 
