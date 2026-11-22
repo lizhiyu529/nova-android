@@ -20,46 +20,20 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.nova.app.data.chat.ChatPart
-import com.nova.app.data.chat.ChatTurn
-import com.nova.app.data.chat.visibleParts
+import com.nova.app.data.chat.MessagePart
+import com.nova.app.data.chat.MessageRole
+import com.nova.app.data.chat.UIMessage
+import com.nova.app.data.chat.isEmptyUIMessage
 import com.nova.app.ui.NovaStrings
 import com.nova.app.ui.theme.NovaTheme
 
-private fun mergeParts(parts: List<ChatPart>): List<ChatPart> {
-    val visible = parts.visibleParts()
-    if (visible.size <= 1) return visible
-
-    val hasTool = visible.any { it is ChatPart.Tool }
-    if (hasTool) return visible
-
-    val reasoning = visible.filterIsInstance<ChatPart.Reasoning>()
-    val text = visible.filterIsInstance<ChatPart.Text>()
-
-    val result = mutableListOf<ChatPart>()
-    if (reasoning.isNotEmpty()) {
-        result.add(
-            ChatPart.Reasoning(
-                reasoning.joinToString("") { it.text },
-                finished = reasoning.all { it.finished },
-            ),
-        )
-    }
-    if (text.isNotEmpty()) {
-        result.add(ChatPart.Text(text.joinToString("") { it.text }))
-    }
-    return result
-}
-
 @Composable
 fun ChatMessageList(
-    turns: List<ChatTurn>,
-    liveParts: List<ChatPart>,
+    messages: List<UIMessage>,
     loading: Boolean,
     errorText: String,
     reasoningExpanded: Boolean,
@@ -67,10 +41,17 @@ fun ChatMessageList(
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
-    val merged = remember(liveParts) { mergeParts(liveParts) }
-    val hasLive = loading || errorText.isNotEmpty() || merged.isNotEmpty()
-    val total = turns.size + if (hasLive) 1 else 0
-    val signature = merged.hashCode() * 31 + turns.size
+    val visible = remember(messages) {
+        messages.filter { message ->
+            when (message.role) {
+                MessageRole.USER -> message.toText().isNotBlank()
+                MessageRole.ASSISTANT -> !message.parts.isEmptyUIMessage()
+                else -> false
+            }
+        }
+    }
+    val total = visible.size + if (loading || errorText.isNotEmpty()) 1 else 0
+    val signature = visible.hashCode() * 31 + total
 
     AutoScrollToBottom(
         listState = listState,
@@ -84,55 +65,48 @@ fun ChatMessageList(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        itemsIndexed(turns) { index, turn ->
-            key("turn-$index-${turn.role}") {
-                if (turn.role == "user") {
-                    UserBubble(turn.content)
-                } else if (turn.role == "assistant") {
-                    AssistantParts(
-                        parts = turn.parts.ifEmpty { listOf(ChatPart.Text(turn.content)) },
+        itemsIndexed(visible) { index, message ->
+            key("msg-$index-${message.role.value}") {
+                when (message.role) {
+                    MessageRole.USER -> UserBubble(message.toText())
+                    MessageRole.ASSISTANT -> AssistantBlock(
+                        parts = message.parts,
+                        streaming = !message.finished && index == visible.lastIndex,
                         expanded = reasoningExpanded,
                         onToggle = onReasoningToggle,
-                        streaming = false,
                     )
+
+                    else -> Unit
                 }
             }
         }
 
-        if (hasLive) {
-            item(key = "live") {
+        if (loading || errorText.isNotEmpty()) {
+            item(key = "tail-live") {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    if (merged.isNotEmpty()) {
-                        AssistantParts(
-                            parts = merged,
-                            expanded = reasoningExpanded,
-                            onToggle = onReasoningToggle,
-                            streaming = true,
-                        )
-                    }
                     if (errorText.isNotEmpty()) {
-                        Spacer(Modifier.height(6.dp))
                         ErrorBlock(errorText)
+                        Spacer(Modifier.height(6.dp))
                     }
-                    if (loading && merged.isEmpty()) {
+                    if (loading) {
                         TypingDots(modifier = Modifier.padding(vertical = 8.dp))
                     }
                 }
             }
         }
 
-        item(key = "tail") {
+        item(key = "tail-space") {
             Spacer(Modifier.height(4.dp))
         }
     }
 }
 
 @Composable
-private fun AssistantParts(
-    parts: List<ChatPart>,
+fun AssistantBlock(
+    parts: List<MessagePart>,
+    streaming: Boolean,
     expanded: Boolean,
     onToggle: () -> Unit,
-    streaming: Boolean,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         var reasoningSeen = 0
@@ -140,14 +114,14 @@ private fun AssistantParts(
         var toolSeen = 0
         parts.forEach { part ->
             val stableKey = when (part) {
-                is ChatPart.Reasoning -> "r${reasoningSeen++}"
-                is ChatPart.Text -> "t${textSeen++}"
-                is ChatPart.Tool -> "x${toolSeen++}-${part.toolCallId}"
+                is MessagePart.Reasoning -> "r${reasoningSeen++}"
+                is MessagePart.Text -> "t${textSeen++}"
+                is MessagePart.Tool -> "x${toolSeen++}-${part.toolCallId}"
             }
             key(stableKey) {
                 when (part) {
-                    is ChatPart.Reasoning -> {
-                        if (part.text.isNotEmpty()) {
+                    is MessagePart.Reasoning -> {
+                        if (part.text.isNotBlank()) {
                             ReasoningPanel(
                                 text = part.text,
                                 expanded = expanded,
@@ -157,12 +131,10 @@ private fun AssistantParts(
                         }
                     }
 
-                    is ChatPart.Tool -> {
-                        ToolRunPanel(part = part)
-                    }
+                    is MessagePart.Tool -> ToolRunPanel(part = part)
 
-                    is ChatPart.Text -> {
-                        if (part.text.isNotEmpty()) {
+                    is MessagePart.Text -> {
+                        if (part.text.isNotBlank()) {
                             Box(modifier = Modifier.fillMaxWidth()) {
                                 MarkdownView(
                                     text = part.text,

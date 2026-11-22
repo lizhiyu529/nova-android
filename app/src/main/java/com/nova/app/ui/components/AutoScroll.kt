@@ -4,7 +4,10 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -17,15 +20,22 @@ fun AutoScrollToBottom(
 ) {
     val count by rememberUpdatedState(itemCount)
     val signature by rememberUpdatedState(contentSignature)
+    var pinned by remember { mutableStateOf(true) }
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.canScrollForward }
+            .distinctUntilChanged()
+            .collect { forward -> pinned = !forward }
+    }
 
     LaunchedEffect(listState) {
         snapshotFlow { count to signature }
             .distinctUntilChanged()
-            .filter { it.first > 0 }
+            .filter { it.first > 0 && pinned }
             .collect {
                 val target = count - 1
                 if (target >= 0) {
-                    listState.scrollToItem(target)
+                    listState.scrollToItem(target, scrollOffset = Int.MAX_VALUE / 2)
                 }
             }
     }

@@ -2,6 +2,7 @@ package com.nova.app.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -46,6 +47,8 @@ fun ChatInputBar(
     value: String,
     onValueChange: (String) -> Unit,
     onSend: () -> Unit,
+    onStop: () -> Unit,
+    streaming: Boolean,
     onAttach: () -> Unit,
     onExpand: () -> Unit,
     reasoningLabel: String,
@@ -105,7 +108,11 @@ fun ChatInputBar(
                         ExpandButton(onClick = onExpand)
                     }
                 }
-                SendButton(enabled = value.isNotBlank(), onClick = onSend)
+                if (streaming) {
+                    StopButton(onClick = onStop)
+                } else {
+                    SendButton(enabled = value.isNotBlank(), onClick = onSend)
+                }
             }
         }
     }
@@ -200,6 +207,32 @@ private fun ExpandButton(onClick: () -> Unit) {
                     contentDescription = NovaStrings.strings.chatExpand,
                     modifier = Modifier.size(15.dp),
                     tint = NovaTheme.colors.textSecondary,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StopButton(onClick: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val scale by rememberPressScale(pressed)
+    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+        Surface(
+            onClick = onClick,
+            modifier = Modifier
+                .size(ButtonTouchTarget + 2.dp)
+                .scale(scale),
+            shape = CircleShape,
+            color = NovaTheme.colors.accent,
+            interactionSource = interactionSource,
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .size(11.dp)
+                        .background(NovaTheme.colors.onAccent, RoundedCornerShape(3.dp)),
                 )
             }
         }

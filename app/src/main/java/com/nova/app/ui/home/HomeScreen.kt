@@ -41,8 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.nova.app.data.AppLogs
 import com.nova.app.data.CameraFiles
-import com.nova.app.data.chat.ChatPart
-import com.nova.app.data.chat.ChatTurn
+import com.nova.app.data.chat.UIMessage
 import com.nova.app.data.loadRecentPhotos
 import com.nova.app.data.provider.ReasoningEffort
 import com.nova.app.ui.NovaStrings
@@ -61,12 +60,13 @@ import com.nova.app.ui.theme.NovaTransitions
 fun HomeScreen(
     onOpenDrawer: () -> Unit,
     onNewChat: () -> Unit,
-    turns: List<ChatTurn>,
-    liveParts: List<ChatPart>,
+    messages: List<UIMessage>,
     loading: Boolean,
     errorText: String,
     onSendMessage: (String) -> Unit,
+    onStop: () -> Unit,
     onRetry: () -> Unit,
+    streaming: Boolean,
     reasoningLabel: String,
     reasoningKey: String,
     autoCollapseThinking: Boolean,
@@ -203,16 +203,18 @@ fun HomeScreen(
                             value = draft,
                             onValueChange = { draft = it },
                             onSend = {
-                            val text = draft.trim()
-                            if (text.isNotEmpty()) {
-                                onSendMessage(text)
-                                draft = ""
-                            }
-                        },
+                                val text = draft.trim()
+                                if (text.isNotEmpty()) {
+                                    onSendMessage(text)
+                                    draft = ""
+                                }
+                            },
                             onAttach = { showAttachments = !showAttachments },
                             onExpand = { showEditor = true },
                             reasoningLabel = reasoningLabel,
                             onReasoningClick = { showReasoning = true },
+                            streaming = streaming,
+                            onStop = onStop,
                         )
                     }
                     AnimatedVisibility(
@@ -246,7 +248,7 @@ fun HomeScreen(
                 }
             },
         ) { innerPadding ->
-            if (turns.isEmpty() && liveParts.isEmpty() && !loading && errorText.isEmpty()) {
+            if (messages.isEmpty() && !loading && errorText.isEmpty()) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -261,8 +263,7 @@ fun HomeScreen(
                 }
             } else {
                 ChatMessageList(
-                    turns = turns,
-                    liveParts = liveParts,
+                    messages = messages,
                     loading = loading,
                     errorText = errorText,
                     reasoningExpanded = if (autoCollapseThinking) reasoningExpanded else true,
@@ -384,12 +385,13 @@ private fun HomeScreenPreview() {
         HomeScreen(
             onOpenDrawer = {},
             onNewChat = {},
-            turns = emptyList(),
-            liveParts = emptyList(),
+            messages = emptyList(),
             loading = false,
             errorText = "",
             onSendMessage = {},
+            onStop = {},
             onRetry = {},
+            streaming = false,
             reasoningLabel = "",
             reasoningKey = "",
             autoCollapseThinking = true,
@@ -405,12 +407,13 @@ private fun HomeScreenDarkPreview() {
         HomeScreen(
             onOpenDrawer = {},
             onNewChat = {},
-            turns = emptyList(),
-            liveParts = emptyList(),
+            messages = emptyList(),
             loading = false,
             errorText = "",
             onSendMessage = {},
+            onStop = {},
             onRetry = {},
+            streaming = false,
             reasoningLabel = "",
             reasoningKey = "",
             autoCollapseThinking = true,

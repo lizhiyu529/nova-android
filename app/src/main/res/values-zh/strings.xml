@@ -223,8 +223,8 @@
     <string name="tools_section_hint">工具调用</string>
     <string name="reasoning_show">显示思考过程</string>
     <string name="tool_call_running">Running %1$s</string>
-    <string name="tool_call_result">Result</string>
-    <string name="tool_call_arguments">Arguments</string>
+    <string name="tool_call_result">结果</string>
+    <string name="tool_call_arguments">参数</string>
     <string name="reasoning_panel_title">Reasoning</string>
 
 </resources>

@@ -239,12 +239,13 @@ fun NovaApp(
                     scope.launch { drawerState.close() }
                     AppLogs.record(context, "new chat")
                 },
-                turns = chatState.turns,
-                liveParts = chatState.liveParts,
+                messages = chatState.displayMessages,
                 loading = chatState.loading,
                 errorText = chatState.errorText,
                 onSendMessage = { text -> chatController.send(text) },
+                onStop = { chatController.stop() },
                 onRetry = { chatController.retry() },
+                streaming = chatState.busy,
                 reasoningLabel = strings.reasoningLabel(generation.reasoning.key),
                 reasoningKey = generation.reasoning.key,
                 autoCollapseThinking = autoCollapseThinking,
