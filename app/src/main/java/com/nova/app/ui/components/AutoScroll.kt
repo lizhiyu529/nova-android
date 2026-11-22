@@ -35,7 +35,7 @@ fun AutoScrollToBottom(
             .collect {
                 val target = count - 1
                 if (target >= 0) {
-                    listState.scrollToItem(target, scrollOffset = Int.MAX_VALUE / 2)
+                    listState.scrollToItem(target)
                 }
             }
     }

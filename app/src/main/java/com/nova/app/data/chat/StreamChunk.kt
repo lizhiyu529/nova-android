@@ -18,6 +18,6 @@ sealed interface StreamChunk {
 
     data class ToolCallEnd(val id: String) : StreamChunk
 
-    data class Usage(val usage: Usage) : StreamChunk
+    data class Usage(val usage: com.nova.app.data.chat.Usage) : StreamChunk
     data class Finish(val finishReason: String? = null) : StreamChunk
 }
