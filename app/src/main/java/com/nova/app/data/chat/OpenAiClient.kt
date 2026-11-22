@@ -101,14 +101,14 @@ object OpenAiClient {
                         val dataLines = mutableListOf<String>()
                         fun dispatch(raw: String) {
                             if (raw == DONE) {
-                                decoder.finish().forEach { send(it) }
+                                decoder.finish().forEach { trySend(it) }
                                 return
                             }
                             raw.split("\n").forEach { line ->
                                 val payload = line.trim()
                                 if (payload.isEmpty()) return@forEach
                                 val json = runCatching { JSONObject(payload) }.getOrNull() ?: return@forEach
-                                decoder.accept(json).forEach { send(it) }
+                                decoder.accept(json).forEach { trySend(it) }
                             }
                         }
                         while (true) {
@@ -127,7 +127,7 @@ object OpenAiClient {
                         if (dataLines.isNotEmpty()) {
                             dispatch(dataLines.joinToString("\n"))
                         }
-                        decoder.finish().forEach { send(it) }
+                        decoder.finish().forEach { trySend(it) }
                         close()
                     } catch (e: Exception) {
                         close(if (e is ChatException) e else ChatException(describe(e)))
