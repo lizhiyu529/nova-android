@@ -111,6 +111,8 @@ class ConversationRepository(private val context: Context) {
                 partsJson = MessageJson.encode(message),
                 usageJson = MessageJson.usageToJson(message.usage),
                 finished = message.finished,
+                steps = message.steps,
+                elapsedMs = message.elapsedMs,
                 createdAt = now,
             ),
         )
@@ -156,10 +158,13 @@ class ConversationRepository(private val context: Context) {
             parsed
         }
         return UIMessage(
+            id = id.toString(),
             role = MessageJson.decodeRole(role),
             parts = restored,
             usage = MessageJson.decodeUsage(usageJson),
             finished = finished,
+            steps = steps,
+            elapsedMs = elapsedMs,
         )
     }
 }

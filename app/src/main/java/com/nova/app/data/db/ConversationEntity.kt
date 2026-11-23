@@ -22,5 +22,7 @@ data class MessageEntity(
     @ColumnInfo(name = "parts_json") val partsJson: String = "",
     @ColumnInfo(name = "usage_json") val usageJson: String = "",
     val finished: Boolean = true,
+    val steps: Int = 0,
+    @ColumnInfo(name = "elapsed_ms") val elapsedMs: Long = 0L,
     @ColumnInfo(name = "created_at") val createdAt: Long,
 )
