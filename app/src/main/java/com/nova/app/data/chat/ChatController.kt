@@ -28,7 +28,8 @@ data class ChatState(
         get() {
             val live = streaming ?: return messages
             if (live.parts.isEmptyUIMessage()) return messages
-            return messages + live
+            val head = messages.filterNot { it.id == live.id }
+            return head + live
         }
 }
 
@@ -76,14 +77,10 @@ class ChatController(
         job?.cancel()
         job = null
         if (streaming != null && !streaming.parts.isEmptyUIMessage()) {
-            val settled = streaming.finishReasoning()
-                .copy(parts = streaming.parts.map { part ->
-                    if (part is MessagePart.Tool && !part.isExecuted && part.output.isBlank()) {
-                        part.copy(output = STOPPED_OUTPUT, isExecuted = true)
-                    } else {
-                        part
-                    }
-                })
+            val settled = streaming
+                .finishPendingTools { part ->
+                    part.copy(output = STOPPED_OUTPUT, isExecuted = true)
+                }
                 .finishReasoning()
             publish(
                 current.copy(
@@ -180,11 +177,11 @@ class ChatController(
                     override suspend fun execute(name: String, arguments: String): String =
                         NovaTools.execute(name, arguments)
                 },
-                generate = { messages ->
+                generate = { messages, base ->
                     if (settings.stream) {
-                        streamGenerate(provider, model, messages, systemPrompt, settings, toolList)
+                        streamGenerate(provider, model, messages, base, systemPrompt, settings, toolList)
                     } else {
-                        generateOnce(provider, model, messages, systemPrompt, settings, toolList)
+                        generateOnce(provider, model, messages, base, systemPrompt, settings, toolList)
                     }
                 },
                 onMessage = { message ->
@@ -197,7 +194,7 @@ class ChatController(
                 runCatching { repository.appendUIMessage(conversationId, result) }
                 publish(
                     state.copy(
-                        messages = baseMessages + result,
+                        messages = baseMessages.filterNot { it.id == result.id } + result,
                         streaming = null,
                         busy = false,
                         retryAvailable = true,
@@ -237,13 +234,15 @@ class ChatController(
         provider: Provider,
         model: String,
         messages: List<UIMessage>,
+        base: UIMessage,
         systemPrompt: String,
         settings: GenerationSettings,
         tools: List<ChatTool>,
     ): UIMessage {
         val handler = StreamChunkHandler()
-        var current = UIMessage(role = MessageRole.ASSISTANT, parts = emptyList())
+        var current = base
         var lastPublish = 0L
+        val startedAt = System.currentTimeMillis()
 
         OpenAiClient.stream(
             ChatRequest(
@@ -260,20 +259,35 @@ class ChatController(
             val now = System.currentTimeMillis()
             if (now - lastPublish >= PUBLISH_INTERVAL_MS) {
                 lastPublish = now
-                publish(state.copy(streaming = current, busy = true))
+                publish(
+                    state.copy(
+                        streaming = current.copy(
+                            finished = false,
+                            elapsedMs = now - startedAt,
+                        ),
+                        busy = true,
+                    ),
+                )
             }
         }
-        return current.finishReasoning()
+        return current.copy(
+            parts = current.parts,
+            finished = true,
+            steps = base.steps + 1,
+            elapsedMs = System.currentTimeMillis() - startedAt,
+        ).finishReasoning()
     }
 
     private suspend fun generateOnce(
         provider: Provider,
         model: String,
         messages: List<UIMessage>,
+        base: UIMessage,
         systemPrompt: String,
         settings: GenerationSettings,
         tools: List<ChatTool>,
     ): UIMessage {
+        val startedAt = System.currentTimeMillis()
         var result: UIMessage? = null
         OpenAiClient.generate(
             ChatRequest(
@@ -286,7 +300,12 @@ class ChatController(
                 stream = false,
             ),
         ).collect { result = it }
-        return result ?: UIMessage(role = MessageRole.ASSISTANT, parts = emptyList(), finished = true)
+        val generated = result ?: UIMessage(role = MessageRole.ASSISTANT, parts = emptyList(), finished = true)
+        return base.appendParts(generated.parts).copy(
+            usage = base.usage.sum(generated.usage),
+            lastUsage = generated.usage,
+            elapsedMs = System.currentTimeMillis() - startedAt,
+        )
     }
 
     private fun suggestTitle(text: String): String {

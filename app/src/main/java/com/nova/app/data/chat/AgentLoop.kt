@@ -6,7 +6,7 @@ class AgentLoop(
     private val maxSteps: Int,
     private val tools: List<ChatTool>,
     private val executor: ToolExecutor,
-    private val generate: suspend (List<UIMessage>) -> UIMessage,
+    private val generate: suspend (List<UIMessage>, UIMessage) -> UIMessage,
     private val onMessage: suspend (UIMessage) -> Unit,
 ) {
 
@@ -29,13 +29,9 @@ class AgentLoop(
 
             val base = message ?: UIMessage(role = MessageRole.ASSISTANT, parts = emptyList())
             val requestMessages = if (message == null) history.toList() else history + base
-            val generated = generate(requestMessages)
-            message = base.copy(
-                parts = base.parts + generated.parts,
-                usage = base.usage.sum(generated.usage),
-                finished = generated.finished,
-            ).finishReasoning()
-            onMessage(message)
+            val generated = generate(requestMessages, base)
+            message = generated
+            onMessage(generated)
             steps++
         }
     }

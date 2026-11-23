@@ -1,5 +1,7 @@
 package com.nova.app.data.chat
 
+import java.util.UUID
+
 enum class MessageRole(val value: String) {
     SYSTEM("system"),
     USER("user"),
@@ -60,14 +62,21 @@ fun Usage?.sum(other: Usage?): Usage? {
 }
 
 data class UIMessage(
+    val id: String = UUID.randomUUID().toString(),
     val role: MessageRole,
     val parts: List<MessagePart> = emptyList(),
     val usage: Usage? = null,
+    val lastUsage: Usage? = null,
     val finished: Boolean = false,
+    val steps: Int = 0,
+    val elapsedMs: Long = 0L,
 ) {
     fun getTools(): List<MessagePart.Tool> = parts.filterIsInstance<MessagePart.Tool>()
 
     fun toText(): String = parts.filterIsInstance<MessagePart.Text>().joinToString("") { it.text }
+
+    fun reasoningText(): String =
+        parts.filterIsInstance<MessagePart.Reasoning>().joinToString("") { it.text }
 
     fun isValidToUpload(): Boolean {
         if (role == MessageRole.TOOL) return true
@@ -97,6 +106,12 @@ data class UIMessage(
             if (part is MessagePart.Tool && !part.isExecuted) transform(part) else part
         },
     )
+
+    fun appendParts(extra: List<MessagePart>): UIMessage = copy(
+        parts = parts + extra,
+        steps = steps + 1,
+        finished = true,
+    ).finishReasoning()
 }
 
 fun List<MessagePart>.isEmptyUIMessage(): Boolean {
@@ -109,4 +124,3 @@ fun List<MessagePart>.isEmptyUIMessage(): Boolean {
         }
     }
 }
-
