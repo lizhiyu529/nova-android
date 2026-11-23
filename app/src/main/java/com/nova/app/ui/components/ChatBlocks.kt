@@ -147,7 +147,8 @@ fun ToolRunPanel(
     modifier: Modifier = Modifier,
 ) {
     val strings = NovaStrings.strings
-    var expanded by remember { mutableStateOf(false) }
+    val failed = part.isExecuted && part.output.contains("\"error\"")
+    var expanded by remember(part.toolCallId) { mutableStateOf(false) }
     val rotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         animationSpec = NovaMotion.press(),
@@ -162,7 +163,11 @@ fun ToolRunPanel(
         color = NovaTheme.colors.containerLow,
         border = BorderStroke(
             0.8.dp,
-            if (!part.isExecuted) NovaTheme.colors.accent else NovaTheme.colors.divider,
+            when {
+                !part.isExecuted -> NovaTheme.colors.accent
+                failed -> NovaTheme.colors.danger
+                else -> NovaTheme.colors.divider
+            },
         ),
     ) {
         Column {
@@ -173,14 +178,29 @@ fun ToolRunPanel(
                     .padding(horizontal = 13.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (!part.isExecuted) {
-                    CircularProgressIndicator(
+                when {
+                    !part.isExecuted -> CircularProgressIndicator(
                         modifier = Modifier.size(15.dp),
                         strokeWidth = 1.8.dp,
                         color = NovaTheme.colors.accent,
                     )
-                } else {
-                    Surface(
+
+                    failed -> Surface(
+                        modifier = Modifier.size(15.dp),
+                        shape = CircleShape,
+                        color = NovaTheme.colors.containerHigh,
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = NovaIcons.Close,
+                                contentDescription = null,
+                                modifier = Modifier.size(9.dp),
+                                tint = NovaTheme.colors.danger,
+                            )
+                        }
+                    }
+
+                    else -> Surface(
                         modifier = Modifier.size(15.dp),
                         shape = CircleShape,
                         color = NovaTheme.colors.accentSubtle,
@@ -201,7 +221,7 @@ fun ToolRunPanel(
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontFamily = FontFamily.Monospace,
                     ),
-                    color = NovaTheme.colors.textPrimary,
+                    color = if (failed) NovaTheme.colors.danger else NovaTheme.colors.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),

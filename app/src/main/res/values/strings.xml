@@ -223,6 +223,9 @@
     <string name="tools_section_hint">Tool calling</string>
     <string name="reasoning_show">Show reasoning</string>
     <string name="tool_call_running">Running %1$s</string>
+    <string name="tool_call_failed">Failed</string>
+    <string name="message_elapsed">%1$d ms</string>
+    <string name="message_steps">%1$d steps</string>
     <string name="tool_call_result">Result</string>
     <string name="tool_call_arguments">Arguments</string>
     <string name="reasoning_panel_title">Reasoning</string>

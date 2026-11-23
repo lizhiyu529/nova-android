@@ -222,7 +222,10 @@
     <string name="settings_section_generation">生成</string>
     <string name="tools_section_hint">工具调用</string>
     <string name="reasoning_show">显示思考过程</string>
-    <string name="tool_call_running">Running %1$s</string>
+    <string name="tool_call_running">正在执行 %1$s</string>
+    <string name="tool_call_failed">执行失败</string>
+    <string name="message_elapsed">%1$d 毫秒</string>
+    <string name="message_steps">%1$d 步</string>
     <string name="tool_call_result">结果</string>
     <string name="tool_call_arguments">参数</string>
     <string name="reasoning_panel_title">Reasoning</string>

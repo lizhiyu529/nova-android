@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +20,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,11 +38,11 @@ fun ChatMessageList(
     messages: List<UIMessage>,
     loading: Boolean,
     errorText: String,
-    reasoningExpanded: Boolean,
-    onReasoningToggle: () -> Unit,
+    autoCollapseThinking: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
+    val expanded = remember { mutableStateMapOf<String, Boolean>() }
     val visible = remember(messages) {
         messages.filter { message ->
             when (message.role) {
@@ -52,7 +53,7 @@ fun ChatMessageList(
         }
     }
     val total = visible.size + if (loading || errorText.isNotEmpty()) 1 else 0
-    val signature = visible.hashCode() * 31 + total
+    val signature = visible.size * 7919 + (visible.lastOrNull()?.parts?.hashCode() ?: 0)
 
     AutoScrollToBottom(
         listState = listState,
@@ -66,19 +67,20 @@ fun ChatMessageList(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        itemsIndexed(visible) { index, message ->
-            key("msg-$index-${message.role.value}") {
-                when (message.role) {
-                    MessageRole.USER -> UserBubble(message.toText())
-                    MessageRole.ASSISTANT -> AssistantBlock(
+        items(items = visible, key = { it.id }) { message ->
+            when (message.role) {
+                MessageRole.USER -> UserBubble(message.toText())
+                MessageRole.ASSISTANT -> {
+                    val open = expanded[message.id] ?: (!autoCollapseThinking || message.finished)
+                    AssistantBlock(
                         parts = message.parts,
-                        streaming = !message.finished && index == visible.lastIndex,
-                        expanded = reasoningExpanded,
-                        onToggle = onReasoningToggle,
+                        streaming = !message.finished,
+                        expanded = open,
+                        onToggle = { expanded[message.id] = !open },
                     )
-
-                    else -> Unit
                 }
+
+                else -> Unit
             }
         }
 
@@ -110,16 +112,8 @@ fun AssistantBlock(
     onToggle: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        var reasoningSeen = 0
-        var textSeen = 0
-        var toolSeen = 0
-        parts.forEach { part ->
-            val stableKey = when (part) {
-                is MessagePart.Reasoning -> "r${reasoningSeen++}"
-                is MessagePart.Text -> "t${textSeen++}"
-                is MessagePart.Tool -> "x${toolSeen++}-${part.toolCallId}"
-            }
-            key(stableKey) {
+        parts.forEachIndexed { index, part ->
+            key(partKey(part, index)) {
                 when (part) {
                     is MessagePart.Reasoning -> {
                         if (part.text.isNotBlank()) {
@@ -148,6 +142,12 @@ fun AssistantBlock(
             }
         }
     }
+}
+
+private fun partKey(part: MessagePart, index: Int): String = when (part) {
+    is MessagePart.Reasoning -> "r-$index"
+    is MessagePart.Text -> "t-$index"
+    is MessagePart.Tool -> "x-${part.toolCallId}"
 }
 
 @Composable

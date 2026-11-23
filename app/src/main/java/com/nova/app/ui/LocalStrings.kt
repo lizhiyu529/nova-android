@@ -107,6 +107,14 @@ class Strings(private val context: Context) {
     val reasoningPanelTitle: String get() = get(R.string.reasoning_panel_title)
     val toolCallArguments: String get() = get(R.string.tool_call_arguments)
     val toolCallResult: String get() = get(R.string.tool_call_result)
+    val toolCallFailed: String get() = get(R.string.tool_call_failed)
+
+    fun toolCallRunning(name: String): String = format(R.string.tool_call_running, name)
+
+    fun messageElapsed(ms: Long): String = format(R.string.message_elapsed, ms)
+
+    fun messageSteps(count: Int): String = format(R.string.message_steps, count)
+
     val errorClose: String get() = get(R.string.error_close)
     fun providerModelsOk(count: Int): String = format(R.string.provider_models_ok, count)
     val modelsPick: String get() = get(R.string.provider_models_pick)

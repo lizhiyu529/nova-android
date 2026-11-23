@@ -75,7 +75,6 @@ fun HomeScreen(
     var draft by rememberSaveable { mutableStateOf("") }
     var showEditor by rememberSaveable { mutableStateOf(false) }
     var showReasoning by rememberSaveable { mutableStateOf(false) }
-    var reasoningExpanded by rememberSaveable { mutableStateOf(false) }
     var showAttachments by rememberSaveable { mutableStateOf(false) }
     var selectedPhotos by remember { mutableStateOf(setOf<String>()) }
     var recentPhotos by remember { mutableStateOf(listOf<String>()) }
@@ -266,8 +265,7 @@ fun HomeScreen(
                     messages = messages,
                     loading = loading,
                     errorText = errorText,
-                    reasoningExpanded = if (autoCollapseThinking) reasoningExpanded else true,
-                    onReasoningToggle = { reasoningExpanded = !reasoningExpanded },
+                    autoCollapseThinking = autoCollapseThinking,
                     modifier = Modifier.padding(innerPadding),
                 )
             }
